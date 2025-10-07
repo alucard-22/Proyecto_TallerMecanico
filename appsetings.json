@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "TallerDB": "Server=localhost;Database=TallerMecanico;Trusted_Connection=True;TrustServerCertificate=True;"
+  }
+}

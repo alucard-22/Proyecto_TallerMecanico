@@ -1,0 +1,141 @@
+﻿<Page x:Class="Proyecto_taller.Views.Inicio"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Inicio">
+
+    <Page.Resources>
+        <Style x:Key="DashboardCard" TargetType="Border">
+            <Setter Property="Background" Value="#2A2A3C"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="5" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="CardNumber" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#4A90E2"/>
+            <Setter Property="FontSize" Value="36"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="CardDescription" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+            <!-- Header -->
+            <TextBlock Text="Dashboard - Taller El Choco" 
+                       Foreground="White" 
+                       FontSize="28" 
+                       FontWeight="Bold" 
+                       Margin="0,0,0,30"/>
+
+            <!-- Cards Grid -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Row 1: Stats Cards -->
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource DashboardCard}">
+                    <StackPanel>
+                        <TextBlock Text="Trabajos Activos" Style="{StaticResource CardTitle}"/>
+                        <TextBlock Text="8" Style="{StaticResource CardNumber}"/>
+                        <TextBlock Text="En progreso" Style="{StaticResource CardDescription}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource DashboardCard}">
+                    <StackPanel>
+                        <TextBlock Text="Clientes" Style="{StaticResource CardTitle}"/>
+                        <TextBlock Text="156" Style="{StaticResource CardNumber}"/>
+                        <TextBlock Text="Registrados" Style="{StaticResource CardDescription}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource DashboardCard}">
+                    <StackPanel>
+                        <TextBlock Text="Reservas Hoy" Style="{StaticResource CardTitle}"/>
+                        <TextBlock Text="5" Style="{StaticResource CardNumber}"/>
+                        <TextBlock Text="Programadas" Style="{StaticResource CardDescription}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource DashboardCard}">
+                    <StackPanel>
+                        <TextBlock Text="Ventas del Mes" Style="{StaticResource CardTitle}"/>
+                        <TextBlock Text="$12,450" Style="{StaticResource CardNumber}" FontSize="24"/>
+                        <TextBlock Text="Facturado" Style="{StaticResource CardDescription}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Row 2: Recent Activity -->
+                <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource DashboardCard}">
+                    <StackPanel>
+                        <TextBlock Text="Actividad Reciente" Style="{StaticResource CardTitle}"/>
+                        <StackPanel>
+                            <TextBlock Text="• Cliente Juan Pérez - Vehículo ingresado" Foreground="White" Margin="0,5"/>
+                            <TextBlock Text="• Trabajo completado - Toyota Corolla 2019" Foreground="White" Margin="0,5"/>
+                            <TextBlock Text="• Factura generada - $2,300" Foreground="White" Margin="0,5"/>
+                            <TextBlock Text="• Nueva reserva programada para mañana" Foreground="White" Margin="0,5"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Row 2: Quick Actions -->
+                <Border Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource DashboardCard}">
+                    <StackPanel>
+                        <TextBlock Text="Acciones Rápidas" Style="{StaticResource CardTitle}"/>
+                        <StackPanel>
+                            <Button Content="➕ Nuevo Cliente" 
+                                    Background="#4A90E2" 
+                                    Foreground="White" 
+                                    Margin="0,5" 
+                                    Padding="10,8" 
+                                    BorderThickness="0" 
+                                    Cursor="Hand"/>
+                            <Button Content="🚗 Registrar Vehículo" 
+                                    Background="#5CB85C" 
+                                    Foreground="White" 
+                                    Margin="0,5" 
+                                    Padding="10,8" 
+                                    BorderThickness="0" 
+                                    Cursor="Hand"/>
+                            <Button Content="📝 Crear Trabajo" 
+                                    Background="#F0AD4E" 
+                                    Foreground="White" 
+                                    Margin="0,5" 
+                                    Padding="10,8" 
+                                    BorderThickness="0" 
+                                    Cursor="Hand"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
