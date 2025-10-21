@@ -18,7 +18,7 @@
 
         <Style x:Key="CardTitle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
         </Style>
@@ -35,24 +35,72 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
+
+        <Style x:Key="FormLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="SubmitButton" TargetType="Button">
+            <Setter Property="Background" Value="#27AE60"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#229954"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="20">
-            <!-- Header -->
-            <TextBlock Text="Dashboard - Taller El Choco" 
-                       Foreground="White" 
-                       FontSize="28" 
-                       FontWeight="Bold" 
-                       Margin="0,0,0,30"/>
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <!-- Cards Grid -->
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <!-- Header -->
+            <TextBlock Grid.Row="0"
+                      Text="Dashboard - Taller El Choco" 
+                      Foreground="White" 
+                      FontSize="28" 
+                      FontWeight="Bold" 
+                      Margin="0,0,0,20"/>
+
+            <!-- Stats Cards -->
+            <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -60,82 +108,235 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Row 1: Stats Cards -->
-                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource DashboardCard}">
+                <Border Grid.Column="0" Style="{StaticResource DashboardCard}">
                     <StackPanel>
                         <TextBlock Text="Trabajos Activos" Style="{StaticResource CardTitle}"/>
-                        <TextBlock Text="8" Style="{StaticResource CardNumber}"/>
-                        <TextBlock Text="En progreso" Style="{StaticResource CardDescription}"/>
+                        <TextBlock Text="{Binding TrabajosActivos}" Style="{StaticResource CardNumber}"/>
+                        <TextBlock Text="En progreso + Pendientes" Style="{StaticResource CardDescription}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource DashboardCard}">
+                <Border Grid.Column="1" Style="{StaticResource DashboardCard}">
                     <StackPanel>
                         <TextBlock Text="Clientes" Style="{StaticResource CardTitle}"/>
-                        <TextBlock Text="156" Style="{StaticResource CardNumber}"/>
+                        <TextBlock Text="{Binding TotalClientes}" Style="{StaticResource CardNumber}"/>
                         <TextBlock Text="Registrados" Style="{StaticResource CardDescription}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource DashboardCard}">
+                <Border Grid.Column="2" Style="{StaticResource DashboardCard}">
                     <StackPanel>
-                        <TextBlock Text="Reservas Hoy" Style="{StaticResource CardTitle}"/>
-                        <TextBlock Text="5" Style="{StaticResource CardNumber}"/>
-                        <TextBlock Text="Programadas" Style="{StaticResource CardDescription}"/>
+                        <TextBlock Text="Vehículos" Style="{StaticResource CardTitle}"/>
+                        <TextBlock Text="{Binding TotalVehiculos}" Style="{StaticResource CardNumber}"/>
+                        <TextBlock Text="En el sistema" Style="{StaticResource CardDescription}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource DashboardCard}">
+                <Border Grid.Column="3" Style="{StaticResource DashboardCard}">
                     <StackPanel>
                         <TextBlock Text="Ventas del Mes" Style="{StaticResource CardTitle}"/>
-                        <TextBlock Text="$12,450" Style="{StaticResource CardNumber}" FontSize="24"/>
+                        <TextBlock Text="{Binding VentasMes, StringFormat=Bs. {0:N0}}" 
+                                  Style="{StaticResource CardNumber}" 
+                                  FontSize="24"/>
                         <TextBlock Text="Facturado" Style="{StaticResource CardDescription}"/>
                     </StackPanel>
                 </Border>
-
-                <!-- Row 2: Recent Activity -->
-                <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource DashboardCard}">
-                    <StackPanel>
-                        <TextBlock Text="Actividad Reciente" Style="{StaticResource CardTitle}"/>
-                        <StackPanel>
-                            <TextBlock Text="• Cliente Juan Pérez - Vehículo ingresado" Foreground="White" Margin="0,5"/>
-                            <TextBlock Text="• Trabajo completado - Toyota Corolla 2019" Foreground="White" Margin="0,5"/>
-                            <TextBlock Text="• Factura generada - $2,300" Foreground="White" Margin="0,5"/>
-                            <TextBlock Text="• Nueva reserva programada para mañana" Foreground="White" Margin="0,5"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- Row 2: Quick Actions -->
-                <Border Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource DashboardCard}">
-                    <StackPanel>
-                        <TextBlock Text="Acciones Rápidas" Style="{StaticResource CardTitle}"/>
-                        <StackPanel>
-                            <Button Content="➕ Nuevo Cliente" 
-                                    Background="#4A90E2" 
-                                    Foreground="White" 
-                                    Margin="0,5" 
-                                    Padding="10,8" 
-                                    BorderThickness="0" 
-                                    Cursor="Hand"/>
-                            <Button Content="🚗 Registrar Vehículo" 
-                                    Background="#5CB85C" 
-                                    Foreground="White" 
-                                    Margin="0,5" 
-                                    Padding="10,8" 
-                                    BorderThickness="0" 
-                                    Cursor="Hand"/>
-                            <Button Content="📝 Crear Trabajo" 
-                                    Background="#F0AD4E" 
-                                    Foreground="White" 
-                                    Margin="0,5" 
-                                    Padding="10,8" 
-                                    BorderThickness="0" 
-                                    Cursor="Hand"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
             </Grid>
-        </StackPanel>
+
+            <!-- Main Content -->
+            <Grid Grid.Row="2" Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Formulario de Entrada Rápida -->
+                <Border Grid.Column="0" Style="{StaticResource DashboardCard}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="600">
+                        <StackPanel>
+                            <TextBlock Text="⚡ Registro Rápido de Trabajo" 
+                                      Style="{StaticResource CardTitle}"
+                                      FontSize="18"
+                                      Margin="0,0,0,20"/>
+
+                            <!-- Datos del Cliente -->
+                            <TextBlock Text="📋 DATOS DEL CLIENTE" 
+                                      Foreground="#4A90E2" 
+                                      FontWeight="Bold"
+                                      Margin="0,0,0,10"/>
+
+                            <TextBlock Text="Nombre:" Style="{StaticResource FormLabel}"/>
+                            <TextBox Text="{Binding NuevoClienteNombre, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Text="Apellido:" Style="{StaticResource FormLabel}"/>
+                            <TextBox Text="{Binding NuevoClienteApellido, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Teléfono:" Style="{StaticResource FormLabel}"/>
+                                    <TextBox Text="{Binding NuevoClienteTelefono, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Email:" Style="{StaticResource FormLabel}"/>
+                                    <TextBox Text="{Binding NuevoClienteEmail, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Separador -->
+                            <Border Height="1" Background="#444" Margin="0,15"/>
+
+                            <!-- Datos del Vehículo -->
+                            <TextBlock Text="🚗 DATOS DEL VEHÍCULO" 
+                                      Foreground="#4A90E2" 
+                                      FontWeight="Bold"
+                                      Margin="0,10,0,10"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Marca:" Style="{StaticResource FormLabel}"/>
+                                    <TextBox Text="{Binding NuevoVehiculoMarca, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Modelo:" Style="{StaticResource FormLabel}"/>
+                                    <TextBox Text="{Binding NuevoVehiculoModelo, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Placa:" Style="{StaticResource FormLabel}"/>
+                                    <TextBox Text="{Binding NuevoVehiculoPlaca, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Año:" Style="{StaticResource FormLabel}"/>
+                                    <TextBox Text="{Binding NuevoVehiculoAnio, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Separador -->
+                            <Border Height="1" Background="#444" Margin="0,15"/>
+
+                            <!-- Datos del Trabajo -->
+                            <TextBlock Text="🔧 DATOS DEL TRABAJO" 
+                                      Foreground="#4A90E2" 
+                                      FontWeight="Bold"
+                                      Margin="0,10,0,10"/>
+
+                            <TextBlock Text="Tipo de Trabajo:" Style="{StaticResource FormLabel}"/>
+                            <ComboBox SelectedItem="{Binding NuevoTrabajoTipo}">
+                                <ComboBoxItem Content="Mecánica" IsSelected="True"/>
+                                <ComboBoxItem Content="Chapería"/>
+                            </ComboBox>
+
+                            <TextBlock Text="Descripción del Problema:" Style="{StaticResource FormLabel}"/>
+                            <TextBox Text="{Binding NuevoTrabajoDescripcion, UpdateSourceTrigger=PropertyChanged}" 
+                                    Height="80" 
+                                    TextWrapping="Wrap" 
+                                    AcceptsReturn="True"
+                                    VerticalScrollBarVisibility="Auto"/>
+
+                            <TextBlock Text="Precio Estimado (Bs.):" Style="{StaticResource FormLabel}"/>
+                            <TextBox Text="{Binding NuevoTrabajoPrecio, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <!-- Botón de envío -->
+                            <Button Content="✅ Registrar Trabajo" 
+                                   Command="{Binding RegistrarTrabajoRapidoCommand}"
+                                   Style="{StaticResource SubmitButton}"
+                                   Margin="0,20,0,0"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Activity & Stats -->
+                <StackPanel Grid.Column="2">
+                    <!-- Actividad Reciente -->
+                    <Border Style="{StaticResource DashboardCard}">
+                        <StackPanel>
+                            <TextBlock Text="📊 Actividad Reciente" Style="{StaticResource CardTitle}"/>
+                            <ListBox ItemsSource="{Binding ActividadReciente}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Foreground="White"
+                                    MaxHeight="200">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" 
+                                                  Margin="0,5" 
+                                                  TextWrapping="Wrap"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Trabajos Pendientes -->
+                    <Border Style="{StaticResource DashboardCard}">
+                        <StackPanel>
+                            <TextBlock Text="⏰ Trabajos Pendientes" Style="{StaticResource CardTitle}"/>
+                            <DataGrid ItemsSource="{Binding TrabajosPendientes}"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     AutoGenerateColumns="False"
+                                     HeadersVisibility="Column"
+                                     GridLinesVisibility="None"
+                                     IsReadOnly="True"
+                                     MaxHeight="200">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding TrabajoID}" Width="50"/>
+                                    <DataGridTextColumn Header="Vehículo" Binding="{Binding Vehiculo.Marca}" Width="*"/>
+                                    <DataGridTextColumn Header="Cliente" Binding="{Binding Vehiculo.Cliente.Nombre}" Width="*"/>
+                                    <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Stock Bajo -->
+                    <Border Style="{StaticResource DashboardCard}">
+                        <StackPanel>
+                            <TextBlock Text="⚠️ Repuestos con Stock Bajo" Style="{StaticResource CardTitle}"/>
+                            <ListBox ItemsSource="{Binding RepuestosStockBajo}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Foreground="#E74C3C"
+                                    MaxHeight="150">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="•" Margin="0,0,10,0"/>
+                                            <TextBlock Text="{Binding Nombre}" Width="200"/>
+                                            <TextBlock Text="Stock: " Foreground="White"/>
+                                            <TextBlock Text="{Binding StockActual}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Grid>
     </ScrollViewer>
 </Page>

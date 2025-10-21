@@ -10,13 +10,13 @@ namespace Proyecto_taller.Models
     public class Vehiculo
     {
         public int VehiculoID { get; set; }
-        public int ClienteID { get; set; }
+        public int ClienteID { get; set; } 
         public string Marca { get; set; } = string.Empty;
         public string Modelo { get; set; } = string.Empty;
         public int? Anio { get; set; }
         public string Placa { get; set; } = string.Empty;
 
-        public int ClienteId { get; set; }
+        // Navegación
         public Cliente Cliente { get; set; }
         public ICollection<Trabajo>? Trabajos { get; set; }
     }

@@ -24,10 +24,12 @@ namespace Proyecto_taller.Data
         public DbSet<Vehiculo> Vehiculos { get; set; }
         public DbSet<Trabajo> Trabajos { get; set; }
         public DbSet<Servicio> Servicios { get; set; }
-        public DbSet<Trabajos_Servicios> TrabajosServicios { get; set; }
+        public DbSet<Trabajos_Servicios> Trabajos_Servicios { get; set; }
         public DbSet<Repuesto> Repuestos { get; set; }
-        public DbSet<Trabajos_Repuestos> TrabajosRepuestos { get; set; }
+        public DbSet<Trabajos_Repuestos> Trabajos_Repuestos { get; set; }
         public DbSet<Pago> Pagos { get; set; }
+        public DbSet<Reserva> Reservas { get; set; }
+        public DbSet<Factura> Facturas { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -76,6 +78,40 @@ namespace Proyecto_taller.Data
             modelBuilder.Entity<Repuesto>()
                 .Property(r => r.PrecioUnitario)
                 .HasColumnType("decimal(10,2)");
+
+            modelBuilder.Entity<Factura>()
+                .HasOne(f => f.Trabajo)
+                .WithMany()
+                .HasForeignKey(f => f.TrabajoID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Factura>()
+                .Property(f => f.Subtotal)
+                .HasColumnType("decimal(10,2)");
+
+            modelBuilder.Entity<Factura>()
+                .Property(f => f.Descuento)
+                .HasColumnType("decimal(10,2)");
+
+            modelBuilder.Entity<Factura>()
+                .Property(f => f.IVA)
+                .HasColumnType("decimal(10,2)");
+
+            modelBuilder.Entity<Factura>()
+                .Property(f => f.Total)
+                .HasColumnType("decimal(10,2)");
+
+            modelBuilder.Entity<Reserva>()
+                .HasOne(r => r.Cliente)
+                .WithMany()
+                .HasForeignKey(r => r.ClienteID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Reserva>()
+                .HasOne(r => r.Vehiculo)
+                .WithMany()
+                .HasForeignKey(r => r.VehiculoID)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

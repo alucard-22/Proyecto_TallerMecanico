@@ -1,14 +1,11 @@
-﻿using Proyecto_taller.Models;
-using System;
-using System.Collections.Generic;
+﻿using Proyecto_taller.Data; // ✅ Usar el correcto
+using Proyecto_taller.Models;
+using Proyecto_taller.ViewModels;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using Proyecto_taller.Models;
 
 namespace Proyecto_taller.ViewModels
 {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Proyecto_taller.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,11 +19,12 @@ namespace Proyecto_taller.Views
     /// <summary>
     /// Lógica de interacción para Reportes.xaml
     /// </summary>
-    public partial class Reportes : UserControl
+    public partial class Reportes : Page
     {
         public Reportes()
         {
             InitializeComponent();
+            DataContext = new ReportesViewModel();
         }
     }
 }

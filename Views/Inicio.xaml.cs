@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Proyecto_taller.Views;
+using Proyecto_taller.ViewModels;
 
 namespace Proyecto_taller.Views
 {
@@ -24,6 +25,7 @@ namespace Proyecto_taller.Views
         public Inicio()
         {
             InitializeComponent();
+            DataContext = new InicioViewModel();
         }
     }
 }

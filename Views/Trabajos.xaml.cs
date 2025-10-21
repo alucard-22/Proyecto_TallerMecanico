@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Proyecto_taller.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,11 +19,12 @@ namespace Proyecto_taller.Views
     /// <summary>
     /// Lógica de interacción para Trabajos.xaml
     /// </summary>
-    public partial class Trabajos : UserControl
+    public partial class Trabajos : Page
     {
         public Trabajos()
         {
             InitializeComponent();
+            DataContext = new TrabajosViewModel();
         }
     }
 }

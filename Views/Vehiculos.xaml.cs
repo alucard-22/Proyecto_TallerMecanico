@@ -12,17 +12,19 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Proyecto_taller.ViewModels;
 
 namespace Proyecto_taller.Views
 {
     /// <summary>
     /// Lógica de interacción para Vehiculos.xaml
     /// </summary>
-    public partial class Vehiculos : UserControl
+    public partial class Vehiculos : Page
     {
         public Vehiculos()
         {
             InitializeComponent();
+            DataContext = new VehiculosViewModel();
         }
     }
 }
