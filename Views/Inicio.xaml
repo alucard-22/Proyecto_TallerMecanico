@@ -4,6 +4,7 @@
       Title="Inicio">
 
     <Page.Resources>
+        <!-- Estilos existentes (sin cambios) -->
         <Style x:Key="DashboardCard" TargetType="Border">
             <Setter Property="Background" Value="#2A2A3C"/>
             <Setter Property="CornerRadius" Value="10"/>
@@ -34,25 +35,6 @@
             <Setter Property="Foreground" Value="#CCCCCC"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="FormLabel" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Margin" Value="0,10,0,5"/>
-        </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="Padding" Value="8"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
-
-        <Style TargetType="ComboBox">
-            <Setter Property="Padding" Value="8"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
         </Style>
 
         <Style x:Key="SubmitButton" TargetType="Button">
@@ -151,122 +133,25 @@
                     <ColumnDefinition Width="3*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Formulario de Entrada Rápida -->
+                <!-- Botón para Abrir Formulario de Registro Rápido -->
                 <Border Grid.Column="0" Style="{StaticResource DashboardCard}">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="600">
-                        <StackPanel>
-                            <TextBlock Text="⚡ Registro Rápido de Trabajo" 
-                                      Style="{StaticResource CardTitle}"
-                                      FontSize="18"
-                                      Margin="0,0,0,20"/>
-
-                            <!-- Datos del Cliente -->
-                            <TextBlock Text="📋 DATOS DEL CLIENTE" 
-                                      Foreground="#4A90E2" 
-                                      FontWeight="Bold"
-                                      Margin="0,0,0,10"/>
-
-                            <TextBlock Text="Nombre:" Style="{StaticResource FormLabel}"/>
-                            <TextBox Text="{Binding NuevoClienteNombre, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <TextBlock Text="Apellido:" Style="{StaticResource FormLabel}"/>
-                            <TextBox Text="{Binding NuevoClienteApellido, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Teléfono:" Style="{StaticResource FormLabel}"/>
-                                    <TextBox Text="{Binding NuevoClienteTelefono, UpdateSourceTrigger=PropertyChanged}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Email:" Style="{StaticResource FormLabel}"/>
-                                    <TextBox Text="{Binding NuevoClienteEmail, UpdateSourceTrigger=PropertyChanged}"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- Separador -->
-                            <Border Height="1" Background="#444" Margin="0,15"/>
-
-                            <!-- Datos del Vehículo -->
-                            <TextBlock Text="🚗 DATOS DEL VEHÍCULO" 
-                                      Foreground="#4A90E2" 
-                                      FontWeight="Bold"
-                                      Margin="0,10,0,10"/>
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Marca:" Style="{StaticResource FormLabel}"/>
-                                    <TextBox Text="{Binding NuevoVehiculoMarca, UpdateSourceTrigger=PropertyChanged}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Modelo:" Style="{StaticResource FormLabel}"/>
-                                    <TextBox Text="{Binding NuevoVehiculoModelo, UpdateSourceTrigger=PropertyChanged}"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Placa:" Style="{StaticResource FormLabel}"/>
-                                    <TextBox Text="{Binding NuevoVehiculoPlaca, UpdateSourceTrigger=PropertyChanged}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Año:" Style="{StaticResource FormLabel}"/>
-                                    <TextBox Text="{Binding NuevoVehiculoAnio, UpdateSourceTrigger=PropertyChanged}"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- Separador -->
-                            <Border Height="1" Background="#444" Margin="0,15"/>
-
-                            <!-- Datos del Trabajo -->
-                            <TextBlock Text="🔧 DATOS DEL TRABAJO" 
-                                      Foreground="#4A90E2" 
-                                      FontWeight="Bold"
-                                      Margin="0,10,0,10"/>
-
-                            <TextBlock Text="Tipo de Trabajo:" Style="{StaticResource FormLabel}"/>
-                            <ComboBox SelectedItem="{Binding NuevoTrabajoTipo}">
-                                <ComboBoxItem Content="Mecánica" IsSelected="True"/>
-                                <ComboBoxItem Content="Chapería"/>
-                            </ComboBox>
-
-                            <TextBlock Text="Descripción del Problema:" Style="{StaticResource FormLabel}"/>
-                            <TextBox Text="{Binding NuevoTrabajoDescripcion, UpdateSourceTrigger=PropertyChanged}" 
-                                    Height="80" 
-                                    TextWrapping="Wrap" 
-                                    AcceptsReturn="True"
-                                    VerticalScrollBarVisibility="Auto"/>
-
-                            <TextBlock Text="Precio Estimado (Bs.):" Style="{StaticResource FormLabel}"/>
-                            <TextBox Text="{Binding NuevoTrabajoPrecio, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <!-- Botón de envío -->
-                            <Button Content="✅ Registrar Trabajo" 
-                                   Command="{Binding RegistrarTrabajoRapidoCommand}"
-                                   Style="{StaticResource SubmitButton}"
-                                   Margin="0,20,0,0"/>
-                        </StackPanel>
-                    </ScrollViewer>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="⚡ Registro Rápido" 
+                                  Style="{StaticResource CardTitle}"
+                                  FontSize="20"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Registra un nuevo trabajo de manera rápida y sencilla." 
+                                  Foreground="#CCCCCC" 
+                                  FontSize="14" 
+                                  TextWrapping="Wrap" 
+                                  HorizontalAlignment="Center" 
+                                  Margin="0,0,0,20"/>
+                        <Button Content="📝 Registrar Nuevo Trabajo" 
+                               Command="{Binding AbrirRegistroRapidoCommand}"
+                               Style="{StaticResource SubmitButton}"
+                               FontSize="16"
+                               Padding="30,15"/>
+                    </StackPanel>
                 </Border>
 
                 <!-- Activity & Stats -->

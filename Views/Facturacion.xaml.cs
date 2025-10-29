@@ -23,7 +23,7 @@ namespace Proyecto_taller.Views
         public Facturacion()
         {
             InitializeComponent();
-             DataContext = new ViewModels.ReportesViewModel();
+             DataContext = new ViewModels.FacturacionViewModel();
         }
     }
 }
