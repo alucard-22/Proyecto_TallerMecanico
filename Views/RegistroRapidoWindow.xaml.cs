@@ -25,7 +25,11 @@ namespace Proyecto_taller.Views
         public RegistroRapidoWindow()
         {
             InitializeComponent();
+
+            // Establecer fecha de entrega por defecto (3 días después)
+            dpFechaEntrega.SelectedDate = DateTime.Now.AddDays(3);
         }
+
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
@@ -34,22 +38,64 @@ namespace Proyecto_taller.Views
 
         private void RegistrarButton_Click(object sender, RoutedEventArgs e)
         {
-            // Validaciones
-            if (string.IsNullOrWhiteSpace(txtNombre.Text) || string.IsNullOrWhiteSpace(txtApellido.Text))
+            // ========== VALIDACIONES MEJORADAS ==========
+
+            // Validar Cliente
+            if (string.IsNullOrWhiteSpace(txtNombre.Text))
             {
-                MessageBox.Show("Por favor complete el nombre y apellido del cliente.", "Datos Incompletos", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("❌ El nombre del cliente es obligatorio.",
+                    "Campo Requerido", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtNombre.Focus();
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(txtMarca.Text) || string.IsNullOrWhiteSpace(txtPlaca.Text))
+            if (string.IsNullOrWhiteSpace(txtApellido.Text))
             {
-                MessageBox.Show("Por favor complete la marca y placa del vehículo.", "Datos Incompletos", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("❌ El apellido del cliente es obligatorio.",
+                    "Campo Requerido", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtApellido.Focus();
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(txtTelefono.Text))
+            {
+                MessageBox.Show("❌ El teléfono del cliente es obligatorio.",
+                    "Campo Requerido", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtTelefono.Focus();
+                return;
+            }
+
+            // Validar Vehículo
+            if (string.IsNullOrWhiteSpace(txtMarca.Text))
+            {
+                MessageBox.Show("❌ La marca del vehículo es obligatoria.",
+                    "Campo Requerido", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtMarca.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtModelo.Text))
+            {
+                MessageBox.Show("❌ El modelo del vehículo es obligatorio.",
+                    "Campo Requerido", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtModelo.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtPlaca.Text))
+            {
+                MessageBox.Show("❌ La placa del vehículo es obligatoria.",
+                    "Campo Requerido", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtPlaca.Focus();
+                return;
+            }
+
+            // Validar Trabajo
             if (string.IsNullOrWhiteSpace(txtDescripcion.Text))
             {
-                MessageBox.Show("Por favor describa el problema o trabajo a realizar.", "Datos Incompletos", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("❌ La descripción del trabajo es obligatoria.",
+                    "Campo Requerido", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtDescripcion.Focus();
                 return;
             }
 
@@ -57,77 +103,146 @@ namespace Proyecto_taller.Views
             {
                 using var db = new TallerDbContext();
 
-                // 1. Crear o buscar cliente
+                // ========== 1. CREAR O BUSCAR CLIENTE ==========
                 var cliente = db.Clientes.FirstOrDefault(c =>
-                    c.Nombre.ToLower() == txtNombre.Text.ToLower() &&
-                    c.Apellido.ToLower() == txtApellido.Text.ToLower());
+                    c.Nombre.ToLower() == txtNombre.Text.Trim().ToLower() &&
+                    c.Apellido.ToLower() == txtApellido.Text.Trim().ToLower() &&
+                    c.Telefono == txtTelefono.Text.Trim());
 
+                bool clienteNuevo = false;
                 if (cliente == null)
                 {
+                    clienteNuevo = true;
                     cliente = new Cliente
                     {
-                        Nombre = txtNombre.Text,
-                        Apellido = txtApellido.Text,
-                        Telefono = txtTelefono.Text,
-                        Correo = txtEmail.Text,
-                        Direccion = "Sin dirección",
+                        Nombre = txtNombre.Text.Trim(),
+                        Apellido = txtApellido.Text.Trim(),
+                        Telefono = txtTelefono.Text.Trim(),
+                        Correo = txtEmail.Text.Trim(),
+                        Direccion = string.IsNullOrWhiteSpace(txtDireccion.Text)
+                            ? "Sin dirección"
+                            : txtDireccion.Text.Trim(),
                         FechaRegistro = DateTime.Now
                     };
                     db.Clientes.Add(cliente);
                     db.SaveChanges();
                 }
 
-                // 2. Crear o buscar vehículo
-                var vehiculo = db.Vehiculos.FirstOrDefault(v => v.Placa.ToLower() == txtPlaca.Text.ToLower());
+                // ========== 2. CREAR O BUSCAR VEHÍCULO ==========
+                var vehiculo = db.Vehiculos.FirstOrDefault(v =>
+                    v.Placa.ToLower() == txtPlaca.Text.Trim().ToLower());
 
+                bool vehiculoNuevo = false;
                 if (vehiculo == null)
                 {
+                    vehiculoNuevo = true;
                     int.TryParse(txtAnio.Text, out int anio);
+
                     vehiculo = new Vehiculo
                     {
                         ClienteID = cliente.ClienteID,
-                        Marca = txtMarca.Text,
-                        Modelo = txtModelo.Text,
-                        Placa = txtPlaca.Text,
-                        Anio = anio > 0 ? anio : null
+                        Marca = txtMarca.Text.Trim(),
+                        Modelo = txtModelo.Text.Trim(),
+                        Placa = txtPlaca.Text.Trim().ToUpper(),
+                        Anio = anio > 1900 && anio <= DateTime.Now.Year + 1 ? anio : null
                     };
                     db.Vehiculos.Add(vehiculo);
                     db.SaveChanges();
                 }
+                else
+                {
+                    // Si el vehículo existe pero pertenece a otro cliente, preguntar
+                    if (vehiculo.ClienteID != cliente.ClienteID)
+                    {
+                        var resultado = MessageBox.Show(
+                            $"⚠️ Este vehículo (Placa: {vehiculo.Placa}) ya está registrado " +
+                            $"a nombre de otro cliente.\n\n" +
+                            $"¿Desea actualizar el propietario a {cliente.Nombre} {cliente.Apellido}?",
+                            "Vehículo Existente",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Question);
 
-                // 3. Crear trabajo
+                        if (resultado == MessageBoxResult.Yes)
+                        {
+                            vehiculo.ClienteID = cliente.ClienteID;
+                            db.SaveChanges();
+                        }
+                    }
+                }
+
+                // ========== 3. CREAR TRABAJO ==========
                 decimal.TryParse(txtPrecio.Text, out decimal precio);
+
                 var trabajo = new Trabajo
                 {
                     VehiculoID = vehiculo.VehiculoID,
                     FechaIngreso = DateTime.Now,
-                    Descripcion = txtDescripcion.Text,
-                    Estado = "Pendiente",
+                    FechaEntrega = dpFechaEntrega.SelectedDate, // ⭐ NUEVO
+                    Descripcion = txtDescripcion.Text.Trim(),
+                    Estado = ((ComboBoxItem)cmbEstado.SelectedItem).Content.ToString(), // ⭐ NUEVO
                     TipoTrabajo = ((ComboBoxItem)cmbTipoTrabajo.SelectedItem).Content.ToString(),
                     PrecioEstimado = precio > 0 ? precio : null
                 };
+
                 db.Trabajos.Add(trabajo);
                 db.SaveChanges();
 
+                // ========== MENSAJE DE ÉXITO MEJORADO ==========
+                string mensajeDetalle = $"✅ TRABAJO REGISTRADO EXITOSAMENTE\n\n";
+                mensajeDetalle += $"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+                mensajeDetalle += $"📋 INFORMACIÓN DEL TRABAJO\n";
+                mensajeDetalle += $"   • ID: #{trabajo.TrabajoID}\n";
+                mensajeDetalle += $"   • Tipo: {trabajo.TipoTrabajo}\n";
+                mensajeDetalle += $"   • Estado: {trabajo.Estado}\n";
+                mensajeDetalle += $"   • Fecha Ingreso: {trabajo.FechaIngreso:dd/MM/yyyy HH:mm}\n";
+
+                if (trabajo.FechaEntrega.HasValue)
+                    mensajeDetalle += $"   • Entrega Estimada: {trabajo.FechaEntrega.Value:dd/MM/yyyy}\n";
+
+                if (trabajo.PrecioEstimado.HasValue)
+                    mensajeDetalle += $"   • Precio Estimado: Bs. {trabajo.PrecioEstimado:N2}\n";
+
+                mensajeDetalle += $"\n👤 CLIENTE\n";
+                mensajeDetalle += $"   • Nombre: {cliente.Nombre} {cliente.Apellido}\n";
+                mensajeDetalle += $"   • Teléfono: {cliente.Telefono}\n";
+
+                if (clienteNuevo)
+                    mensajeDetalle += $"   • ✨ Cliente NUEVO registrado\n";
+
+                mensajeDetalle += $"\n🚗 VEHÍCULO\n";
+                mensajeDetalle += $"   • {vehiculo.Marca} {vehiculo.Modelo}";
+
+                if (vehiculo.Anio.HasValue)
+                    mensajeDetalle += $" ({vehiculo.Anio})";
+
+                mensajeDetalle += $"\n   • Placa: {vehiculo.Placa}\n";
+
+                if (vehiculoNuevo)
+                    mensajeDetalle += $"   • ✨ Vehículo NUEVO registrado\n";
+
+                mensajeDetalle += $"\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+                mensajeDetalle += $"\n💡 Puede agregar servicios y repuestos\n";
+                mensajeDetalle += $"   desde el módulo de Trabajos.";
+
                 MessageBox.Show(
-                        $"✅ Trabajo registrado exitosamente!\n\n" +
-                        $"Trabajo ID: {trabajo.TrabajoID}\n" +
-                        $"Cliente: {cliente.Nombre} {cliente.Apellido}\n" +
-                        $"Vehículo: {vehiculo.Marca} {vehiculo.Modelo} - {vehiculo.Placa}\n" +
-                        $"Tipo: {trabajo.TipoTrabajo}\n" +
-                        $"Estado: {trabajo.Estado}",
-                        "Registro Exitoso",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                    mensajeDetalle,
+                    "✅ Registro Exitoso",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
                 DialogResult = true;
                 Close();
-
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Error al registrar el trabajo:\n{ex.Message}",
-                    "Error",
+                    $"❌ ERROR AL REGISTRAR EL TRABAJO\n\n" +
+                    $"Detalles técnicos:\n{ex.Message}\n\n" +
+                    $"Por favor, verifique:\n" +
+                    $"• Conexión a la base de datos\n" +
+                    $"• Formato de los datos ingresados\n" +
+                    $"• Permisos del sistema",
+                    "Error de Sistema",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
