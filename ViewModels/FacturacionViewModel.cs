@@ -291,19 +291,35 @@ namespace Proyecto_taller.ViewModels
 
             try
             {
-                // Crear carpeta de facturas en el escritorio
-                string carpetaFacturas = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                    "Facturas_TallerElChoco");
+                // Obtener el nombre del cliente
+                string nombreCliente = $"{FacturaSeleccionada.Trabajo?.Vehiculo?.Cliente?.Nombre}_{FacturaSeleccionada.Trabajo?.Vehiculo?.Cliente?.Apellido}";
 
-                if (!Directory.Exists(carpetaFacturas))
+                // Limpiar caracteres no válidos para nombres de carpeta
+                char[] caracteresInvalidos = Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).Distinct().ToArray();
+                foreach (char c in caracteresInvalidos)
                 {
-                    Directory.CreateDirectory(carpetaFacturas);
+                    nombreCliente = nombreCliente.Replace(c, '_');
+                }
+
+                // Crear estructura de carpetas en Documentos
+                string carpetaDocumentos = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                string carpetaBase = Path.Combine(carpetaDocumentos, "TallerElChoco_Facturas");
+                string carpetaCliente = Path.Combine(carpetaBase, nombreCliente);
+
+                // Crear las carpetas si no existen
+                if (!Directory.Exists(carpetaBase))
+                {
+                    Directory.CreateDirectory(carpetaBase);
+                }
+
+                if (!Directory.Exists(carpetaCliente))
+                {
+                    Directory.CreateDirectory(carpetaCliente);
                 }
 
                 // Nombre del archivo
                 string nombreArchivo = $"Factura_{FacturaSeleccionada.NumeroFactura.Replace("/", "-")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-                string rutaCompleta = Path.Combine(carpetaFacturas, nombreArchivo);
+                string rutaCompleta = Path.Combine(carpetaCliente, nombreArchivo);
 
                 // Crear el documento PDF
                 Document documento = new Document(PageSize.Letter);
@@ -481,9 +497,13 @@ namespace Proyecto_taller.ViewModels
                 documento.Close();
                 writer.Close();
 
-                // Mostrar mensaje de éxito
+                // Mostrar mensaje de éxito con información de la ubicación
                 var resultado = MessageBox.Show(
-                    $"PDF generado exitosamente:\n\n{rutaCompleta}\n\n¿Desea abrir el archivo?",
+                    $"✅ PDF generado exitosamente\n\n" +
+                    $"📁 Carpeta: {Path.GetFileName(carpetaCliente)}\n" +
+                    $"📄 Archivo: {nombreArchivo}\n\n" +
+                    $"Ruta completa:\n{rutaCompleta}\n\n" +
+                    $"¿Desea abrir el archivo?",
                     "PDF Generado",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Information);
@@ -491,6 +511,20 @@ namespace Proyecto_taller.ViewModels
                 if (resultado == MessageBoxResult.Yes)
                 {
                     Process.Start(new ProcessStartInfo(rutaCompleta) { UseShellExecute = true });
+                }
+                else
+                {
+                    // Preguntar si desea abrir la carpeta del cliente
+                    var abrirCarpeta = MessageBox.Show(
+                        "¿Desea abrir la carpeta del cliente?",
+                        "Abrir Carpeta",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (abrirCarpeta == MessageBoxResult.Yes)
+                    {
+                        Process.Start(new ProcessStartInfo(carpetaCliente) { UseShellExecute = true });
+                    }
                 }
             }
             catch (Exception ex)
