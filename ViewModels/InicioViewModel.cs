@@ -1,14 +1,11 @@
 ﻿using Proyecto_taller.Data;
 using Proyecto_taller.Models;
+using Proyecto_taller.Views;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,23 +18,6 @@ namespace Proyecto_taller.ViewModels
         private int _totalClientes;
         private int _totalVehiculos;
         private decimal _ventasMes;
-
-        // Formulario de Trabajo Rápido - Cliente
-        private string _nuevoClienteNombre = "";
-        private string _nuevoClienteApellido = "";
-        private string _nuevoClienteTelefono = "";
-        private string _nuevoClienteEmail = "";
-
-        // Formulario de Trabajo Rápido - Vehículo
-        private string _nuevoVehiculoMarca = "";
-        private string _nuevoVehiculoModelo = "";
-        private string _nuevoVehiculoPlaca = "";
-        private string _nuevoVehiculoAnio = "";
-
-        // Formulario de Trabajo Rápido - Trabajo
-        private string _nuevoTrabajoTipo = "Mecánica";
-        private string _nuevoTrabajoDescripcion = "";
-        private string _nuevoTrabajoPrecio = "0";
 
         public ObservableCollection<string> ActividadReciente { get; set; }
         public ObservableCollection<Trabajo> TrabajosPendientes { get; set; }
@@ -68,76 +48,8 @@ namespace Proyecto_taller.ViewModels
             set { _ventasMes = value; OnPropertyChanged(); }
         }
 
-        // Propiedades del Formulario - Cliente
-        public string NuevoClienteNombre
-        {
-            get => _nuevoClienteNombre;
-            set { _nuevoClienteNombre = value; OnPropertyChanged(); }
-        }
-
-        public string NuevoClienteApellido
-        {
-            get => _nuevoClienteApellido;
-            set { _nuevoClienteApellido = value; OnPropertyChanged(); }
-        }
-
-        public string NuevoClienteTelefono
-        {
-            get => _nuevoClienteTelefono;
-            set { _nuevoClienteTelefono = value; OnPropertyChanged(); }
-        }
-
-        public string NuevoClienteEmail
-        {
-            get => _nuevoClienteEmail;
-            set { _nuevoClienteEmail = value; OnPropertyChanged(); }
-        }
-
-        // Propiedades del Formulario - Vehículo
-        public string NuevoVehiculoMarca
-        {
-            get => _nuevoVehiculoMarca;
-            set { _nuevoVehiculoMarca = value; OnPropertyChanged(); }
-        }
-
-        public string NuevoVehiculoModelo
-        {
-            get => _nuevoVehiculoModelo;
-            set { _nuevoVehiculoModelo = value; OnPropertyChanged(); }
-        }
-
-        public string NuevoVehiculoPlaca
-        {
-            get => _nuevoVehiculoPlaca;
-            set { _nuevoVehiculoPlaca = value; OnPropertyChanged(); }
-        }
-
-        public string NuevoVehiculoAnio
-        {
-            get => _nuevoVehiculoAnio;
-            set { _nuevoVehiculoAnio = value; OnPropertyChanged(); }
-        }
-
-        // Propiedades del Formulario - Trabajo
-        public string NuevoTrabajoTipo
-        {
-            get => _nuevoTrabajoTipo;
-            set { _nuevoTrabajoTipo = value; OnPropertyChanged(); }
-        }
-
-        public string NuevoTrabajoDescripcion
-        {
-            get => _nuevoTrabajoDescripcion;
-            set { _nuevoTrabajoDescripcion = value; OnPropertyChanged(); }
-        }
-
-        public string NuevoTrabajoPrecio
-        {
-            get => _nuevoTrabajoPrecio;
-            set { _nuevoTrabajoPrecio = value; OnPropertyChanged(); }
-        }
-
-        public ICommand RegistrarTrabajoRapidoCommand { get; }
+        // Comando para abrir la ventana de registro rápido
+        public ICommand AbrirRegistroRapidoCommand { get; }
 
         public InicioViewModel()
         {
@@ -145,7 +57,7 @@ namespace Proyecto_taller.ViewModels
             TrabajosPendientes = new ObservableCollection<Trabajo>();
             RepuestosStockBajo = new ObservableCollection<Repuesto>();
 
-            RegistrarTrabajoRapidoCommand = new RelayCommand(RegistrarTrabajoRapido);
+            AbrirRegistroRapidoCommand = new RelayCommand(AbrirRegistroRapido);
 
             CargarEstadisticas();
             CargarActividadReciente();
@@ -232,166 +144,26 @@ namespace Proyecto_taller.ViewModels
 
             if (RepuestosStockBajo.Count == 0)
             {
-                var sinProblemas = new Repuesto { Nombre = "✅ Todos los repuestos tienen stock adecuado", StockActual = 0 };
+                var sinProblemas = new Repuesto
+                {
+                    Nombre = "✅ Todos los repuestos tienen stock adecuado",
+                    StockActual = 0
+                };
                 RepuestosStockBajo.Add(sinProblemas);
             }
         }
 
-        private void RegistrarTrabajoRapido()
+        private void AbrirRegistroRapido()
         {
-            // Validaciones
-            if (string.IsNullOrWhiteSpace(NuevoClienteNombre) ||
-                string.IsNullOrWhiteSpace(NuevoClienteApellido))
+            var ventana = new RegistroRapidoWindow();
+
+            if (ventana.ShowDialog() == true)
             {
-                MessageBox.Show(
-                    "Por favor complete el nombre y apellido del cliente.",
-                    "Datos Incompletos",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(NuevoVehiculoMarca) ||
-                string.IsNullOrWhiteSpace(NuevoVehiculoPlaca))
-            {
-                MessageBox.Show(
-                    "Por favor complete la marca y placa del vehículo.",
-                    "Datos Incompletos",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(NuevoTrabajoDescripcion))
-            {
-                MessageBox.Show(
-                    "Por favor describa el problema o trabajo a realizar.",
-                    "Datos Incompletos",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                using var db = new TallerDbContext();
-
-                // 1. Crear o buscar el cliente
-                var clienteExistente = db.Clientes
-                    .FirstOrDefault(c =>
-                        c.Nombre.ToLower() == NuevoClienteNombre.ToLower() &&
-                        c.Apellido.ToLower() == NuevoClienteApellido.ToLower());
-
-                Cliente cliente;
-                if (clienteExistente != null)
-                {
-                    cliente = clienteExistente;
-                }
-                else
-                {
-                    cliente = new Cliente
-                    {
-                        Nombre = NuevoClienteNombre,
-                        Apellido = NuevoClienteApellido,
-                        Telefono = NuevoClienteTelefono,
-                        Correo = NuevoClienteEmail,
-                        Direccion = "Sin dirección",
-                        FechaRegistro = DateTime.Now
-                    };
-                    db.Clientes.Add(cliente);
-                    db.SaveChanges();
-                }
-
-                // 2. Crear o buscar el vehículo
-                var vehiculoExistente = db.Vehiculos
-                    .FirstOrDefault(v => v.Placa.ToLower() == NuevoVehiculoPlaca.ToLower());
-
-                Vehiculo vehiculo;
-                if (vehiculoExistente != null)
-                {
-                    vehiculo = vehiculoExistente;
-                }
-                else
-                {
-                    int anio = 0;
-                    int.TryParse(NuevoVehiculoAnio, out anio);
-
-                    vehiculo = new Vehiculo
-                    {
-                        ClienteID = cliente.ClienteID,
-                        Marca = NuevoVehiculoMarca,
-                        Modelo = NuevoVehiculoModelo,
-                        Placa = NuevoVehiculoPlaca,
-                        Anio = anio > 0 ? anio : null
-                    };
-                    db.Vehiculos.Add(vehiculo);
-                    db.SaveChanges();
-                }
-
-                // 3. Crear el trabajo
-                decimal precioEstimado = 0;
-                decimal.TryParse(NuevoTrabajoPrecio, out precioEstimado);
-
-                var trabajo = new Trabajo
-                {
-                    VehiculoID = vehiculo.VehiculoID,
-                    FechaIngreso = DateTime.Now,
-                    Descripcion = NuevoTrabajoDescripcion,
-                    Estado = "Pendiente",
-                    TipoTrabajo = NuevoTrabajoTipo,
-                    PrecioEstimado = precioEstimado > 0 ? precioEstimado : null
-                };
-
-                db.Trabajos.Add(trabajo);
-                db.SaveChanges();
-
-                MessageBox.Show(
-                    $"✅ Trabajo registrado exitosamente!\n\n" +
-                    $"Trabajo ID: {trabajo.TrabajoID}\n" +
-                    $"Cliente: {cliente.Nombre} {cliente.Apellido}\n" +
-                    $"Vehículo: {vehiculo.Marca} {vehiculo.Modelo} - {vehiculo.Placa}\n" +
-                    $"Tipo: {trabajo.TipoTrabajo}\n" +
-                    $"Estado: {trabajo.Estado}",
-                    "Registro Exitoso",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-
-                // Limpiar formulario
-                LimpiarFormulario();
-
-                // Actualizar estadísticas
+                // Actualizar las estadísticas después de registrar el trabajo
                 CargarEstadisticas();
                 CargarActividadReciente();
                 CargarTrabajosPendientes();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Error al registrar el trabajo:\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-
-        private void LimpiarFormulario()
-        {
-            // Limpiar datos del cliente
-            NuevoClienteNombre = "";
-            NuevoClienteApellido = "";
-            NuevoClienteTelefono = "";
-            NuevoClienteEmail = "";
-
-            // Limpiar datos del vehículo
-            NuevoVehiculoMarca = "";
-            NuevoVehiculoModelo = "";
-            NuevoVehiculoPlaca = "";
-            NuevoVehiculoAnio = "";
-
-            // Limpiar datos del trabajo
-            NuevoTrabajoTipo = "Mecánica";
-            NuevoTrabajoDescripcion = "";
-            NuevoTrabajoPrecio = "0";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

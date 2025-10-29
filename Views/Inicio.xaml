@@ -147,10 +147,10 @@
                                   HorizontalAlignment="Center" 
                                   Margin="0,0,0,20"/>
                         <Button Content="📝 Registrar Nuevo Trabajo" 
-                               Command="{Binding AbrirRegistroRapidoCommand}"
-                               Style="{StaticResource SubmitButton}"
-                               FontSize="16"
-                               Padding="30,15"/>
+                           Command="{Binding AbrirRegistroRapidoCommand}"
+                           Style="{StaticResource SubmitButton}"
+                           FontSize="16"
+                           Padding="30,15"/>
                     </StackPanel>
                 </Border>
 

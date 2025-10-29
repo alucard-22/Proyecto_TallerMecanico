@@ -119,6 +119,8 @@ namespace Proyecto_taller.Views
                         "Registro Exitoso",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
+                DialogResult = true;
+                Close();
 
             }
             catch (Exception ex)
