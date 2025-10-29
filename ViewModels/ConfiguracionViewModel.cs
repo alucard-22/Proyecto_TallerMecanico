@@ -1,4 +1,5 @@
 ﻿using Proyecto_taller.Data;
+using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using System;
 using System.Collections.Generic;
@@ -16,21 +17,21 @@ namespace Proyecto_taller.ViewModels
     public class ConfiguracionViewModel : INotifyPropertyChanged
     {
         // Información del Taller
-        private string _nombreTaller = "Taller Mecánico El Choco";
-        private string _direccionTaller = "Av. América #1234, Cochabamba";
-        private string _telefonoTaller = "4-4567890";
-        private string _emailTaller = "contacto@tallerelchoco.com";
-        private string _nitTaller = "123456789";
+        private string _nombreTaller;
+        private string _direccionTaller;
+        private string _telefonoTaller;
+        private string _emailTaller;
+        private string _nitTaller;
 
         // Configuración de Facturación
-        private decimal _porcentajeIVA = 13;
-        private decimal _descuentoMaximo = 20;
-        private bool _incluirIVAAutomatico = true;
-        private bool _solicitarNIT = false;
+        private decimal _porcentajeIVA;
+        private decimal _descuentoMaximo;
+        private bool _incluirIVAAutomatico;
+        private bool _solicitarNIT;
 
         // Base de Datos
-        private string _connectionString = "Server=localhost;Database=TallerMecanico;Trusted_Connection=True;TrustServerCertificate=True;";
-        private DateTime _ultimoRespaldo = DateTime.Now.AddDays(-7);
+        private string _connectionString;
+        private DateTime _ultimoRespaldo;
         private int _totalRegistros;
 
         public ObservableCollection<Servicio> Servicios { get; set; }
@@ -135,8 +136,42 @@ namespace Proyecto_taller.ViewModels
             VerEstadisticasCommand = new RelayCommand(VerEstadisticas);
             ReiniciarBDCommand = new RelayCommand(ReiniciarBD);
 
+            // ⭐ CARGAR CONFIGURACIÓN AL INICIAR
+            CargarConfiguracion();
             CargarServicios();
             CargarEstadisticas();
+        }
+
+        /// <summary>
+        /// Carga la configuración guardada
+        /// </summary>
+        private void CargarConfiguracion()
+        {
+            try
+            {
+                var config = ConfiguracionHelper.CargarConfiguracion();
+
+                // Cargar valores
+                NombreTaller = config.NombreTaller;
+                DireccionTaller = config.DireccionTaller;
+                TelefonoTaller = config.TelefonoTaller;
+                EmailTaller = config.EmailTaller;
+                NITTaller = config.NITTaller;
+                PorcentajeIVA = config.PorcentajeIVA;
+                DescuentoMaximo = config.DescuentoMaximo;
+                IncluirIVAAutomatico = config.IncluirIVAAutomatico;
+                SolicitarNIT = config.SolicitarNIT;
+                ConnectionString = config.ConnectionString;
+                UltimoRespaldo = config.UltimoRespaldo;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Error al cargar configuración:\n{ex.Message}\n\nSe usarán valores por defecto.",
+                    "Advertencia",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
         }
 
         private void CargarServicios()
@@ -160,32 +195,105 @@ namespace Proyecto_taller.ViewModels
                            db.Facturas.Count();
         }
 
+        /// <summary>
+        /// Guarda la información del taller
+        /// </summary>
         private void GuardarInformacion()
         {
-            // Aquí podrías guardar la configuración en un archivo o BD
-            MessageBox.Show(
-                $"Información del taller guardada:\n\n" +
-                $"Nombre: {NombreTaller}\n" +
-                $"Dirección: {DireccionTaller}\n" +
-                $"Teléfono: {TelefonoTaller}\n" +
-                $"Email: {EmailTaller}\n" +
-                $"NIT: {NITTaller}",
-                "Configuración Guardada",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            try
+            {
+                var config = ConfiguracionHelper.CargarConfiguracion();
+
+                // Actualizar valores
+                config.NombreTaller = NombreTaller;
+                config.DireccionTaller = DireccionTaller;
+                config.TelefonoTaller = TelefonoTaller;
+                config.EmailTaller = EmailTaller;
+                config.NITTaller = NITTaller;
+
+                // Guardar
+                ConfiguracionHelper.GuardarConfiguracion(config);
+
+                MessageBox.Show(
+                    $"✅ INFORMACIÓN DEL TALLER GUARDADA\n\n" +
+                    $"Nombre: {NombreTaller}\n" +
+                    $"Dirección: {DireccionTaller}\n" +
+                    $"Teléfono: {TelefonoTaller}\n" +
+                    $"Email: {EmailTaller}\n" +
+                    $"NIT: {NITTaller}\n\n" +
+                    $"📁 Archivo: {ConfiguracionHelper.ObtenerRutaConfiguracion()}",
+                    "Configuración Guardada",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"❌ Error al guardar la información:\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
+        /// <summary>
+        /// Guarda la configuración de facturación
+        /// </summary>
         private void GuardarFacturacion()
         {
-            MessageBox.Show(
-                $"Configuración de facturación guardada:\n\n" +
-                $"IVA: {PorcentajeIVA}%\n" +
-                $"Descuento Máximo: {DescuentoMaximo}%\n" +
-                $"IVA Automático: {(IncluirIVAAutomatico ? "Sí" : "No")}\n" +
-                $"Solicitar NIT: {(SolicitarNIT ? "Sí" : "No")}",
-                "Configuración Guardada",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            try
+            {
+                // Validaciones
+                if (PorcentajeIVA < 0 || PorcentajeIVA > 100)
+                {
+                    MessageBox.Show(
+                        "❌ El porcentaje de IVA debe estar entre 0% y 100%",
+                        "Validación",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (DescuentoMaximo < 0 || DescuentoMaximo > 100)
+                {
+                    MessageBox.Show(
+                        "❌ El descuento máximo debe estar entre 0% y 100%",
+                        "Validación",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                var config = ConfiguracionHelper.CargarConfiguracion();
+
+                // Actualizar valores
+                config.PorcentajeIVA = PorcentajeIVA;
+                config.DescuentoMaximo = DescuentoMaximo;
+                config.IncluirIVAAutomatico = IncluirIVAAutomatico;
+                config.SolicitarNIT = SolicitarNIT;
+
+                // Guardar
+                ConfiguracionHelper.GuardarConfiguracion(config);
+
+                MessageBox.Show(
+                    $"✅ CONFIGURACIÓN DE FACTURACIÓN GUARDADA\n\n" +
+                    $"IVA: {PorcentajeIVA}%\n" +
+                    $"Descuento Máximo: {DescuentoMaximo}%\n" +
+                    $"IVA Automático: {(IncluirIVAAutomatico ? "Sí" : "No")}\n" +
+                    $"Solicitar NIT: {(SolicitarNIT ? "Sí" : "No")}\n\n" +
+                    $"📁 Archivo: {ConfiguracionHelper.ObtenerRutaConfiguracion()}",
+                    "Configuración Guardada",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"❌ Error al guardar la configuración:\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         private void ProbarConexion()
@@ -232,14 +340,28 @@ namespace Proyecto_taller.ViewModels
 
             if (resultado == MessageBoxResult.Yes)
             {
-                // Aquí implementarías la lógica real de respaldo
-                UltimoRespaldo = DateTime.Now;
+                try
+                {
+                    UltimoRespaldo = DateTime.Now;
 
-                MessageBox.Show(
-                    $"Respaldo creado exitosamente.\nFecha: {UltimoRespaldo:dd/MM/yyyy HH:mm}",
-                    "Respaldo Completado",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    var config = ConfiguracionHelper.CargarConfiguracion();
+                    config.UltimoRespaldo = UltimoRespaldo;
+                    ConfiguracionHelper.GuardarConfiguracion(config);
+
+                    MessageBox.Show(
+                        $"✅ Respaldo creado exitosamente.\n\nFecha: {UltimoRespaldo:dd/MM/yyyy HH:mm}",
+                        "Respaldo Completado",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"❌ Error al crear respaldo:\n{ex.Message}",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
             }
         }
 
@@ -339,7 +461,6 @@ namespace Proyecto_taller.ViewModels
                     {
                         using var db = new TallerDbContext();
 
-                        // Eliminar datos (respetando el orden de foreign keys)
                         db.Pagos.RemoveRange(db.Pagos);
                         db.Trabajos_Repuestos.RemoveRange(db.Trabajos_Repuestos);
                         db.Trabajos_Servicios.RemoveRange(db.Trabajos_Servicios);
