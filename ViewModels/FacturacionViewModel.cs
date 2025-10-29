@@ -1,15 +1,17 @@
 ﻿using Proyecto_taller.Data;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.EntityFrameworkCore;    
+using Microsoft.EntityFrameworkCore;
+using System.Windows;
+using System.IO;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.Diagnostics;
 
 namespace Proyecto_taller.ViewModels
 {
@@ -198,11 +200,11 @@ namespace Proyecto_taller.ViewModels
 
             if (trabajoSinFactura == null)
             {
-                System.Windows.MessageBox.Show(
+                MessageBox.Show(
                     "No hay trabajos finalizados sin factura.",
                     "Sin Trabajos",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
                 return;
             }
 
@@ -244,11 +246,11 @@ namespace Proyecto_taller.ViewModels
 
             ActualizarEstadisticas();
 
-            System.Windows.MessageBox.Show(
+            MessageBox.Show(
                 $"Factura {numeroFactura} creada exitosamente.\nTotal: Bs. {total:N2}",
                 "Factura Creada",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         private void VerDetalle()
@@ -276,24 +278,242 @@ namespace Proyecto_taller.ViewModels
                       $"TOTAL:        Bs. {FacturaSeleccionada.Total:N2}\n\n" +
                       $"Estado: {FacturaSeleccionada.Estado}";
 
-            System.Windows.MessageBox.Show(
+            MessageBox.Show(
                 mensaje,
                 "Detalle de Factura",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         private void ImprimirFactura()
         {
             if (FacturaSeleccionada == null) return;
 
-            System.Windows.MessageBox.Show(
-                $"Generando impresión de la factura:\n{FacturaSeleccionada.NumeroFactura}\n\n" +
-                $"Esta funcionalidad se conectaría con un generador de PDF\n" +
-                $"o se enviaría directamente a la impresora.",
-                "Imprimir Factura",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
+            try
+            {
+                // Crear carpeta de facturas en el escritorio
+                string carpetaFacturas = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                    "Facturas_TallerElChoco");
+
+                if (!Directory.Exists(carpetaFacturas))
+                {
+                    Directory.CreateDirectory(carpetaFacturas);
+                }
+
+                // Nombre del archivo
+                string nombreArchivo = $"Factura_{FacturaSeleccionada.NumeroFactura.Replace("/", "-")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                string rutaCompleta = Path.Combine(carpetaFacturas, nombreArchivo);
+
+                // Crear el documento PDF
+                Document documento = new Document(PageSize.Letter);
+                PdfWriter writer = PdfWriter.GetInstance(documento, new FileStream(rutaCompleta, FileMode.Create));
+
+                documento.Open();
+
+                // Fuentes
+                var fuenteTitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.Black);
+                var fuenteSubtitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14, BaseColor.Black);
+                var fuenteNormal = FontFactory.GetFont(FontFactory.HELVETICA, 10, BaseColor.Black);
+                var fuenteNegrita = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.Black);
+                var fuenteTotal = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.Black);
+
+                // ===== ENCABEZADO =====
+                Paragraph encabezado = new Paragraph("TALLER MECÁNICO EL CHOCO", fuenteTitulo);
+                encabezado.Alignment = Element.ALIGN_CENTER;
+                documento.Add(encabezado);
+
+                Paragraph direccion = new Paragraph("Av. América #1234, Cochabamba\nTel: 4-4567890 | Email: contacto@tallerelchoco.com", fuenteNormal);
+                direccion.Alignment = Element.ALIGN_CENTER;
+                direccion.SpacingAfter = 20f;
+                documento.Add(direccion);
+
+                // Línea separadora
+                documento.Add(new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(1f, 100f, BaseColor.Black, Element.ALIGN_CENTER, -1))));
+                documento.Add(new Paragraph(" "));
+
+                // ===== INFORMACIÓN DE LA FACTURA =====
+                PdfPTable tablaInfo = new PdfPTable(2);
+                tablaInfo.WidthPercentage = 100;
+                tablaInfo.SetWidths(new float[] { 50f, 50f });
+                tablaInfo.SpacingAfter = 15f;
+
+                // Columna izquierda
+                PdfPCell celdaIzq = new PdfPCell();
+                celdaIzq.Border = Rectangle.NO_BORDER;
+                celdaIzq.AddElement(new Phrase($"Factura: {FacturaSeleccionada.NumeroFactura}\n", fuenteNegrita));
+                celdaIzq.AddElement(new Phrase($"Fecha: {FacturaSeleccionada.FechaEmision:dd/MM/yyyy HH:mm}\n", fuenteNormal));
+                celdaIzq.AddElement(new Phrase($"Estado: {FacturaSeleccionada.Estado}\n", fuenteNormal));
+                tablaInfo.AddCell(celdaIzq);
+
+                // Columna derecha
+                PdfPCell celdaDer = new PdfPCell();
+                celdaDer.Border = Rectangle.NO_BORDER;
+                celdaDer.HorizontalAlignment = Element.ALIGN_RIGHT;
+                celdaDer.AddElement(new Phrase($"Trabajo ID: {FacturaSeleccionada.TrabajoID}\n", fuenteNormal));
+                celdaDer.AddElement(new Phrase($"NIT: {FacturaSeleccionada.NIT ?? "N/A"}\n", fuenteNormal));
+                if (!string.IsNullOrEmpty(FacturaSeleccionada.RazonSocial))
+                {
+                    celdaDer.AddElement(new Phrase($"Razón Social: {FacturaSeleccionada.RazonSocial}\n", fuenteNormal));
+                }
+                tablaInfo.AddCell(celdaDer);
+
+                documento.Add(tablaInfo);
+
+                // ===== DATOS DEL CLIENTE =====
+                Paragraph tituloCliente = new Paragraph("DATOS DEL CLIENTE", fuenteSubtitulo);
+                tituloCliente.SpacingBefore = 10f;
+                tituloCliente.SpacingAfter = 10f;
+                documento.Add(tituloCliente);
+
+                PdfPTable tablaCliente = new PdfPTable(2);
+                tablaCliente.WidthPercentage = 100;
+                tablaCliente.SetWidths(new float[] { 30f, 70f });
+                tablaCliente.SpacingAfter = 15f;
+
+                AgregarFilaTabla(tablaCliente, "Cliente:",
+                    $"{FacturaSeleccionada.Trabajo?.Vehiculo?.Cliente?.Nombre} {FacturaSeleccionada.Trabajo?.Vehiculo?.Cliente?.Apellido}",
+                    fuenteNegrita, fuenteNormal);
+                AgregarFilaTabla(tablaCliente, "Teléfono:",
+                    FacturaSeleccionada.Trabajo?.Vehiculo?.Cliente?.Telefono ?? "N/A",
+                    fuenteNegrita, fuenteNormal);
+                AgregarFilaTabla(tablaCliente, "Email:",
+                    FacturaSeleccionada.Trabajo?.Vehiculo?.Cliente?.Correo ?? "N/A",
+                    fuenteNegrita, fuenteNormal);
+
+                documento.Add(tablaCliente);
+
+                // ===== DATOS DEL VEHÍCULO =====
+                Paragraph tituloVehiculo = new Paragraph("DATOS DEL VEHÍCULO", fuenteSubtitulo);
+                tituloVehiculo.SpacingBefore = 10f;
+                tituloVehiculo.SpacingAfter = 10f;
+                documento.Add(tituloVehiculo);
+
+                PdfPTable tablaVehiculo = new PdfPTable(2);
+                tablaVehiculo.WidthPercentage = 100;
+                tablaVehiculo.SetWidths(new float[] { 30f, 70f });
+                tablaVehiculo.SpacingAfter = 15f;
+
+                AgregarFilaTabla(tablaVehiculo, "Marca:",
+                    FacturaSeleccionada.Trabajo?.Vehiculo?.Marca ?? "N/A",
+                    fuenteNegrita, fuenteNormal);
+                AgregarFilaTabla(tablaVehiculo, "Modelo:",
+                    FacturaSeleccionada.Trabajo?.Vehiculo?.Modelo ?? "N/A",
+                    fuenteNegrita, fuenteNormal);
+                AgregarFilaTabla(tablaVehiculo, "Placa:",
+                    FacturaSeleccionada.Trabajo?.Vehiculo?.Placa ?? "N/A",
+                    fuenteNegrita, fuenteNormal);
+                AgregarFilaTabla(tablaVehiculo, "Año:",
+                    FacturaSeleccionada.Trabajo?.Vehiculo?.Anio?.ToString() ?? "N/A",
+                    fuenteNegrita, fuenteNormal);
+
+                documento.Add(tablaVehiculo);
+
+                // ===== DESCRIPCIÓN DEL TRABAJO =====
+                if (!string.IsNullOrEmpty(FacturaSeleccionada.Trabajo?.Descripcion))
+                {
+                    Paragraph tituloTrabajo = new Paragraph("DESCRIPCIÓN DEL TRABAJO", fuenteSubtitulo);
+                    tituloTrabajo.SpacingBefore = 10f;
+                    tituloTrabajo.SpacingAfter = 10f;
+                    documento.Add(tituloTrabajo);
+
+                    Paragraph descripcion = new Paragraph(FacturaSeleccionada.Trabajo.Descripcion, fuenteNormal);
+                    descripcion.SpacingAfter = 20f;
+                    documento.Add(descripcion);
+                }
+
+                // ===== DETALLE DE COSTOS =====
+                Paragraph tituloCostos = new Paragraph("DETALLE DE COSTOS", fuenteSubtitulo);
+                tituloCostos.SpacingBefore = 20f;
+                tituloCostos.SpacingAfter = 10f;
+                documento.Add(tituloCostos);
+
+                PdfPTable tablaCostos = new PdfPTable(2);
+                tablaCostos.WidthPercentage = 60;
+                tablaCostos.HorizontalAlignment = Element.ALIGN_RIGHT;
+                tablaCostos.SpacingAfter = 20f;
+
+                AgregarFilaTabla(tablaCostos, "Subtotal:",
+                    $"Bs. {FacturaSeleccionada.Subtotal:N2}",
+                    fuenteNegrita, fuenteNormal);
+                AgregarFilaTabla(tablaCostos, "Descuento:",
+                    $"Bs. {FacturaSeleccionada.Descuento:N2}",
+                    fuenteNegrita, fuenteNormal);
+                AgregarFilaTabla(tablaCostos, "IVA (13%):",
+                    $"Bs. {FacturaSeleccionada.IVA:N2}",
+                    fuenteNegrita, fuenteNormal);
+
+                // Línea separadora
+                PdfPCell celdaLinea = new PdfPCell(new Phrase(" "));
+                celdaLinea.Colspan = 2;
+                celdaLinea.Border = Rectangle.TOP_BORDER;
+                celdaLinea.BorderWidthTop = 2f;
+                tablaCostos.AddCell(celdaLinea);
+
+                // Total
+                PdfPCell celdaTotalLabel = new PdfPCell(new Phrase("TOTAL:", fuenteTotal));
+                celdaTotalLabel.Border = Rectangle.NO_BORDER;
+                celdaTotalLabel.HorizontalAlignment = Element.ALIGN_LEFT;
+                celdaTotalLabel.PaddingTop = 5f;
+                tablaCostos.AddCell(celdaTotalLabel);
+
+                PdfPCell celdaTotalValor = new PdfPCell(new Phrase($"Bs. {FacturaSeleccionada.Total:N2}", fuenteTotal));
+                celdaTotalValor.Border = Rectangle.NO_BORDER;
+                celdaTotalValor.HorizontalAlignment = Element.ALIGN_RIGHT;
+                celdaTotalValor.PaddingTop = 5f;
+                tablaCostos.AddCell(celdaTotalValor);
+
+                documento.Add(tablaCostos);
+
+                // ===== NOTA AL PIE =====
+                documento.Add(new Paragraph(" "));
+                documento.Add(new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.5f, 100f, BaseColor.Gray, Element.ALIGN_CENTER, -1))));
+
+                Paragraph notaPie = new Paragraph(
+                    $"Documento generado el {DateTime.Now:dd/MM/yyyy HH:mm}\n" +
+                    "Gracias por su confianza - Taller El Choco",
+                    FontFactory.GetFont(FontFactory.HELVETICA, 8, BaseColor.Gray));
+                notaPie.Alignment = Element.ALIGN_CENTER;
+                notaPie.SpacingBefore = 10f;
+                documento.Add(notaPie);
+
+                // Cerrar documento
+                documento.Close();
+                writer.Close();
+
+                // Mostrar mensaje de éxito
+                var resultado = MessageBox.Show(
+                    $"PDF generado exitosamente:\n\n{rutaCompleta}\n\n¿Desea abrir el archivo?",
+                    "PDF Generado",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (resultado == MessageBoxResult.Yes)
+                {
+                    Process.Start(new ProcessStartInfo(rutaCompleta) { UseShellExecute = true });
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Error al generar el PDF:\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private void AgregarFilaTabla(PdfPTable tabla, string etiqueta, string valor, Font fuenteEtiqueta, Font fuenteValor)
+        {
+            PdfPCell celdaEtiqueta = new PdfPCell(new Phrase(etiqueta, fuenteEtiqueta));
+            celdaEtiqueta.Border = Rectangle.NO_BORDER;
+            celdaEtiqueta.PaddingBottom = 5f;
+            tabla.AddCell(celdaEtiqueta);
+
+            PdfPCell celdaValor = new PdfPCell(new Phrase(valor, fuenteValor));
+            celdaValor.Border = Rectangle.NO_BORDER;
+            celdaValor.PaddingBottom = 5f;
+            tabla.AddCell(celdaValor);
         }
 
         private void AnularFactura()
@@ -301,14 +521,14 @@ namespace Proyecto_taller.ViewModels
             if (FacturaSeleccionada == null || FacturaSeleccionada.Estado == "Anulada")
                 return;
 
-            var resultado = System.Windows.MessageBox.Show(
+            var resultado = MessageBox.Show(
                 $"¿Está seguro de anular la factura {FacturaSeleccionada.NumeroFactura}?\n\n" +
                 $"Esta acción no se puede deshacer.",
                 "Anular Factura",
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Warning);
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
 
-            if (resultado == System.Windows.MessageBoxResult.Yes)
+            if (resultado == MessageBoxResult.Yes)
             {
                 using var db = new TallerDbContext();
                 var factura = db.Facturas.Find(FacturaSeleccionada.FacturaID);
@@ -323,11 +543,11 @@ namespace Proyecto_taller.ViewModels
                     ActualizarEstadisticas();
                     CommandManager.InvalidateRequerySuggested();
 
-                    System.Windows.MessageBox.Show(
+                    MessageBox.Show(
                         "Factura anulada exitosamente.",
                         "Factura Anulada",
-                        System.Windows.MessageBoxButton.OK,
-                        System.Windows.MessageBoxImage.Information);
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
                 }
             }
         }
@@ -336,14 +556,14 @@ namespace Proyecto_taller.ViewModels
         {
             if (FacturaSeleccionada == null) return;
 
-            var resultado = System.Windows.MessageBox.Show(
+            var resultado = MessageBox.Show(
                 $"¿Está seguro de eliminar la factura {FacturaSeleccionada.NumeroFactura}?\n\n" +
                 $"ADVERTENCIA: Esta acción eliminará permanentemente el registro.",
                 "Confirmar Eliminación",
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Warning);
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
 
-            if (resultado == System.Windows.MessageBoxResult.Yes)
+            if (resultado == MessageBoxResult.Yes)
             {
                 using var db = new TallerDbContext();
                 var factura = db.Facturas.Find(FacturaSeleccionada.FacturaID);
