@@ -14,7 +14,6 @@ namespace Proyecto_taller.Models
         public DateTime FechaEmision { get; set; } = DateTime.Now;
         public decimal Subtotal { get; set; }
         public decimal Descuento { get; set; } = 0;
-        public decimal IVA { get; set; } = 0;
         public decimal Total { get; set; }
         public string? NIT { get; set; }
         public string? RazonSocial { get; set; }

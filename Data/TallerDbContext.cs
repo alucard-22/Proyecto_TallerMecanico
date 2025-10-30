@@ -94,10 +94,6 @@ namespace Proyecto_taller.Data
                 .HasColumnType("decimal(10,2)");
 
             modelBuilder.Entity<Factura>()
-                .Property(f => f.IVA)
-                .HasColumnType("decimal(10,2)");
-
-            modelBuilder.Entity<Factura>()
                 .Property(f => f.Total)
                 .HasColumnType("decimal(10,2)");
 

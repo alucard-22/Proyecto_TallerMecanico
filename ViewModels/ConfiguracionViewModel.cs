@@ -24,9 +24,7 @@ namespace Proyecto_taller.ViewModels
         private string _nitTaller;
 
         // Configuración de Facturación
-        private decimal _porcentajeIVA;
         private decimal _descuentoMaximo;
-        private bool _incluirIVAAutomatico;
         private bool _solicitarNIT;
 
         // Base de Datos
@@ -68,22 +66,12 @@ namespace Proyecto_taller.ViewModels
         }
 
         // Propiedades - Facturación
-        public decimal PorcentajeIVA
-        {
-            get => _porcentajeIVA;
-            set { _porcentajeIVA = value; OnPropertyChanged(); }
-        }
+       
 
         public decimal DescuentoMaximo
         {
             get => _descuentoMaximo;
             set { _descuentoMaximo = value; OnPropertyChanged(); }
-        }
-
-        public bool IncluirIVAAutomatico
-        {
-            get => _incluirIVAAutomatico;
-            set { _incluirIVAAutomatico = value; OnPropertyChanged(); }
         }
 
         public bool SolicitarNIT
@@ -157,9 +145,7 @@ namespace Proyecto_taller.ViewModels
                 TelefonoTaller = config.TelefonoTaller;
                 EmailTaller = config.EmailTaller;
                 NITTaller = config.NITTaller;
-                PorcentajeIVA = config.PorcentajeIVA;
                 DescuentoMaximo = config.DescuentoMaximo;
-                IncluirIVAAutomatico = config.IncluirIVAAutomatico;
                 SolicitarNIT = config.SolicitarNIT;
                 ConnectionString = config.ConnectionString;
                 UltimoRespaldo = config.UltimoRespaldo;
@@ -243,17 +229,6 @@ namespace Proyecto_taller.ViewModels
         {
             try
             {
-                // Validaciones
-                if (PorcentajeIVA < 0 || PorcentajeIVA > 100)
-                {
-                    MessageBox.Show(
-                        "❌ El porcentaje de IVA debe estar entre 0% y 100%",
-                        "Validación",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                    return;
-                }
-
                 if (DescuentoMaximo < 0 || DescuentoMaximo > 100)
                 {
                     MessageBox.Show(
@@ -267,9 +242,7 @@ namespace Proyecto_taller.ViewModels
                 var config = ConfiguracionHelper.CargarConfiguracion();
 
                 // Actualizar valores
-                config.PorcentajeIVA = PorcentajeIVA;
                 config.DescuentoMaximo = DescuentoMaximo;
-                config.IncluirIVAAutomatico = IncluirIVAAutomatico;
                 config.SolicitarNIT = SolicitarNIT;
 
                 // Guardar
@@ -277,9 +250,7 @@ namespace Proyecto_taller.ViewModels
 
                 MessageBox.Show(
                     $"✅ CONFIGURACIÓN DE FACTURACIÓN GUARDADA\n\n" +
-                    $"IVA: {PorcentajeIVA}%\n" +
                     $"Descuento Máximo: {DescuentoMaximo}%\n" +
-                    $"IVA Automático: {(IncluirIVAAutomatico ? "Sí" : "No")}\n" +
                     $"Solicitar NIT: {(SolicitarNIT ? "Sí" : "No")}\n\n" +
                     $"📁 Archivo: {ConfiguracionHelper.ObtenerRutaConfiguracion()}",
                     "Configuración Guardada",

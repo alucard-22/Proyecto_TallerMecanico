@@ -150,39 +150,23 @@
                     <StackPanel>
                         <TextBlock Text="📄 Configuración de Facturación" Style="{StaticResource SectionTitle}"/>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                        <!-- ❌ ELIMINADO: Campo de IVA -->
 
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="IVA (%):" Style="{StaticResource ConfigLabel}"/>
-                                <TextBox Text="{Binding PorcentajeIVA, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
+                        <TextBlock Text="Descuento Máximo (%):" Style="{StaticResource ConfigLabel}"/>
+                        <TextBox Text="{Binding DescuentoMaximo, UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Descuento Máximo (%):" Style="{StaticResource ConfigLabel}"/>
-                                <TextBox Text="{Binding DescuentoMaximo, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <CheckBox Content="Incluir IVA automáticamente en las facturas" 
-                                 IsChecked="{Binding IncluirIVAAutomatico}"
-                                 Margin="0,15,0,0"
-                                 FontSize="14"/>
+                        <!-- ❌ ELIMINADO: CheckBox de incluir IVA automáticamente -->
 
                         <CheckBox Content="Solicitar NIT en todas las facturas" 
-                                 IsChecked="{Binding SolicitarNIT}"
-                                 Margin="0,10,0,0"
-                                 FontSize="14"/>
+                 IsChecked="{Binding SolicitarNIT}"
+                 Margin="0,10,0,0"
+                 FontSize="14"/>
 
                         <Button Content="💾 Guardar Configuración" 
-                                Command="{Binding GuardarFacturacionCommand}"
-                                Style="{StaticResource ModernButton}"
-                                HorizontalAlignment="Left"
-                                Margin="0,15,0,0"/>
+                Command="{Binding GuardarFacturacionCommand}"
+                Style="{StaticResource ModernButton}"
+                HorizontalAlignment="Left"
+                Margin="0,15,0,0"/>
                     </StackPanel>
                 </Border>
 

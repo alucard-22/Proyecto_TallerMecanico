@@ -218,35 +218,99 @@ namespace Proyecto_taller.ViewModels
             if (TrabajoSeleccionado == null || TrabajoSeleccionado.Estado == "Finalizado")
                 return;
 
+            using var db = new TallerDbContext();
+            var trabajo = db.Trabajos
+                .Include(t => t.Servicios)
+                .Include(t => t.Repuestos)
+                .FirstOrDefault(t => t.TrabajoID == TrabajoSeleccionado.TrabajoID);
+
+            if (trabajo == null) return;
+
+            // ⭐ CALCULAR EL PRECIO FINAL SUMANDO TODO
+            decimal precioFinalCalculado = 0;
+
+            // 1. Sumar el precio estimado (mano de obra base)
+            if (trabajo.PrecioEstimado.HasValue)
+            {
+                precioFinalCalculado += trabajo.PrecioEstimado.Value;
+            }
+
+            // 2. Sumar los servicios adicionales
+            if (trabajo.Servicios != null && trabajo.Servicios.Any())
+            {
+                precioFinalCalculado += trabajo.Servicios.Sum(s => s.Subtotal);
+            }
+
+            // 3. Sumar los repuestos
+            if (trabajo.Repuestos != null && trabajo.Repuestos.Any())
+            {
+                precioFinalCalculado += trabajo.Repuestos.Sum(r => r.Subtotal);
+            }
+
+            // Mostrar resumen antes de finalizar
+            string resumen = $"📊 RESUMEN DEL TRABAJO #{trabajo.TrabajoID}\n\n";
+            resumen += $"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+
+            resumen += $"💼 Mano de Obra Base:\n";
+            resumen += $"   Bs. {(trabajo.PrecioEstimado ?? 0):N2}\n\n";
+
+            if (trabajo.Servicios != null && trabajo.Servicios.Any())
+            {
+                resumen += $"🔧 Servicios Adicionales:\n";
+                foreach (var servicio in trabajo.Servicios)
+                {
+                    resumen += $"   • {servicio.Cantidad}x - Bs. {servicio.Subtotal:N2}\n";
+                }
+                resumen += $"   Subtotal: Bs. {trabajo.Servicios.Sum(s => s.Subtotal):N2}\n\n";
+            }
+
+            if (trabajo.Repuestos != null && trabajo.Repuestos.Any())
+            {
+                resumen += $"📦 Repuestos:\n";
+                foreach (var repuesto in trabajo.Repuestos)
+                {
+                    resumen += $"   • {repuesto.Cantidad}x - Bs. {repuesto.Subtotal:N2}\n";
+                }
+                resumen += $"   Subtotal: Bs. {trabajo.Repuestos.Sum(r => r.Subtotal):N2}\n\n";
+            }
+
+            resumen += $"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            resumen += $"💰 TOTAL FINAL: Bs. {precioFinalCalculado:N2}\n";
+            resumen += $"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            resumen += $"¿Desea finalizar este trabajo?";
+
             var resultado = System.Windows.MessageBox.Show(
-                $"¿Marcar como finalizado el trabajo #{TrabajoSeleccionado.TrabajoID}?",
+                resumen,
                 "Finalizar Trabajo",
                 System.Windows.MessageBoxButton.YesNo,
                 System.Windows.MessageBoxImage.Question);
 
             if (resultado == System.Windows.MessageBoxResult.Yes)
             {
-                using var db = new TallerDbContext();
-                var trabajo = db.Trabajos.Find(TrabajoSeleccionado.TrabajoID);
+                trabajo.Estado = "Finalizado";
+                trabajo.FechaEntrega = DateTime.Now;
+                trabajo.PrecioFinal = precioFinalCalculado; // ⭐ Asignar el precio calculado
 
-                if (trabajo != null)
-                {
-                    trabajo.Estado = "Finalizado";
-                    trabajo.FechaEntrega = DateTime.Now;
+                db.SaveChanges();
 
-                    if (trabajo.PrecioFinal == null)
-                    {
-                        trabajo.PrecioFinal = trabajo.PrecioEstimado;
-                    }
+                // Actualizar el objeto seleccionado en la UI
+                TrabajoSeleccionado.Estado = "Finalizado";
+                TrabajoSeleccionado.FechaEntrega = trabajo.FechaEntrega;
+                TrabajoSeleccionado.PrecioFinal = trabajo.PrecioFinal;
 
-                    db.SaveChanges();
-                    TrabajoSeleccionado.Estado = "Finalizado";
-                    TrabajoSeleccionado.FechaEntrega = trabajo.FechaEntrega;
-                    TrabajoSeleccionado.PrecioFinal = trabajo.PrecioFinal;
-                    OnPropertyChanged(nameof(Trabajos));
-                }
+                OnPropertyChanged(nameof(Trabajos));
+                CommandManager.InvalidateRequerySuggested();
+
+                System.Windows.MessageBox.Show(
+                    $"✅ Trabajo finalizado exitosamente.\n\n" +
+                    $"Precio Final: Bs. {precioFinalCalculado:N2}\n\n" +
+                    $"Puede generar la factura desde el módulo de Facturación.",
+                    "Trabajo Finalizado",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
             }
         }
+        
 
         private void EliminarTrabajo()
         {

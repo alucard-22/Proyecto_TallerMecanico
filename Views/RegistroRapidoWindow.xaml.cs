@@ -25,8 +25,6 @@ namespace Proyecto_taller.Views
         public RegistroRapidoWindow()
         {
             InitializeComponent();
-
-            // Establecer fecha de entrega por defecto (3 días después)
             dpFechaEntrega.SelectedDate = DateTime.Now.AddDays(3);
         }
 
@@ -38,9 +36,7 @@ namespace Proyecto_taller.Views
 
         private void RegistrarButton_Click(object sender, RoutedEventArgs e)
         {
-            // ========== VALIDACIONES MEJORADAS ==========
-
-            // Validar Cliente
+            //  VALIDACIONES 
             if (string.IsNullOrWhiteSpace(txtNombre.Text))
             {
                 MessageBox.Show("❌ El nombre del cliente es obligatorio.",
@@ -65,7 +61,6 @@ namespace Proyecto_taller.Views
                 return;
             }
 
-            // Validar Vehículo
             if (string.IsNullOrWhiteSpace(txtMarca.Text))
             {
                 MessageBox.Show("❌ La marca del vehículo es obligatoria.",
@@ -90,7 +85,6 @@ namespace Proyecto_taller.Views
                 return;
             }
 
-            // Validar Trabajo
             if (string.IsNullOrWhiteSpace(txtDescripcion.Text))
             {
                 MessageBox.Show("❌ La descripción del trabajo es obligatoria.",
@@ -151,7 +145,7 @@ namespace Proyecto_taller.Views
                 }
                 else
                 {
-                    // Si el vehículo existe pero pertenece a otro cliente, preguntar
+                    // Si el vehículo existe pero pertenece a otro cliente
                     if (vehiculo.ClienteID != cliente.ClienteID)
                     {
                         var resultado = MessageBox.Show(
@@ -173,21 +167,25 @@ namespace Proyecto_taller.Views
                 // ========== 3. CREAR TRABAJO ==========
                 decimal.TryParse(txtPrecio.Text, out decimal precio);
 
+                // ⭐ CORRECCIÓN: Solo asignar PrecioEstimado, NO PrecioFinal
+                // El PrecioFinal se debe calcular cuando se agreguen servicios/repuestos
+                // o cuando se finalice el trabajo
                 var trabajo = new Trabajo
                 {
                     VehiculoID = vehiculo.VehiculoID,
                     FechaIngreso = DateTime.Now,
-                    FechaEntrega = dpFechaEntrega.SelectedDate, // ⭐ NUEVO
+                    FechaEntrega = dpFechaEntrega.SelectedDate,
                     Descripcion = txtDescripcion.Text.Trim(),
-                    Estado = ((ComboBoxItem)cmbEstado.SelectedItem).Content.ToString(), // ⭐ NUEVO
+                    Estado = ((ComboBoxItem)cmbEstado.SelectedItem).Content.ToString(),
                     TipoTrabajo = ((ComboBoxItem)cmbTipoTrabajo.SelectedItem).Content.ToString(),
-                    PrecioEstimado = precio > 0 ? precio : null
+                    PrecioEstimado = precio > 0 ? precio : null,
+                    PrecioFinal = null // ⭐ IMPORTANTE: Dejar en NULL hasta finalizar el trabajo
                 };
 
                 db.Trabajos.Add(trabajo);
                 db.SaveChanges();
 
-                // ========== MENSAJE DE ÉXITO MEJORADO ==========
+                // ========== MENSAJE DE ÉXITO ==========
                 string mensajeDetalle = $"✅ TRABAJO REGISTRADO EXITOSAMENTE\n\n";
                 mensajeDetalle += $"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
                 mensajeDetalle += $"📋 INFORMACIÓN DEL TRABAJO\n";
@@ -221,8 +219,11 @@ namespace Proyecto_taller.Views
                     mensajeDetalle += $"   • ✨ Vehículo NUEVO registrado\n";
 
                 mensajeDetalle += $"\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-                mensajeDetalle += $"\n💡 Puede agregar servicios y repuestos\n";
-                mensajeDetalle += $"   desde el módulo de Trabajos.";
+                mensajeDetalle += $"\n💡 Próximos pasos:\n";
+                mensajeDetalle += $"   1. Agregar servicios desde el módulo Trabajos\n";
+                mensajeDetalle += $"   2. Agregar repuestos necesarios\n";
+                mensajeDetalle += $"   3. El precio final se calculará automáticamente\n";
+                mensajeDetalle += $"   4. Finalizar el trabajo cuando esté completado";
 
                 MessageBox.Show(
                     mensajeDetalle,

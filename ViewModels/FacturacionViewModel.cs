@@ -225,7 +225,6 @@ namespace Proyecto_taller.ViewModels
                 FechaEmision = DateTime.Now,
                 Subtotal = subtotal,
                 Descuento = 0,
-                IVA = iva,
                 Total = total,
                 Estado = "Pagada"
             };
@@ -273,7 +272,6 @@ namespace Proyecto_taller.ViewModels
             mensaje += $"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                       $"Subtotal:     Bs. {FacturaSeleccionada.Subtotal:N2}\n" +
                       $"Descuento:    Bs. {FacturaSeleccionada.Descuento:N2}\n" +
-                      $"IVA (13%):    Bs. {FacturaSeleccionada.IVA:N2}\n" +
                       $"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                       $"TOTAL:        Bs. {FacturaSeleccionada.Total:N2}\n\n" +
                       $"Estado: {FacturaSeleccionada.Estado}";
@@ -455,10 +453,7 @@ namespace Proyecto_taller.ViewModels
                 AgregarFilaTabla(tablaCostos, "Descuento:",
                     $"Bs. {FacturaSeleccionada.Descuento:N2}",
                     fuenteNegrita, fuenteNormal);
-                AgregarFilaTabla(tablaCostos, "IVA (13%):",
-                    $"Bs. {FacturaSeleccionada.IVA:N2}",
-                    fuenteNegrita, fuenteNormal);
-
+               
                 // Línea separadora
                 PdfPCell celdaLinea = new PdfPCell(new Phrase(" "));
                 celdaLinea.Colspan = 2;
