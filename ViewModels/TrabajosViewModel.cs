@@ -1,5 +1,7 @@
-﻿using Proyecto_taller.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Proyecto_taller.Data;
 using Proyecto_taller.Models;
+using Proyecto_taller.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,7 +11,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.EntityFrameworkCore;
 
 namespace Proyecto_taller.ViewModels
 {
@@ -82,6 +83,7 @@ namespace Proyecto_taller.ViewModels
         public ICommand CargarTrabajosCommand { get; }
         public ICommand AgregarTrabajoCommand { get; }
         public ICommand EditarTrabajoCommand { get; }
+        public ICommand GestionarServiciosRepuestosCommand { get; } // ⭐ NUEVO
         public ICommand FinalizarTrabajoCommand { get; }
         public ICommand EliminarTrabajoCommand { get; }
 
@@ -92,6 +94,7 @@ namespace Proyecto_taller.ViewModels
             CargarTrabajosCommand = new RelayCommand(CargarTrabajos);
             AgregarTrabajoCommand = new RelayCommand(AgregarTrabajo);
             EditarTrabajoCommand = new RelayCommand(EditarTrabajo, () => TrabajoSeleccionado != null);
+            GestionarServiciosRepuestosCommand = new RelayCommand(GestionarServiciosRepuestos, () => TrabajoSeleccionado != null); // ⭐ NUEVO
             FinalizarTrabajoCommand = new RelayCommand(FinalizarTrabajo, () => TrabajoSeleccionado != null && TrabajoSeleccionado.Estado != "Finalizado");
             EliminarTrabajoCommand = new RelayCommand(EliminarTrabajo, () => TrabajoSeleccionado != null);
 
@@ -189,6 +192,25 @@ namespace Proyecto_taller.ViewModels
                 $"Vehículo: {TrabajoSeleccionado.Vehiculo?.Marca} {TrabajoSeleccionado.Vehiculo?.Modelo}\n" +
                 $"Estado: {TrabajoSeleccionado.Estado}",
                 "Editar Trabajo");
+        }
+
+        // ⭐ NUEVO MÉTODO
+        private void GestionarServiciosRepuestos()
+        {
+            if (TrabajoSeleccionado == null) return;
+
+            var ventana = new GestionarTrabajoWindow(TrabajoSeleccionado.TrabajoID);
+            if (ventana.ShowDialog() == true)
+            {
+                // Recargar el trabajo para actualizar los datos
+                CargarTrabajos();
+
+                System.Windows.MessageBox.Show(
+                    "✅ Servicios y repuestos actualizados correctamente.",
+                    "Éxito",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+            }
         }
 
         private void FinalizarTrabajo()

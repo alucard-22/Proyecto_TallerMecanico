@@ -143,6 +143,9 @@
                     <Button Content="🗑️ Eliminar" 
                             Command="{Binding EliminarTrabajoCommand}" 
                             Style="{StaticResource DeleteButton}"/>
+                    <Button Content="🛠️ Gestionar Servicios/Repuestos" 
+        Command="{Binding GestionarServiciosRepuestosCommand}" 
+        Style="{StaticResource ModernButton}"/>
                 </StackPanel>
 
                 <!-- Filtros por estado -->
