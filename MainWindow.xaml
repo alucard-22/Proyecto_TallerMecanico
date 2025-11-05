@@ -13,7 +13,6 @@
         <!-- Paleta de colores -->
         <SolidColorBrush x:Key="PrimaryColor" Color="#6366F1"/>
         <SolidColorBrush x:Key="PrimaryHover" Color="#4F46E5"/>
-        <SolidColorBrush x:Key="PrimaryActive" Color="#4338CA"/>
         <SolidColorBrush x:Key="BackgroundDark" Color="#1E1B2E"/>
         <SolidColorBrush x:Key="SurfaceColor" Color="#2D2A3E"/>
         <SolidColorBrush x:Key="SurfaceHover" Color="#3E3B4F"/>
@@ -40,7 +39,7 @@
                                 CornerRadius="10"
                                 Margin="{TemplateBinding Margin}">
                             <Grid>
-                                <!-- Barra lateral indicadora -->
+                                <!-- Indicador lateral -->
                                 <Border x:Name="indicator"
                                         Width="4"
                                         HorizontalAlignment="Left"
@@ -55,7 +54,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#ffffff10"/>
+                                <Setter TargetName="border" Property="Background" Value="#652FA2"/>
                                 <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
@@ -77,7 +76,7 @@
                                 </Trigger.ExitActions>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#ffffff15"/>
+                                <Setter TargetName="border" Property="Background" Value="#AA81DA"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -90,7 +89,7 @@
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                        <GradientStop Color="#6366F130" Offset="0"/>
+                        <GradientStop Color="#AA81DA" Offset="0"/>
                         <GradientStop Color="Transparent" Offset="1"/>
                     </LinearGradientBrush>
                 </Setter.Value>
@@ -103,7 +102,7 @@
                                 CornerRadius="10"
                                 Margin="{TemplateBinding Margin}">
                             <Grid>
-                                <!-- Barra lateral indicadora siempre visible -->
+                                <!-- Indicador lateral visible -->
                                 <Border Width="4"
                                         HorizontalAlignment="Left"
                                         CornerRadius="0,2,2,0"
@@ -162,11 +161,7 @@
         <!-- Sidebar -->
         <Grid Grid.Column="0" Background="{StaticResource SurfaceColor}">
             <Grid.Effect>
-                <DropShadowEffect Color="Black" 
-                                Direction="0" 
-                                ShadowDepth="0" 
-                                BlurRadius="20" 
-                                Opacity="0.3"/>
+                <DropShadowEffect Color="Black" Direction="0" ShadowDepth="0" BlurRadius="20" Opacity="0.3"/>
             </Grid.Effect>
 
             <Grid.RowDefinitions>
@@ -183,19 +178,15 @@
                     CornerRadius="12">
                 <StackPanel>
                     <!-- Logo con gradiente -->
-                    <Border Width="60" 
-                            Height="60" 
-                            CornerRadius="12"
-                            HorizontalAlignment="Center"
-                            Margin="0,0,0,12">
+                    <Border Width="60" Height="60" CornerRadius="12"
+                            HorizontalAlignment="Center" Margin="0,0,0,12">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                 <GradientStop Color="#6366F1" Offset="0"/>
                                 <GradientStop Color="#8B5CF6" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <TextBlock Text="🔧" 
-                                  FontSize="32" 
+                        <TextBlock Text="🔧" FontSize="32" 
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   Foreground="White"/>
@@ -203,90 +194,56 @@
 
                     <TextBlock Text="TALLER EL CHOCO" 
                               Foreground="{StaticResource TextPrimary}" 
-                              FontSize="16" 
-                              FontWeight="Bold" 
+                              FontSize="16" FontWeight="Bold" 
                               HorizontalAlignment="Center"/>
                     <TextBlock Text="Sistema de Gestión" 
                               Foreground="{StaticResource TextSecondary}" 
-                              FontSize="11" 
-                              HorizontalAlignment="Center"
+                              FontSize="11" HorizontalAlignment="Center"
                               Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
 
             <!-- Menu Items -->
-            <ScrollViewer Grid.Row="1" 
-                         VerticalScrollBarVisibility="Auto"
-                         Margin="0,20,0,0">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,20,0,0">
                 <StackPanel Margin="8,0">
-                    <Button x:Name="BtnInicio" 
-                            Content="🏠  Inicio" 
-                            Style="{StaticResource MenuButton}" 
-                            Click="Inicio_Click"/>
-                    <Button x:Name="BtnClientes" 
-                            Content="👥  Clientes" 
-                            Style="{StaticResource MenuButton}" 
-                            Click="Clientes_Click"/>
-                    <Button x:Name="BtnVehiculos" 
-                            Content="🚗  Vehículos" 
-                            Style="{StaticResource MenuButton}" 
-                            Click="Vehiculos_Click"/>
-                    <Button x:Name="BtnServicios" 
-                            Content="🛠️  Trabajos" 
-                            Style="{StaticResource MenuButton}" 
-                            Click="Servicios_Click"/>
-                    <Button x:Name="BtnReservas" 
-                            Content="📅  Reservas" 
-                            Style="{StaticResource MenuButton}" 
-                            Click="Reservas_Click"/>
-                    <Button x:Name="BtnInventario" 
-                            Content="📦  Inventario" 
-                            Style="{StaticResource MenuButton}" 
-                            Click="Inventario_Click"/>
-                    <Button x:Name="BtnFacturacion" 
-                            Content="💰  Facturación" 
-                            Style="{StaticResource MenuButton}" 
-                            Click="Facturacion_Click"/>
-                    <Button x:Name="BtnReportes" 
-                            Content="📊  Reportes" 
-                            Style="{StaticResource MenuButton}" 
-                            Click="Reportes_Click"/>
+                    <Button x:Name="BtnInicio" Content="🏠  Inicio" 
+                            Style="{StaticResource MenuButton}" Click="Inicio_Click"/>
+                    <Button x:Name="BtnClientes" Content="👥  Clientes" 
+                            Style="{StaticResource MenuButton}" Click="Clientes_Click"/>
+                    <Button x:Name="BtnVehiculos" Content="🚗  Vehículos" 
+                            Style="{StaticResource MenuButton}" Click="Vehiculos_Click"/>
+                    <Button x:Name="BtnServicios" Content="🛠️  Trabajos" 
+                            Style="{StaticResource MenuButton}" Click="Servicios_Click"/>
+                    <Button x:Name="BtnReservas" Content="📅  Reservas" 
+                            Style="{StaticResource MenuButton}" Click="Reservas_Click"/>
+                    <Button x:Name="BtnInventario" Content="📦  Inventario" 
+                            Style="{StaticResource MenuButton}" Click="Inventario_Click"/>
+                    <Button x:Name="BtnFacturacion" Content="💰  Facturación" 
+                            Style="{StaticResource MenuButton}" Click="Facturacion_Click"/>
+                    <Button x:Name="BtnReportes" Content="📊  Reportes" 
+                            Style="{StaticResource MenuButton}" Click="Reportes_Click"/>
 
                     <!-- Separador -->
-                    <Border Height="1" 
-                            Background="{StaticResource BorderColor}"
-                            Margin="16,12"
-                            Opacity="0.3"/>
+                    <Border Height="1" Background="{StaticResource BorderColor}"
+                            Margin="16,12" Opacity="0.3"/>
 
-                    <Button x:Name="BtnConfiguracion" 
-                            Content="⚙️  Configuración" 
-                            Style="{StaticResource MenuButton}" 
-                            Click="Configuracion_Click"/>
+                    <Button x:Name="BtnConfiguracion" Content="⚙️  Configuración" 
+                            Style="{StaticResource MenuButton}" Click="Configuracion_Click"/>
                 </StackPanel>
             </ScrollViewer>
 
             <!-- Footer del Sidebar -->
-            <Border Grid.Row="2" 
-                    Background="{StaticResource BackgroundDark}"
-                    Padding="16"
-                    Margin="12,0,12,12"
-                    CornerRadius="12">
+            <Border Grid.Row="2" Background="{StaticResource BackgroundDark}"
+                    Padding="16" Margin="12,0,12,12" CornerRadius="12">
                 <StackPanel>
-                    <Border Height="1" 
-                            Background="{StaticResource BorderColor}" 
-                            Margin="0,0,0,12"
-                            Opacity="0.3"/>
-
+                    <Border Height="1" Background="{StaticResource BorderColor}" 
+                            Margin="0,0,0,12" Opacity="0.3"/>
                     <TextBlock Text="v1.0.0" 
                               Foreground="{StaticResource TextSecondary}" 
-                              FontSize="10" 
-                              HorizontalAlignment="Center"
-                              Margin="0,0,0,4"/>
-
+                              FontSize="10" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                     <TextBlock Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat='dd/MM/yyyy HH:mm'}" 
                               Foreground="{StaticResource TextSecondary}" 
-                              FontSize="10" 
-                              HorizontalAlignment="Center"/>
+                              FontSize="10" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -299,17 +256,12 @@
             </Grid.RowDefinitions>
 
             <!-- Top Bar -->
-            <Border Grid.Row="0" 
-                    Background="{StaticResource SurfaceColor}"
+            <Border Grid.Row="0" Background="{StaticResource SurfaceColor}"
                     BorderBrush="{StaticResource BorderColor}"
-                    BorderThickness="0,0,0,1"
-                    Padding="24,0">
+                    BorderThickness="0,0,0,1" Padding="24,0">
                 <Border.Effect>
-                    <DropShadowEffect Color="Black" 
-                                    Direction="270" 
-                                    ShadowDepth="2" 
-                                    BlurRadius="8" 
-                                    Opacity="0.2"/>
+                    <DropShadowEffect Color="Black" Direction="270" 
+                                    ShadowDepth="2" BlurRadius="8" Opacity="0.2"/>
                 </Border.Effect>
 
                 <Grid>
@@ -318,47 +270,20 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Título con breadcrumb -->
-                    <StackPanel Grid.Column="0" 
-                               VerticalAlignment="Center">
+                    <!-- Título con subtítulo -->
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock x:Name="TitleTextBlock" 
                                   Text="Bienvenido al Sistema" 
                                   Foreground="{StaticResource TextPrimary}" 
-                                  FontSize="20" 
-                                  FontWeight="SemiBold"/>
+                                  FontSize="20" FontWeight="SemiBold"/>
                         <TextBlock x:Name="SubtitleTextBlock"
                                   Text="Panel de Control Principal"
                                   Foreground="{StaticResource TextSecondary}"
-                                  FontSize="12"
-                                  Margin="0,2,0,0"/>
+                                  FontSize="12" Margin="0,2,0,0"/>
                     </StackPanel>
 
-                    <!-- Botones de acción -->
-                    <StackPanel Grid.Column="1" 
-                               Orientation="Horizontal" 
-                               VerticalAlignment="Center">
-                        <!-- Búsqueda rápida -->
-                        <Border Background="{StaticResource BackgroundDark}"
-                                CornerRadius="8"
-                                Padding="12,8"
-                                Margin="0,0,12,0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🔍" 
-                                          Foreground="{StaticResource TextSecondary}"
-                                          FontSize="14"
-                                          VerticalAlignment="Center"
-                                          Margin="0,0,8,0"/>
-                                <TextBlock Text="Buscar (Ctrl+K)" 
-                                          Foreground="{StaticResource TextSecondary}"
-                                          FontSize="11"
-                                          VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Button Content="📋" 
-                                Style="{StaticResource TopBarButton}"
-                                Margin="4,0"
-                                ToolTip="Notificaciones"/>
+                    <!-- Botones de acción simples -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Content="👤" 
                                 Style="{StaticResource TopBarButton}"
                                 Margin="4,0"
