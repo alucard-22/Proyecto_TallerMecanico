@@ -289,90 +289,86 @@
             <DataGrid x:Name="dgClientes"
                       ItemsSource="{Binding Clientes}" 
                       SelectedItem="{Binding ClienteSeleccionado}"
-                      Margin="1"> 
+                      Margin="1"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      AutoGenerateColumns="False">
                 <DataGrid.Columns>
-                    <!-- ID con badge circular -->
-                    <DataGridTemplateColumn Header="ID" Width="70">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Border Background="#E3F2FD"
-                                       CornerRadius="12"
-                                       Padding="8,4"
-                                       HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding ClienteID}" 
-                                              FontWeight="Bold"
-                                              Foreground="#1976D2"
-                                              HorizontalAlignment="Center"/>
-                                </Border>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    <!-- ID (Solo lectura) -->
+                    <DataGridTextColumn Header="ID" 
+                                       Binding="{Binding ClienteID}" 
+                                       Width="70"
+                                       IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Foreground" Value="#1976D2"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
 
-                    <!-- Nombre con icono -->
-                    <DataGridTemplateColumn Header="Nombre Completo" Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="32" Height="32" 
-                                            Fill="#4A90E2"
-                                            Margin="0,0,10,0">
-                                        <Ellipse.Effect>
-                                            <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
-                                        </Ellipse.Effect>
-                                    </Ellipse>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock FontWeight="SemiBold" FontSize="13">
-                                            <Run Text="{Binding Nombre}"/>
-                                            <Run Text=" "/>
-                                            <Run Text="{Binding Apellido}"/>
-                                        </TextBlock>
-                                        <TextBlock Text="{Binding Correo}" 
-                                                  FontSize="11" 
-                                                  Foreground="#718096"
-                                                  Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    <!-- Nombre (Editable) -->
+                    <DataGridTextColumn Header="Nombre" 
+                                       Binding="{Binding Nombre, UpdateSourceTrigger=LostFocus}" 
+                                       Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
 
-                    <!-- Teléfono con icono -->
-                    <DataGridTemplateColumn Header="Teléfono" Width="140">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📞 " FontSize="14" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Telefono}" 
-                                              VerticalAlignment="Center"
-                                              FontFamily="Consolas"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    <!-- Apellido (Editable) -->
+                    <DataGridTextColumn Header="Apellido" 
+                                       Binding="{Binding Apellido, UpdateSourceTrigger=LostFocus}" 
+                                       Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
 
-                    <!-- Dirección -->
+                    <!-- Teléfono (Editable) -->
+                    <DataGridTextColumn Header="Teléfono" 
+                                       Binding="{Binding Telefono, UpdateSourceTrigger=LostFocus}" 
+                                       Width="140">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontFamily" Value="Consolas"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Correo (Editable) -->
+                    <DataGridTextColumn Header="Correo" 
+                                       Binding="{Binding Correo, UpdateSourceTrigger=LostFocus}" 
+                                       Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#718096"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Dirección (Editable) -->
                     <DataGridTextColumn Header="Dirección" 
-                                       Binding="{Binding Direccion}"
+                                       Binding="{Binding Direccion, UpdateSourceTrigger=LostFocus}"
                                        Width="*"/>
 
-                    <!-- Fecha con formato mejorado -->
-                    <DataGridTemplateColumn Header="Fecha Registro" Width="140">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding FechaRegistro, StringFormat=dd/MM/yyyy}" 
-                                              FontWeight="SemiBold"
-                                              FontSize="12"/>
-                                    <TextBlock Text="{Binding FechaRegistro, StringFormat=HH:mm}" 
-                                              FontSize="10" 
-                                              Foreground="#718096"
-                                              Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-
-
+                    <!-- Fecha Registro (Solo lectura) -->
+                    <DataGridTextColumn Header="Fecha Registro" 
+                                       Binding="{Binding FechaRegistro, StringFormat=dd/MM/yyyy HH:mm}"
+                                       Width="150"
+                                       IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontSize" Value="12"/>
+                                <Setter Property="Foreground" Value="#718096"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
