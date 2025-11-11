@@ -133,8 +133,7 @@ namespace Proyecto_taller
                 case "configuración":
                     MainFrame.Navigate(new Configuracion());
                     break;
-                    MainFrame.Navigate(new Inicio());
-                    break;
+                    
                 case "usuarios":
                     MainFrame.Navigate(new Usuarios());
                     break;
@@ -233,6 +232,11 @@ namespace Proyecto_taller
             SetActiveButton(BtnConfiguracion);
             NavigateToPage("Configuración");
         }
+        //private void Configuracion_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetActiveButton(BtnUsuarios);
+        //    NavigateToPage("Usuarios");
+        //}
         #endregion
     }
 }
