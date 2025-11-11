@@ -200,21 +200,17 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTemplateColumn Header="Estado" Width="100">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Border Background="{Binding Activo, Converter={StaticResource BoolToColorConverter}}"
-                                        CornerRadius="12"
-                                        Padding="8,4">
-                                    <TextBlock Text="{Binding Activo, Converter={StaticResource BoolToTextConverter}}"
-                                              Foreground="White"
-                                              FontWeight="Bold"
-                                              FontSize="11"
-                                              HorizontalAlignment="Center"/>
-                                </Border>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    <DataGridCheckBoxColumn Header="Activo" 
+                                           Binding="{Binding Activo}" 
+                                           Width="100" 
+                                           IsReadOnly="True">
+                        <DataGridCheckBoxColumn.ElementStyle>
+                            <Style TargetType="CheckBox">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="IsHitTestVisible" Value="False"/>
+                            </Style>
+                        </DataGridCheckBoxColumn.ElementStyle>
+                    </DataGridCheckBoxColumn>
 
                     <DataGridTextColumn Header="Fecha Creación" 
                                        Binding="{Binding FechaCreacion, StringFormat=dd/MM/yyyy}" 
