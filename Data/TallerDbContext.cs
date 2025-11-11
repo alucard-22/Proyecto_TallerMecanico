@@ -31,6 +31,8 @@ namespace Proyecto_taller.Data
         public DbSet<Reserva> Reservas { get; set; }
         public DbSet<Factura> Facturas { get; set; }
 
+        public DbSet<Usuario> Usuarios { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

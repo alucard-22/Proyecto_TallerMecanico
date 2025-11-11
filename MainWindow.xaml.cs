@@ -1,4 +1,7 @@
-﻿using System.Configuration;
+﻿using Proyecto_taller.Helpers;
+using Proyecto_taller.Models;
+using Proyecto_taller.Views;
+using System.Configuration;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,7 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Proyecto_taller.Views;
 
 //namespace Proyecto_taller
 //{
@@ -63,10 +65,28 @@ namespace Proyecto_taller
         public MainWindow()
         {
             InitializeComponent();
+
+            // Mostrar información del usuario
+            ActualizarInfoUsuario();
+
             SetActiveButton(BtnInicio);
             NavigateToPage("Inicio");
         }
 
+        private void ActualizarInfoUsuario()
+        {
+            if (SessionManager.EstaAutenticado)
+            {
+                // Mostrar botón de usuarios solo para administradores
+                if (SessionManager.EsAdministrador)
+                {
+                    BtnUsuarios.Visibility = Visibility.Visible;
+                }
+
+                // Puedes agregar un TextBlock para mostrar el usuario actual
+                // TitleTextBlock.Text = $"Bienvenido, {SessionManager.ObtenerNombreUsuario()}";
+            }
+        }
         private void SetActiveButton(Button button)
         {
             // Resetear el estilo del botón activo anterior
@@ -113,9 +133,49 @@ namespace Proyecto_taller
                 case "configuración":
                     MainFrame.Navigate(new Configuracion());
                     break;
+                    MainFrame.Navigate(new Inicio());
+                    break;
+                case "usuarios":
+                    MainFrame.Navigate(new Usuarios());
+                    break;
+
                 default:
                     MainFrame.Navigate(new Inicio());
                     break;
+            }
+        }
+        private void Usuarios_Click(object sender, RoutedEventArgs e)
+        {
+            if (!SessionManager.EsAdministrador)
+            {
+                MessageBox.Show(
+                    "No tienes permisos para acceder a esta sección.",
+                    "Acceso Denegado",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            SetActiveButton(BtnUsuarios);
+            NavigateToPage("Usuarios");
+        }
+
+        private void CerrarSesion_Click(object sender, RoutedEventArgs e)
+        {
+            var resultado = MessageBox.Show(
+                "¿Está seguro de cerrar sesión?",
+                "Cerrar Sesión",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (resultado == MessageBoxResult.Yes)
+            {
+                SessionManager.CerrarSesion();
+
+                LoginWindow loginWindow = new LoginWindow();
+                loginWindow.Show();
+
+                this.Close();
             }
         }
 
