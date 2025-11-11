@@ -16,15 +16,38 @@ using Proyecto_taller.ViewModels;
 
 namespace Proyecto_taller.Views
 {
-    /// <summary>
-    /// Lógica de interacción para Vehiculos.xaml
-    /// </summary>
     public partial class Vehiculos : Page
     {
         public Vehiculos()
         {
             InitializeComponent();
             DataContext = new VehiculosViewModel();
+        }
+
+        private void TxtBuscar_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var viewModel = DataContext as VehiculosViewModel;
+            if (viewModel == null) return;
+
+            string filtro = txtBuscar.Text.ToLower();
+
+            if (string.IsNullOrWhiteSpace(filtro))
+            {
+                dgVehiculos.ItemsSource = viewModel.Vehiculos;
+            }
+            else
+            {
+                var vehiculosFiltrados = viewModel.Vehiculos.Where(v =>
+                    v.Placa.ToLower().Contains(filtro) ||
+                    v.Marca.ToLower().Contains(filtro) ||
+                    v.Modelo.ToLower().Contains(filtro) ||
+                    (v.Anio.HasValue && v.Anio.ToString().Contains(filtro)) ||
+                    (v.Cliente?.Nombre != null && v.Cliente.Nombre.ToLower().Contains(filtro)) ||
+                    (v.Cliente?.Apellido != null && v.Cliente.Apellido.ToLower().Contains(filtro))
+                ).ToList();
+
+                dgVehiculos.ItemsSource = vehiculosFiltrados;
+            }
         }
     }
 }

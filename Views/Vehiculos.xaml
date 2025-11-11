@@ -5,7 +5,78 @@
       Background="Transparent">
 
     <Page.Resources>
-        <!-- Estilo para botones modernos -->
+        <!-- Estilos para DataGrid -->
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E1E8ED"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F8FAFB"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="RowHeight" Value="48"/>
+            <Setter Property="ColumnHeaderHeight" Value="50"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#34495E" Offset="0"/>
+                        <GradientStop Color="#2C3E50" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="15,12"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush" Value="#4A5568"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E3F2FD"/>
+                    <Setter Property="Foreground" Value="#1976D2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F5F7FA"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E3F2FD"/>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsSelected" Value="True"/>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="#BBDEFB"/>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para botones -->
         <Style x:Key="ModernButton" TargetType="Button">
             <Setter Property="Background" Value="#4A90E2"/>
             <Setter Property="Foreground" Value="White"/>
@@ -31,13 +102,9 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#357ABD"/>
                 </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#2868A8"/>
-                </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- Estilo para botón eliminar -->
         <Style x:Key="DeleteButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
             <Setter Property="Background" Value="#E74C3C"/>
             <Style.Triggers>
@@ -47,43 +114,39 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Estilo para DataGrid -->
-        <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E1E8ED"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="White"/>
-            <Setter Property="AlternatingRowBackground" Value="#F8FAFB"/>
-            <Setter Property="GridLinesVisibility" Value="None"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="CanUserResizeRows" Value="False"/>
-            <Setter Property="AutoGenerateColumns" Value="False"/>
-            <Setter Property="FontSize" Value="13"/>
-        </Style>
-
-        <!-- Estilo para encabezados del DataGrid -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#34495E"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="13"/>
+        <Style x:Key="SearchBox" TargetType="TextBox">
             <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        </Style>
-
-        <!-- Estilo para celdas del DataGrid -->
-        <Style TargetType="DataGridCell">
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E8F4F8"/>
-                    <Setter Property="Foreground" Value="#2C3E50"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#CBD5E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                          Text="🔍"
+                                          FontSize="14"
+                                          VerticalAlignment="Center"
+                                          Margin="10,0,5,0"
+                                          Opacity="0.5"/>
+                                <ScrollViewer Grid.Column="1"
+                                            x:Name="PART_ContentHost"
+                                            Padding="{TemplateBinding Padding}"
+                                            VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Page.Resources>
 
@@ -94,83 +157,94 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Sección de encabezado y botones -->
+        <!-- Header -->
         <Border Grid.Row="0" Background="White" 
-                CornerRadius="8" 
-                Padding="20"
-                BorderBrush="#E1E8ED" 
-                BorderThickness="1">
+                CornerRadius="8" Padding="20"
+                BorderBrush="#E1E8ED" BorderThickness="1">
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="8" Opacity="0.1"/>
+            </Border.Effect>
+
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="15"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Título -->
-                <TextBlock Grid.Row="0" 
-                          Text="Gestión de Vehículos" 
-                          FontSize="24" 
-                          FontWeight="Bold"
-                          Foreground="#2C3E50"/>
+                <!-- Título con contador -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <!-- Botones de acción -->
-                <StackPanel Grid.Row="2" Orientation="Horizontal">
-                    <Button Content="🔄 Cargar Vehículos" 
-                            Command="{Binding CargarVehiculosCommand}" 
-                            Style="{StaticResource ModernButton}"/>
-                    <Button Content="➕ Agregar" 
-                            Command="{Binding AgregarVehiculoCommand}" 
-                            Style="{StaticResource ModernButton}"/>
-                    <Button Content="✏️ Editar" 
-                            Command="{Binding EditarVehiculoCommand}" 
-                            Style="{StaticResource ModernButton}"/>
-                    <Button Content="🗑️ Eliminar" 
-                            Command="{Binding EliminarVehiculoCommand}" 
-                            Style="{StaticResource DeleteButton}"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="🚗 " FontSize="24" VerticalAlignment="Center"/>
+                        <TextBlock Text="Gestión de Vehículos" 
+                                  FontSize="24" FontWeight="Bold"
+                                  Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="1" Background="#4A90E2"
+                            CornerRadius="15" Padding="12,6">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Total: " Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                            <TextBlock Text="{Binding Vehiculos.Count}" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Barra de búsqueda -->
+                <TextBox Grid.Row="2" x:Name="txtBuscar" Style="{StaticResource SearchBox}"
+                        TextChanged="TxtBuscar_TextChanged"/>
+
+                <!-- Botones -->
+                <StackPanel Grid.Row="4" Orientation="Horizontal">
+                    <Button Content="🔄 Actualizar" Command="{Binding CargarVehiculosCommand}" Style="{StaticResource ModernButton}"/>
+                    <Button Content="➕ Nuevo Vehículo" Command="{Binding AgregarVehiculoCommand}" Style="{StaticResource ModernButton}"/>
+                    <Button Content="✏️ Editar" Command="{Binding EditarVehiculoCommand}" Style="{StaticResource ModernButton}"/>
+                    <Button Content="🗑️ Eliminar" Command="{Binding EliminarVehiculoCommand}" Style="{StaticResource DeleteButton}"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- DataGrid con sombra -->
-        <Border Grid.Row="2" 
-                Background="White" 
-                CornerRadius="8"
-                BorderBrush="#E1E8ED" 
-                BorderThickness="1">
+        <!-- DataGrid -->
+        <Border Grid.Row="2" Background="White" CornerRadius="8"
+                BorderBrush="#E1E8ED" BorderThickness="1">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="10" 
-                                ShadowDepth="2" 
-                                Opacity="0.1" 
-                                Color="#000000"/>
+                <DropShadowEffect Color="Black" Direction="270" ShadowDepth="3" BlurRadius="15" Opacity="0.15"/>
             </Border.Effect>
 
-            <DataGrid ItemsSource="{Binding Vehiculos}" 
+            <DataGrid x:Name="dgVehiculos"
+                      ItemsSource="{Binding Vehiculos}" 
                       SelectedItem="{Binding VehiculoSeleccionado}"
-                      Margin="1">
+                      Margin="1" CanUserAddRows="False">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" 
-                                       Binding="{Binding VehiculoID}" 
-                                       IsReadOnly="True"
-                                       Width="60"/>
-                    <DataGridTextColumn Header="Placa" 
-                                       Binding="{Binding Placa}"
-                                       Width="120"/>
-                    <DataGridTextColumn Header="Marca" 
-                                       Binding="{Binding Marca}"
-                                       Width="*"/>
-                    <DataGridTextColumn Header="Modelo" 
-                                       Binding="{Binding Modelo}"
-                                       Width="*"/>
-                    <DataGridTextColumn Header="Año" 
-                                       Binding="{Binding Anio}"
-                                       Width="80"/>
-                    <DataGridTextColumn Header="Cliente" 
-                                       Binding="{Binding Cliente.Nombre}"
-                                       Width="*"/>
-                    <DataGridTextColumn Header="Apellido Cliente" 
-                                       Binding="{Binding Cliente.Apellido}"
-                                       Width="*"/>
+                    <DataGridTextColumn Header="ID" Binding="{Binding VehiculoID}" Width="70" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Foreground" Value="#1976D2"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Placa" Binding="{Binding Placa}" Width="120">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontFamily" Value="Consolas"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Marca" Binding="{Binding Marca}" Width="*"/>
+                    <DataGridTextColumn Header="Modelo" Binding="{Binding Modelo}" Width="*"/>
+                    <DataGridTextColumn Header="Año" Binding="{Binding Anio}" Width="80"/>
+                    <DataGridTextColumn Header="Cliente" Binding="{Binding Cliente.Nombre}" Width="*"/>
+                    <DataGridTextColumn Header="Apellido" Binding="{Binding Cliente.Apellido}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
