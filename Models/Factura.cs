@@ -15,7 +15,6 @@ namespace Proyecto_taller.Models
         public decimal Subtotal { get; set; }
         public decimal Descuento { get; set; } = 0;
         public decimal Total { get; set; }
-        public string? NIT { get; set; }
         public string? RazonSocial { get; set; }
         public string Estado { get; set; } = "Pagada"; // Pagada, Pendiente, Anulada
 

@@ -86,7 +86,7 @@
         </Style>
     </Window.Resources>
 
-    <Border BorderBrush="#4A90E2" BorderThickness="2" CornerRadius="15">
+    <Border BorderBrush="#4A90E2" BorderThickness="2" CornerRadius="15" Margin="0,0,0,-28">
         <Grid>
             <Grid.Effect>
                 <DropShadowEffect Color="Black" Direction="270" ShadowDepth="5" BlurRadius="20" Opacity="0.3"/>
@@ -144,10 +144,10 @@
             </Border>
 
             <!-- Form Content -->
-            <Border Grid.Row="1" 
+            <Border 
                     Background="White" 
                     CornerRadius="0,0,13,13"
-                    Padding="40,30">
+                    Padding="40,30" Margin="0,199,0,-26" Grid.RowSpan="2">
                 <StackPanel>
                     <TextBlock Text="Iniciar Sesión" 
                               FontSize="20" 

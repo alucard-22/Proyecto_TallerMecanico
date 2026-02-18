@@ -263,11 +263,11 @@ namespace Proyecto_taller.ViewModels
                          $"Vehículo: {FacturaSeleccionada.Trabajo?.Vehiculo?.Marca} {FacturaSeleccionada.Trabajo?.Vehiculo?.Modelo}\n" +
                          $"Placa: {FacturaSeleccionada.Trabajo?.Vehiculo?.Placa}\n\n";
 
-            if (!string.IsNullOrEmpty(FacturaSeleccionada.NIT))
-            {
-                mensaje += $"NIT: {FacturaSeleccionada.NIT}\n" +
-                          $"Razón Social: {FacturaSeleccionada.RazonSocial}\n\n";
-            }
+            //if (!string.IsNullOrEmpty(FacturaSeleccionada.NIT))
+            //{
+            //    mensaje += $"NIT: {FacturaSeleccionada.NIT}\n" +
+            //              $"Razón Social: {FacturaSeleccionada.RazonSocial}\n\n";
+            //}
 
             mensaje += $"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                       $"Subtotal:     Bs. {FacturaSeleccionada.Subtotal:N2}\n" +
@@ -365,7 +365,6 @@ namespace Proyecto_taller.ViewModels
                 celdaDer.Border = Rectangle.NO_BORDER;
                 celdaDer.HorizontalAlignment = Element.ALIGN_RIGHT;
                 celdaDer.AddElement(new Phrase($"Trabajo ID: {FacturaSeleccionada.TrabajoID}\n", fuenteNormal));
-                celdaDer.AddElement(new Phrase($"NIT: {FacturaSeleccionada.NIT ?? "N/A"}\n", fuenteNormal));
                 if (!string.IsNullOrEmpty(FacturaSeleccionada.RazonSocial))
                 {
                     celdaDer.AddElement(new Phrase($"Razón Social: {FacturaSeleccionada.RazonSocial}\n", fuenteNormal));
