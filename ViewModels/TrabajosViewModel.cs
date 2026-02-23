@@ -226,37 +226,41 @@ namespace Proyecto_taller.ViewModels
 
             if (trabajo == null) return;
 
-            // ⭐ CALCULAR EL PRECIO FINAL SUMANDO TODO
+            // ⭐ CALCULAR EL PRECIO FINAL SOLO CON SERVICIOS + REPUESTOS
             decimal precioFinalCalculado = 0;
 
-            // 1. Sumar el precio estimado (mano de obra base)
-            if (trabajo.PrecioEstimado.HasValue)
-            {
-                precioFinalCalculado += trabajo.PrecioEstimado.Value;
-            }
-
-            // 2. Sumar los servicios adicionales
+            // 1. Sumar servicios
             if (trabajo.Servicios != null && trabajo.Servicios.Any())
             {
                 precioFinalCalculado += trabajo.Servicios.Sum(s => s.Subtotal);
             }
 
-            // 3. Sumar los repuestos
+            // 2. Sumar repuestos
             if (trabajo.Repuestos != null && trabajo.Repuestos.Any())
             {
                 precioFinalCalculado += trabajo.Repuestos.Sum(r => r.Subtotal);
+            }
+
+            // ⭐ Si no hay servicios ni repuestos, usar el precio estimado
+            if (precioFinalCalculado == 0 && trabajo.PrecioEstimado.HasValue)
+            {
+                precioFinalCalculado = trabajo.PrecioEstimado.Value;
             }
 
             // Mostrar resumen antes de finalizar
             string resumen = $"📊 RESUMEN DEL TRABAJO #{trabajo.TrabajoID}\n\n";
             resumen += $"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
-            resumen += $"💼 Mano de Obra Base:\n";
-            resumen += $"   Bs. {(trabajo.PrecioEstimado ?? 0):N2}\n\n";
+            // Mostrar precio estimado solo como referencia
+            if (trabajo.PrecioEstimado.HasValue)
+            {
+                resumen += $"💵 Precio Estimado Inicial:\n";
+                resumen += $"   Bs. {trabajo.PrecioEstimado:N2} (solo referencia)\n\n";
+            }
 
             if (trabajo.Servicios != null && trabajo.Servicios.Any())
             {
-                resumen += $"🔧 Servicios Adicionales:\n";
+                resumen += $"🔧 Servicios:\n";
                 foreach (var servicio in trabajo.Servicios)
                 {
                     resumen += $"   • {servicio.Cantidad}x - Bs. {servicio.Subtotal:N2}\n";
@@ -289,11 +293,10 @@ namespace Proyecto_taller.ViewModels
             {
                 trabajo.Estado = "Finalizado";
                 trabajo.FechaEntrega = DateTime.Now;
-                trabajo.PrecioFinal = precioFinalCalculado; // ⭐ Asignar el precio calculado
+                trabajo.PrecioFinal = precioFinalCalculado;
 
                 db.SaveChanges();
 
-                // Actualizar el objeto seleccionado en la UI
                 TrabajoSeleccionado.Estado = "Finalizado";
                 TrabajoSeleccionado.FechaEntrega = trabajo.FechaEntrega;
                 TrabajoSeleccionado.PrecioFinal = trabajo.PrecioFinal;
@@ -310,7 +313,7 @@ namespace Proyecto_taller.ViewModels
                     System.Windows.MessageBoxImage.Information);
             }
         }
-        
+
 
         private void EliminarTrabajo()
         {

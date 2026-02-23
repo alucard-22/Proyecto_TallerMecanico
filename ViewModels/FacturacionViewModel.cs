@@ -213,10 +213,9 @@ namespace Proyecto_taller.ViewModels
             int numeroConsecutivo = ultimaFactura != null ? ultimaFactura.FacturaID + 1 : 1;
             string numeroFactura = $"FACT-{DateTime.Now.Year}-{numeroConsecutivo:D3}";
 
-            // Calcular montos
+            // ⭐ CALCULAR MONTOS SIN IVA
             decimal subtotal = trabajoSinFactura.PrecioFinal ?? 0;
-            decimal iva = subtotal * 0.13m; // IVA 13%
-            decimal total = subtotal + iva;
+            decimal total = subtotal; 
 
             var nueva = new Factura
             {
@@ -246,7 +245,11 @@ namespace Proyecto_taller.ViewModels
             ActualizarEstadisticas();
 
             MessageBox.Show(
-                $"Factura {numeroFactura} creada exitosamente.\nTotal: Bs. {total:N2}",
+                $"✅ Factura {numeroFactura} creada exitosamente.\n\n" +
+                $"Subtotal: Bs. {subtotal:N2}\n" +
+                $"Descuento: Bs. 0.00\n" +
+                $"━━━━━━━━━━━━━━━━━━━━\n" +
+                $"TOTAL: Bs. {total:N2}",
                 "Factura Creada",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
