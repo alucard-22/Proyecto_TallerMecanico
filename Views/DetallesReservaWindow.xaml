@@ -1,0 +1,425 @@
+﻿<Window x:Class="Proyecto_taller.Views.DetallesReservaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Detalles de la Reserva" 
+        Height="750" 
+        Width="700"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F7FA">
+
+    <!-- ════════════════════════════════════════════════════════════════
+         RECURSOS (Estilos reutilizables)
+    ════════════════════════════════════════════════════════════════ -->
+    <Window.Resources>
+
+        <!-- Estilo para las tarjetas/secciones -->
+        <Style x:Key="SectionCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" Direction="270" 
+                                    ShadowDepth="2" BlurRadius="8" Opacity="0.08"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo para las etiquetas (ej: "Nombre:") -->
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="#6C757D"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Estilo para los valores (ej: "Juan Pérez") -->
+        <Style x:Key="Value" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#212529"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+    </Window.Resources>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         ESTRUCTURA PRINCIPAL (3 filas: Header, Contenido, Footer)
+    ════════════════════════════════════════════════════════════════ -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Header -->
+            <RowDefinition Height="*"/>
+            <!-- Contenido scrolleable -->
+            <RowDefinition Height="Auto"/>
+            <!-- Footer con botones -->
+        </Grid.RowDefinitions>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             FILA 1: HEADER (Título y Badge de Estado)
+        ════════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" 
+                Background="#0066CC" 
+                Padding="25,20">
+            <Grid>
+                <!-- Título y Badge -->
+                <StackPanel>
+                    <!-- Título: "Reserva #123" -->
+                    <TextBlock x:Name="txtTitulo" 
+                              Text="Reserva #123" 
+                              FontSize="22" 
+                              FontWeight="Bold" 
+                              Foreground="White"/>
+
+                    <!-- Badge del estado (Pendiente, Confirmada, etc) -->
+                    <Border Background="White" 
+                           CornerRadius="12" 
+                           Padding="10,4" 
+                           Margin="0,8,0,0" 
+                           HorizontalAlignment="Left">
+                        <TextBlock x:Name="txtEstado" 
+                                  Text="Pendiente" 
+                                  FontWeight="SemiBold" 
+                                  FontSize="12"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Botón X para cerrar (esquina superior derecha) -->
+                <Button Content="✕" 
+                       Click="Cerrar_Click"
+                       Background="Transparent"
+                       Foreground="White"
+                       BorderThickness="0"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Cursor="Hand"
+                       Padding="12,6"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Top"/>
+            </Grid>
+        </Border>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             FILA 2: CONTENIDO (Con scroll vertical)
+        ════════════════════════════════════════════════════════════════ -->
+        <ScrollViewer Grid.Row="1" 
+                     VerticalScrollBarVisibility="Auto" 
+                     Padding="25,20">
+            <StackPanel>
+
+                <!-- ═══════════════════════════════════════════════════
+                     SECCIÓN 1: INFORMACIÓN DE LA RESERVA
+                ══════════════════════════════════════════════════════ -->
+                <Border Style="{StaticResource SectionCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- COLUMNA IZQUIERDA -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="📅 Información de la Reserva" 
+                                      FontSize="16" 
+                                      FontWeight="SemiBold" 
+                                      Foreground="#212529" 
+                                      Margin="0,0,0,15"/>
+
+                            <!-- Fecha y Hora de la Cita -->
+                            <TextBlock Text="Fecha y Hora de la Cita:" 
+                                      Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="txtFechaHoraCita" 
+                                      Text="25/02/2026 10:00" 
+                                      Style="{StaticResource Value}" 
+                                      FontWeight="Bold" 
+                                      Foreground="#0066CC"/>
+
+                            <!-- Tipo de Servicio -->
+                            <TextBlock Text="Tipo de Servicio:" 
+                                      Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="txtTipoServicio" 
+                                      Text="Mecánica" 
+                                      Style="{StaticResource Value}"/>
+
+                            <!-- Prioridad -->
+                            <TextBlock Text="Prioridad:" 
+                                      Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="txtPrioridad" 
+                                      Text="Normal" 
+                                      Style="{StaticResource Value}"/>
+                        </StackPanel>
+
+                        <!-- COLUMNA DERECHA -->
+                        <StackPanel Grid.Column="1">
+                            <!-- Espaciador para alinear con la columna izquierda -->
+                            <TextBlock Text=" " 
+                                      FontSize="16" 
+                                      Margin="0,0,0,15"/>
+
+                            <!-- Precio Estimado -->
+                            <TextBlock Text="Precio Estimado:" 
+                                      Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="txtPrecioEstimado" 
+                                      Text="Bs. 500.00" 
+                                      Style="{StaticResource Value}" 
+                                      FontWeight="SemiBold" 
+                                      Foreground="#28A745"/>
+
+                            <!-- Observaciones -->
+                            <TextBlock Text="Observaciones:" 
+                                      Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="txtObservaciones" 
+                                      Text="Cambio de aceite" 
+                                      Style="{StaticResource Value}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ═══════════════════════════════════════════════════
+                     SECCIÓN 2: INFORMACIÓN DEL CLIENTE
+                     ⭐ Cliente se obtiene a través de Vehiculo.Cliente
+                ══════════════════════════════════════════════════════ -->
+                <Border Style="{StaticResource SectionCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- COLUMNA IZQUIERDA -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="👤 Información del Cliente" 
+                                      FontSize="16" 
+                                      FontWeight="SemiBold" 
+                                      Foreground="#212529" 
+                                      Margin="0,0,0,15"/>
+
+                            <!-- Nombre Completo -->
+                            <TextBlock Text="Nombre Completo:" 
+                                      Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="txtNombreCliente" 
+                                      Text="Juan Pérez" 
+                                      Style="{StaticResource Value}"/>
+
+                            <!-- Teléfono -->
+                            <TextBlock Text="Teléfono:" 
+                                      Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="txtTelefonoCliente" 
+                                      Text="7654-3210" 
+                                      Style="{StaticResource Value}" 
+                                      FontFamily="Consolas"/>
+                        </StackPanel>
+
+                        <!-- COLUMNA DERECHA -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text=" " 
+                                      FontSize="16" 
+                                      Margin="0,0,0,15"/>
+
+                            <!-- Email -->
+                            <TextBlock Text="Email:" 
+                                      Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="txtEmailCliente" 
+                                      Text="juan@email.com" 
+                                      Style="{StaticResource Value}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ═══════════════════════════════════════════════════
+                     SECCIÓN 3: INFORMACIÓN DEL VEHÍCULO
+                ══════════════════════════════════════════════════════ -->
+                <Border x:Name="panelVehiculo" 
+                       Style="{StaticResource SectionCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- COLUMNA IZQUIERDA -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="🚗 Información del Vehículo" 
+                                      FontSize="16" 
+                                      FontWeight="SemiBold" 
+                                      Foreground="#212529" 
+                                      Margin="0,0,0,15"/>
+
+                            <!-- Marca y Modelo -->
+                            <TextBlock Text="Marca y Modelo:" 
+                                      Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="txtMarcaModelo" 
+                                      Text="Toyota Corolla" 
+                                      Style="{StaticResource Value}"/>
+                        </StackPanel>
+
+                        <!-- COLUMNA DERECHA -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text=" " 
+                                      FontSize="16" 
+                                      Margin="0,0,0,15"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Placa -->
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Placa:" 
+                                              Style="{StaticResource Label}"/>
+                                    <TextBlock x:Name="txtPlaca" 
+                                              Text="1234-ABC" 
+                                              Style="{StaticResource Value}" 
+                                              FontFamily="Consolas" 
+                                              FontWeight="Bold"/>
+                                </StackPanel>
+
+                                <!-- Año -->
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Año:" 
+                                              Style="{StaticResource Label}"/>
+                                    <TextBlock x:Name="txtAnio" 
+                                              Text="2020" 
+                                              Style="{StaticResource Value}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ═══════════════════════════════════════════════════
+                     SECCIÓN 4: HISTORIAL DE FECHAS
+                ══════════════════════════════════════════════════════ -->
+                <Border Style="{StaticResource SectionCard}">
+                    <StackPanel>
+                        <TextBlock Text="📋 Historial" 
+                                  FontSize="16" 
+                                  FontWeight="SemiBold" 
+                                  Foreground="#212529" 
+                                  Margin="0,0,0,15"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Fecha de Creación -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Fecha de Creación:" 
+                                          Style="{StaticResource Label}"/>
+                                <TextBlock x:Name="txtFechaCreacion" 
+                                          Text="20/02/2026 14:30" 
+                                          Style="{StaticResource Value}"/>
+                            </StackPanel>
+
+                            <!-- Fecha de Confirmación -->
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Fecha de Confirmación:" 
+                                          Style="{StaticResource Label}"/>
+                                <TextBlock x:Name="txtFechaConfirmacion" 
+                                          Text="21/02/2026 09:15" 
+                                          Style="{StaticResource Value}"/>
+                            </StackPanel>
+
+                            <!-- Fecha de Completado -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Fecha de Completado:" 
+                                          Style="{StaticResource Label}"/>
+                                <TextBlock x:Name="txtFechaCompletado" 
+                                          Text="No completada" 
+                                          Style="{StaticResource Value}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══════════════════════════════════════════════════
+                     SECCIÓN 5: INFORMACIÓN DE CANCELACIÓN (Condicional)
+                     Solo se muestra si la reserva fue cancelada
+                ══════════════════════════════════════════════════════ -->
+                <Border x:Name="panelCancelacion" 
+                       Style="{StaticResource SectionCard}" 
+                       Background="#FFEBEE" 
+                       Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="❌ Información de Cancelación" 
+                                  FontSize="16" 
+                                  FontWeight="SemiBold" 
+                                  Foreground="#C62828" 
+                                  Margin="0,0,0,15"/>
+
+                        <!-- Motivo -->
+                        <TextBlock Text="Motivo:" 
+                                  Style="{StaticResource Label}" 
+                                  Foreground="#C62828"/>
+                        <TextBlock x:Name="txtMotivoCancelacion" 
+                                  Text="Cliente canceló" 
+                                  Style="{StaticResource Value}"/>
+
+                        <!-- Fecha de Cancelación -->
+                        <TextBlock Text="Fecha de Cancelación:" 
+                                  Style="{StaticResource Label}" 
+                                  Foreground="#C62828"/>
+                        <TextBlock x:Name="txtFechaCancelacion" 
+                                  Text="24/02/2026 16:45" 
+                                  Style="{StaticResource Value}"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             FILA 3: FOOTER (Botón Cerrar)
+        ════════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="2" 
+                Background="White" 
+                Padding="25,15" 
+                BorderBrush="#DFE3E8" 
+                BorderThickness="0,1,0,0">
+
+            <Button Content="✕ Cerrar" 
+                   Click="Cerrar_Click"
+                   HorizontalAlignment="Right"
+                   Height="40" 
+                   Width="120" 
+                   FontSize="14" 
+                   FontWeight="SemiBold" 
+                   Background="#6C757D" 
+                   Foreground="White" 
+                   BorderThickness="0" 
+                   Cursor="Hand">
+
+                <!-- Estilo del botón con esquinas redondeadas -->
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                           CornerRadius="5">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                        VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#5A6268"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+        </Border>
+
+    </Grid>
+</Window>
