@@ -1,126 +1,45 @@
 ﻿<UserControl x:Class="Proyecto_taller.Views.Reservas"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#F5F7FA">
+             Background="{StaticResource BgPrimary}">
 
-    <UserControl.Resources>
-        <!-- Estilos de botones modernos -->
-        <Style x:Key="ModernButton" TargetType="Button">
-            <Setter Property="Background" Value="#0066CC"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Padding" Value="15,8"/>
-            <Setter Property="Margin" Value="5,0"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="5"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#0052A3"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background" Value="#28A745"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#218838"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background" Value="#FFC107"/>
-            <Setter Property="Foreground" Value="#212529"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#E0A800"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background" Value="#DC3545"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#C82333"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background" Value="#6C757D"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#5A6268"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Estilo para el ComboBox de Estado -->
-        <Style x:Key="EstadoComboBox" TargetType="ComboBox">
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="Transparent"/>
-        </Style>
-    </UserControl.Resources>
-
-    <Grid Margin="20">
+    <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="14"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="14"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="14"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="14"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- HEADER -->
-        <Border Grid.Row="0" 
-                Background="White" 
-                CornerRadius="10" 
-                Padding="25,20"
-                Margin="0,0,0,20">
-            <Border.Effect>
-                <DropShadowEffect Color="#000000" Direction="270" 
-                                ShadowDepth="2" BlurRadius="10" Opacity="0.1"/>
-            </Border.Effect>
+        <!-- ── Header ── -->
+        <Border Grid.Row="0" Style="{StaticResource Card}">
             <StackPanel>
-                <TextBlock Text="📅 Gestión de Reservas" 
-                          FontSize="28" 
-                          FontWeight="Bold"
-                          Foreground="#212529"/>
-                <TextBlock Text="Administre las citas y reservas de sus clientes de forma eficiente" 
-                          FontSize="14"
-                          Foreground="#6C757D"
-                          Margin="0,5,0,0"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="38" Height="38" CornerRadius="8" Margin="0,0,12,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#6366F1" Offset="0"/>
+                                <GradientStop Color="#8B5CF6" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock Text="📅" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Gestión de Reservas" Style="{StaticResource PageTitle}"/>
+                        <TextBlock Text="Administra las citas y reservas de los clientes"
+                                   Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
         </Border>
 
-        <!-- ESTADÍSTICAS RÁPIDAS -->
-        <Border Grid.Row="1"
-                Background="White"
-                CornerRadius="10"
-                Padding="20"
-                Margin="0,0,0,20">
-            <Border.Effect>
-                <DropShadowEffect Color="#000000" Direction="270" 
-                                ShadowDepth="2" BlurRadius="10" Opacity="0.1"/>
-            </Border.Effect>
+        <!-- ── Estadísticas rápidas ── -->
+        <Border Grid.Row="2" Style="{StaticResource Card}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -130,344 +49,173 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Hoy -->
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="📋 Hoy" 
-                              FontSize="13"
-                              Foreground="#6C757D"
-                              Margin="0,0,0,5"/>
-                    <TextBlock x:Name="txtHoy"
-                              Text="0" 
-                              FontSize="32"
-                              FontWeight="Bold"
-                              Foreground="#0066CC"/>
+                    <TextBlock Text="📋 Hoy" Foreground="{StaticResource TextMuted}"
+                               FontSize="11" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="txtHoy" Text="0"
+                               FontSize="28" FontWeight="Bold"
+                               Foreground="{StaticResource AccentLight}"/>
                 </StackPanel>
-
-                <!-- Pendientes -->
                 <StackPanel Grid.Column="1">
-                    <TextBlock Text="⏳ Pendientes" 
-                              FontSize="13"
-                              Foreground="#6C757D"
-                              Margin="0,0,0,5"/>
-                    <TextBlock x:Name="txtPendientes"
-                              Text="0" 
-                              FontSize="32"
-                              FontWeight="Bold"
-                              Foreground="#FFC107"/>
+                    <TextBlock Text="⏳ Pendientes" Foreground="{StaticResource TextMuted}"
+                               FontSize="11" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="txtPendientes" Text="0"
+                               FontSize="28" FontWeight="Bold"
+                               Foreground="{StaticResource ColorWarning}"/>
                 </StackPanel>
-
-                <!-- Confirmadas -->
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="✅ Confirmadas" 
-                              FontSize="13"
-                              Foreground="#6C757D"
-                              Margin="0,0,0,5"/>
-                    <TextBlock x:Name="txtConfirmadas"
-                              Text="0" 
-                              FontSize="32"
-                              FontWeight="Bold"
-                              Foreground="#28A745"/>
+                    <TextBlock Text="✅ Confirmadas" Foreground="{StaticResource TextMuted}"
+                               FontSize="11" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="txtConfirmadas" Text="0"
+                               FontSize="28" FontWeight="Bold"
+                               Foreground="{StaticResource ColorSuccess}"/>
                 </StackPanel>
-
-                <!-- En Curso -->
                 <StackPanel Grid.Column="3">
-                    <TextBlock Text="🔄 En Curso" 
-                              FontSize="13"
-                              Foreground="#6C757D"
-                              Margin="0,0,0,5"/>
-                    <TextBlock x:Name="txtEnCurso"
-                              Text="0" 
-                              FontSize="32"
-                              FontWeight="Bold"
-                              Foreground="#17A2B8"/>
+                    <TextBlock Text="🔄 En Curso" Foreground="{StaticResource TextMuted}"
+                               FontSize="11" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="txtEnCurso" Text="0"
+                               FontSize="28" FontWeight="Bold"
+                               Foreground="{StaticResource ColorInfo}"/>
                 </StackPanel>
-
-                <!-- Este Mes -->
                 <StackPanel Grid.Column="4">
-                    <TextBlock Text="📊 Este Mes" 
-                              FontSize="13"
-                              Foreground="#6C757D"
-                              Margin="0,0,0,5"/>
-                    <TextBlock x:Name="txtEsteMes"
-                              Text="0" 
-                              FontSize="32"
-                              FontWeight="Bold"
-                              Foreground="#6C757D"/>
+                    <TextBlock Text="📊 Este Mes" Foreground="{StaticResource TextMuted}"
+                               FontSize="11" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="txtEsteMes" Text="0"
+                               FontSize="28" FontWeight="Bold"
+                               Foreground="{StaticResource TextSecondary}"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- FILTROS Y BÚSQUEDA -->
-        <Border Grid.Row="2"
-                Background="White"
-                CornerRadius="10"
-                Padding="20"
-                Margin="0,0,0,15">
-            <Border.Effect>
-                <DropShadowEffect Color="#000000" Direction="270" 
-                                ShadowDepth="2" BlurRadius="10" Opacity="0.1"/>
-            </Border.Effect>
+        <!-- ── Filtros y búsqueda ── -->
+        <Border Grid.Row="4" Style="{StaticResource Card}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Filtros por Estado -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="Filtrar por Estado:" 
-                              FontSize="13"
-                              FontWeight="Medium"
-                              Foreground="#495057"
-                              VerticalAlignment="Center"
-                              Margin="0,0,15,0"/>
-
-                    <RadioButton x:Name="rbTodas"
-                                Content="📋 Todas"
-                                GroupName="FiltroEstado"
-                                IsChecked="True"
-                                Checked="FiltroEstado_Changed"
-                                Margin="0,0,15,0"
-                                VerticalAlignment="Center"/>
-
-                    <RadioButton x:Name="rbPendientes"
-                                Content="⏳ Pendientes"
-                                GroupName="FiltroEstado"
-                                Checked="FiltroEstado_Changed"
-                                Margin="0,0,15,0"
-                                VerticalAlignment="Center"/>
-
-                    <RadioButton x:Name="rbConfirmadas"
-                                Content="✅ Confirmadas"
-                                GroupName="FiltroEstado"
-                                Checked="FiltroEstado_Changed"
-                                Margin="0,0,15,0"
-                                VerticalAlignment="Center"/>
-
-                    <RadioButton x:Name="rbEnCurso"
-                                Content="🔄 En Curso"
-                                GroupName="FiltroEstado"
-                                Checked="FiltroEstado_Changed"
-                                Margin="0,0,15,0"
-                                VerticalAlignment="Center"/>
-
-                    <RadioButton x:Name="rbCompletadas"
-                                Content="✓ Completadas"
-                                GroupName="FiltroEstado"
-                                Checked="FiltroEstado_Changed"
-                                Margin="0,0,15,0"
-                                VerticalAlignment="Center"/>
-
-                    <RadioButton x:Name="rbCanceladas"
-                                Content="❌ Canceladas"
-                                GroupName="FiltroEstado"
-                                Checked="FiltroEstado_Changed"
-                                VerticalAlignment="Center"/>
+                    <TextBlock Text="Estado:" Foreground="{StaticResource TextSecondary}"
+                               FontWeight="SemiBold" FontSize="12"
+                               VerticalAlignment="Center" Margin="0,0,14,0"/>
+                    <RadioButton x:Name="rbTodas"      Content="📋 Todas"      GroupName="FiltroEst" IsChecked="True" Checked="FiltroEstado_Changed" VerticalAlignment="Center"/>
+                    <RadioButton x:Name="rbPendientes" Content="⏳ Pendientes" GroupName="FiltroEst" Checked="FiltroEstado_Changed" VerticalAlignment="Center"/>
+                    <RadioButton x:Name="rbConfirmadas" Content="✅ Confirmadas" GroupName="FiltroEst" Checked="FiltroEstado_Changed" VerticalAlignment="Center"/>
+                    <RadioButton x:Name="rbEnCurso"    Content="🔄 En Curso"   GroupName="FiltroEst" Checked="FiltroEstado_Changed" VerticalAlignment="Center"/>
+                    <RadioButton x:Name="rbCompletadas" Content="✓ Completadas" GroupName="FiltroEst" Checked="FiltroEstado_Changed" VerticalAlignment="Center"/>
+                    <RadioButton x:Name="rbCanceladas" Content="❌ Canceladas"  GroupName="FiltroEst" Checked="FiltroEstado_Changed" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Búsqueda -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <TextBox x:Name="txtBuscar"
-                            Width="250"
-                            Padding="10,8"
-                            FontSize="13"
-                            TextChanged="TxtBuscar_TextChanged"
-                            BorderBrush="#CED4DA"
-                            BorderThickness="1">
-                        <TextBox.Style>
-                            <Style TargetType="TextBox">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="TextBox">
-                                            <Border Background="White"
-                                                   BorderBrush="{TemplateBinding BorderBrush}"
-                                                   BorderThickness="{TemplateBinding BorderThickness}"
-                                                   CornerRadius="5">
-                                                <Grid>
-                                                    <TextBlock Text="🔍 Buscar por cliente, placa, teléfono..."
-                                                             Foreground="#ADB5BD"
-                                                             Margin="10,0,0,0"
-                                                             VerticalAlignment="Center"
-                                                             IsHitTestVisible="False">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding Text, ElementName=txtBuscar}" Value="">
-                                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                    <ScrollViewer x:Name="PART_ContentHost" Margin="5,0"/>
-                                                </Grid>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                </StackPanel>
+                <Border Grid.Column="1"
+                        Background="{StaticResource BgInput}"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1" CornerRadius="6"
+                        Width="280">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="🔍" FontSize="13"
+                                   VerticalAlignment="Center" Margin="10,0,5,0"
+                                   Opacity="0.5" Foreground="{StaticResource TextSecondary}"/>
+                        <TextBox Grid.Column="1" x:Name="txtBuscar"
+                                 Background="Transparent" BorderThickness="0"
+                                 Padding="4,9"
+                                 TextChanged="TxtBuscar_TextChanged"/>
+                    </Grid>
+                </Border>
             </Grid>
         </Border>
 
-        <!-- BARRA DE ACCIONES -->
-        <Border Grid.Row="3"
-                Background="White"
-                CornerRadius="10"
-                Padding="20,15"
-                Margin="0,0,0,15">
-            <Border.Effect>
-                <DropShadowEffect Color="#000000" Direction="270" 
-                                ShadowDepth="2" BlurRadius="10" Opacity="0.1"/>
-            </Border.Effect>
+        <!-- ── Barra de acciones ── -->
+        <Border Grid.Row="6" Style="{StaticResource Card}" Padding="16,12">
             <StackPanel Orientation="Horizontal">
-                <Button Content="🔄 Actualizar"
-                        Click="Actualizar_Click"
-                        Style="{StaticResource SecondaryButton}"/>
-                <Button Content="➕ Nueva Reserva"
-                        Click="NuevaReserva_Click"
-                        Style="{StaticResource ModernButton}"/>
-                <Button Content="✅ Confirmar"
-                        Click="ConfirmarReserva_Click"
-                        Style="{StaticResource SuccessButton}"/>
-                <Button Content="🚀 Iniciar Trabajo"
-                        Click="IniciarTrabajo_Click"
-                        Style="{StaticResource WarningButton}"/>
-                <Button Content="✓ Completar"
-                        Click="CompletarReserva_Click"
-                        Style="{StaticResource SuccessButton}"/>
-                <Button Content="❌ Cancelar"
-                        Click="CancelarReserva_Click"
-                        Style="{StaticResource DangerButton}"/>
-                <Button Content="📋 Ver Detalles"
-                        Click="VerDetalles_Click"
-                        Style="{StaticResource ModernButton}"/>
-                <Button Content="🗑️ Eliminar"
-                        Click="EliminarReserva_Click"
-                        Style="{StaticResource DangerButton}"/>
+                <Button Content="🔄 Actualizar"     Click="Actualizar_Click"        Style="{StaticResource BtnSecondary}"/>
+                <Button Content="➕ Nueva Reserva"   Click="NuevaReserva_Click"      Style="{StaticResource BtnPrimary}"/>
+                <Button Content="✅ Confirmar"        Click="ConfirmarReserva_Click"  Style="{StaticResource BtnSuccess}"/>
+                <Button Content="🚀 Iniciar"         Click="IniciarTrabajo_Click"    Style="{StaticResource BtnWarning}"/>
+                <Button Content="✓ Completar"        Click="CompletarReserva_Click"  Style="{StaticResource BtnSuccess}"/>
+                <Button Content="❌ Cancelar"         Click="CancelarReserva_Click"   Style="{StaticResource BtnDanger}"/>
+                <Button Content="📋 Detalles"         Click="VerDetalles_Click"       Style="{StaticResource BtnGhost}"/>
+                <Button Content="🗑️ Eliminar"         Click="EliminarReserva_Click"   Style="{StaticResource BtnDanger}"/>
             </StackPanel>
         </Border>
 
-        <!-- DATAGRID DE RESERVAS -->
-        <Border Grid.Row="4"
-                Background="White"
+        <!-- ── DataGrid ── -->
+        <Border Grid.Row="8"
+                Background="{StaticResource BgSurface}"
                 CornerRadius="10"
-                Padding="0">
-            <Border.Effect>
-                <DropShadowEffect Color="#000000" Direction="270" 
-                                ShadowDepth="2" BlurRadius="10" Opacity="0.1"/>
-            </Border.Effect>
-
+                BorderBrush="{StaticResource BorderColor}"
+                BorderThickness="1">
             <DataGrid x:Name="dgReservas"
-                     AutoGenerateColumns="False"
-                     IsReadOnly="True"
-                     SelectionMode="Single"
-                     GridLinesVisibility="None"
-                     HeadersVisibility="Column"
-                     RowHeight="50"
-                     FontSize="13"
-                     Background="White"
-                     BorderThickness="0"
-                     CanUserAddRows="False"
-                     CanUserDeleteRows="False"
-                     CanUserResizeRows="False">
-
-                <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#F8F9FA"/>
-                        <Setter Property="Foreground" Value="#495057"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="Padding" Value="15,12"/>
-                        <Setter Property="BorderThickness" Value="0,0,0,2"/>
-                        <Setter Property="BorderBrush" Value="#DEE2E6"/>
-                    </Style>
-                </DataGrid.ColumnHeaderStyle>
-
-                <DataGrid.CellStyle>
-                    <Style TargetType="DataGridCell">
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      GridLinesVisibility="None"
+                      Margin="0">
+                <!-- ComboBox de Estado inline -->
+                <DataGrid.Resources>
+                    <Style x:Key="EstadoComboBoxRes" TargetType="ComboBox">
+                        <Setter Property="Background"      Value="Transparent"/>
                         <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding" Value="15,0"/>
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#E3F2FD"/>
-                                <Setter Property="Foreground" Value="#212529"/>
-                            </Trigger>
-                        </Style.Triggers>
+                        <Setter Property="Padding"         Value="6,3"/>
+                        <Setter Property="FontWeight"      Value="SemiBold"/>
+                        <Setter Property="FontSize"        Value="11"/>
+                        <Setter Property="Foreground"      Value="{StaticResource TextPrimary}"/>
                     </Style>
-                </DataGrid.CellStyle>
+                </DataGrid.Resources>
 
                 <DataGrid.RowStyle>
-                    <Style TargetType="DataGridRow">
-                        <Setter Property="Background" Value="White"/>
+                    <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
                         <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#F8F9FA"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#E3F2FD"/>
-                            </Trigger>
-                            <!-- Colores por Estado -->
                             <DataTrigger Binding="{Binding Estado}" Value="Pendiente">
-                                <Setter Property="Background" Value="#FFF8E1"/>
+                                <Setter Property="Background" Value="{StaticResource RowPending}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Estado}" Value="Confirmada">
-                                <Setter Property="Background" Value="#E8F5E9"/>
+                                <Setter Property="Background" Value="{StaticResource RowDone}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Estado}" Value="En Curso">
-                                <Setter Property="Background" Value="#E1F5FE"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Estado}" Value="Completada">
-                                <Setter Property="Background" Value="#F1F8F4"/>
+                                <Setter Property="Background" Value="{StaticResource RowInProgress}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Estado}" Value="Cancelada">
-                                <Setter Property="Background" Value="#FFEBEE"/>
+                                <Setter Property="Background" Value="{StaticResource RowCancelled}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Estado}" Value="No Asistió">
-                                <Setter Property="Background" Value="#FCE4EC"/>
+                                <Setter Property="Background" Value="{StaticResource RowCancelled}"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </DataGrid.RowStyle>
 
                 <DataGrid.Columns>
-                    <!-- ID -->
-                    <DataGridTextColumn Header="ID" 
-                                       Binding="{Binding ReservaID}" 
-                                       Width="60">
+                    <DataGridTextColumn Header="ID"
+                                        Binding="{Binding ReservaID}" Width="60">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontFamily" Value="Consolas"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Foreground" Value="#6C757D"/>
+                                <Setter Property="Foreground" Value="{StaticResource AccentLight}"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <!-- Fecha y Hora -->
-                    <DataGridTextColumn Header="📅 Fecha y Hora" 
-                                       Binding="{Binding FechaHoraCita, StringFormat='dd/MM/yyyy HH:mm'}" 
-                                       Width="150">
+                    <DataGridTextColumn Header="📅 Fecha y Hora"
+                                        Binding="{Binding FechaHoraCita, StringFormat='dd/MM/yyyy HH:mm'}"
+                                        Width="150">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontWeight" Value="SemiBold"/>
-                                <Setter Property="Foreground" Value="#212529"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <!-- Cliente -->
-                    <DataGridTextColumn Header="👤 Cliente" 
-                                       Binding="{Binding Vehiculo.Cliente.Nombre}" 
-                                       Width="180"/>
-
-                    <!-- Teléfono -->
-                    <DataGridTextColumn Header="📞 Teléfono" 
-                                       Binding="{Binding Vehiculo.Cliente.Telefono}" 
-                                       Width="120">
+                    <DataGridTextColumn Header="👤 Cliente"
+                                        Binding="{Binding Vehiculo.Cliente.Nombre}" Width="160"/>
+                    <DataGridTextColumn Header="📞 Teléfono"
+                                        Binding="{Binding Vehiculo.Cliente.Telefono}" Width="120">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontFamily" Value="Consolas"/>
@@ -475,9 +223,7 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <!-- Vehículo -->
-                    <DataGridTextColumn Header="🚗 Vehículo (Placa)" 
-                                       Width="180">
+                    <DataGridTextColumn Header="🚗 Vehículo (Placa)" Width="170">
                         <DataGridTextColumn.Binding>
                             <MultiBinding StringFormat="{}{0} ({1})">
                                 <Binding Path="Vehiculo.Marca"/>
@@ -486,70 +232,42 @@
                         </DataGridTextColumn.Binding>
                     </DataGridTextColumn>
 
-                    <!-- Tipo de Servicio -->
-                    <DataGridTextColumn Header="🛠️ Servicio" 
-                                       Binding="{Binding TipoServicio}" 
-                                       Width="130"/>
+                    <DataGridTextColumn Header="🛠️ Servicio"
+                                        Binding="{Binding TipoServicio}" Width="130"/>
 
                     <!-- Estado con ComboBox -->
-                    <DataGridTemplateColumn Header="📊 Estado" Width="150">
+                    <DataGridTemplateColumn Header="Estado" Width="145">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <ComboBox SelectedValue="{Binding Estado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         SelectionChanged="EstadoComboBox_SelectionChanged"
-                                         Style="{StaticResource EstadoComboBox}">
-                                    <ComboBoxItem Content="⏳ Pendiente" Tag="Pendiente">
-                                        <ComboBoxItem.Foreground>
-                                            <SolidColorBrush Color="#F57C00"/>
-                                        </ComboBoxItem.Foreground>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem Content="✅ Confirmada" Tag="Confirmada">
-                                        <ComboBoxItem.Foreground>
-                                            <SolidColorBrush Color="#388E3C"/>
-                                        </ComboBoxItem.Foreground>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem Content="🔄 En Curso" Tag="En Curso">
-                                        <ComboBoxItem.Foreground>
-                                            <SolidColorBrush Color="#0288D1"/>
-                                        </ComboBoxItem.Foreground>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem Content="✓ Completada" Tag="Completada">
-                                        <ComboBoxItem.Foreground>
-                                            <SolidColorBrush Color="#2E7D32"/>
-                                        </ComboBoxItem.Foreground>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem Content="❌ Cancelada" Tag="Cancelada">
-                                        <ComboBoxItem.Foreground>
-                                            <SolidColorBrush Color="#D32F2F"/>
-                                        </ComboBoxItem.Foreground>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem Content="🚫 No Asistió" Tag="No Asistió">
-                                        <ComboBoxItem.Foreground>
-                                            <SolidColorBrush Color="#C2185B"/>
-                                        </ComboBoxItem.Foreground>
-                                    </ComboBoxItem>
+                                          Style="{StaticResource EstadoComboBoxRes}"
+                                          SelectionChanged="EstadoComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="⏳ Pendiente"   Tag="Pendiente"/>
+                                    <ComboBoxItem Content="✅ Confirmada"   Tag="Confirmada"/>
+                                    <ComboBoxItem Content="🔄 En Curso"    Tag="En Curso"/>
+                                    <ComboBoxItem Content="✓ Completada"   Tag="Completada"/>
+                                    <ComboBoxItem Content="❌ Cancelada"    Tag="Cancelada"/>
+                                    <ComboBoxItem Content="🚫 No Asistió"  Tag="No Asistió"/>
                                 </ComboBox>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
-                    <!-- Prioridad -->
-                    <DataGridTextColumn Header="⭐ Prioridad" 
-                                       Binding="{Binding Prioridad}" 
-                                       Width="100">
+                    <DataGridTextColumn Header="⭐ Prioridad"
+                                        Binding="{Binding Prioridad}" Width="100">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Prioridad}" Value="Urgente">
-                                        <Setter Property="Foreground" Value="#DC3545"/>
+                                        <Setter Property="Foreground" Value="{StaticResource ColorDanger}"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Prioridad}" Value="VIP">
-                                        <Setter Property="Foreground" Value="#FFC107"/>
+                                        <Setter Property="Foreground" Value="{StaticResource ColorWarning}"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Prioridad}" Value="Normal">
-                                        <Setter Property="Foreground" Value="#6C757D"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
