@@ -1,0 +1,44 @@
+﻿<Window x:Class="Proyecto_taller.Views.CancelarReservaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cancelar Reserva" Height="280" Width="420"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Título -->
+        <TextBlock Grid.Row="0" Text="¿Por qué se cancela la reserva?"
+                   FontSize="14" FontWeight="Bold" Margin="0,0,0,15"/>
+
+        <!-- Motivo -->
+        <TextBlock Grid.Row="1" Text="Motivo de cancelación:" Margin="0,0,0,5"/>
+        <TextBox Grid.Row="2" x:Name="txtMotivo"
+                 AcceptsReturn="True" TextWrapping="Wrap"
+                 Height="80" VerticalScrollBarVisibility="Auto"
+                 Margin="0,0,0,12"/>
+
+        <!-- CheckBox No Show -->
+        <CheckBox Grid.Row="3" x:Name="chkNoShow"
+                  Content="El cliente no se presentó (No Show)"
+                  VerticalAlignment="Top"/>
+
+        <!-- Botones -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button Content="Cancelar Reserva" Width="130" Height="32"
+                    Background="#E53935" Foreground="White"
+                    BorderThickness="0" Margin="0,0,10,0"
+                    Click="BtnConfirmar_Click"/>
+            <Button Content="Volver" Width="80" Height="32"
+                    Click="BtnVolver_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

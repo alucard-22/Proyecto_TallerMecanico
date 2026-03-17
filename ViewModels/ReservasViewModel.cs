@@ -104,8 +104,8 @@ namespace Proyecto_taller.ViewModels
             using var db = new TallerDbContext();
 
             var reservas = db.Reservas
-                .Include(r => r.Cliente)
                 .Include(r => r.Vehiculo)
+                .ThenInclude(v => v.Cliente)
                 .OrderBy(r => r.FechaHoraCita)
                 .ToList();
 
@@ -121,8 +121,8 @@ namespace Proyecto_taller.ViewModels
             using var db = new TallerDbContext();
 
             var query = db.Reservas
-                .Include(r => r.Cliente)
                 .Include(r => r.Vehiculo)
+                .ThenInclude(v => v.Cliente)
                 .AsQueryable();
 
             if (filtro == "Pendiente")
@@ -170,8 +170,9 @@ namespace Proyecto_taller.ViewModels
 
             var nueva = new Reserva
             {
-                ClienteID = primerCliente.ClienteID,
-                VehiculoID = primerVehiculo?.VehiculoID,
+
+                VehiculoID = primerVehiculo?.VehiculoID ?? 0,
+                //ClienteID = primerCliente.ClienteID,
                 FechaReserva = DateTime.Now,
                 FechaHoraCita = DateTime.Now.AddDays(1).Date.AddHours(9), // Mañana a las 9 AM
                 TipoServicio = "Mecánica",
@@ -183,9 +184,10 @@ namespace Proyecto_taller.ViewModels
             db.SaveChanges();
 
             var reservaConRelaciones = db.Reservas
-                .Include(r => r.Cliente)
                 .Include(r => r.Vehiculo)
+                .ThenInclude(v => v.Cliente)
                 .FirstOrDefault(r => r.ReservaID == nueva.ReservaID);
+
 
             if (reservaConRelaciones != null)
             {
@@ -205,10 +207,11 @@ namespace Proyecto_taller.ViewModels
                 return;
 
             var resultado = System.Windows.MessageBox.Show(
-                $"¿Confirmar la reserva para {ReservaSeleccionada.Cliente?.Nombre} {ReservaSeleccionada.Cliente?.Apellido}?",
-                "Confirmar Reserva",
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Question);
+                   $"¿Confirmar la reserva para {ReservaSeleccionada.Vehiculo?.Cliente?.Nombre} {ReservaSeleccionada.Vehiculo?.Cliente?.Apellido}?",
+                   "Confirmar Reserva",
+                   System.Windows.MessageBoxButton.YesNo,
+                   System.Windows.MessageBoxImage.Question);
+
 
             if (resultado == System.Windows.MessageBoxResult.Yes)
             {
@@ -233,10 +236,11 @@ namespace Proyecto_taller.ViewModels
                 return;
 
             var resultado = System.Windows.MessageBox.Show(
-                $"¿Cancelar la reserva para {ReservaSeleccionada.Cliente?.Nombre} {ReservaSeleccionada.Cliente?.Apellido}?",
+                $"¿Cancelar la reserva para {ReservaSeleccionada.Vehiculo?.Cliente?.Nombre} {ReservaSeleccionada.Vehiculo?.Cliente?.Apellido}?",
                 "Cancelar Reserva",
                 System.Windows.MessageBoxButton.YesNo,
                 System.Windows.MessageBoxImage.Warning);
+
 
             if (resultado == System.Windows.MessageBoxResult.Yes)
             {

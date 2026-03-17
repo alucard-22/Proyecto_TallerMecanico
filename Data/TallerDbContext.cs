@@ -100,9 +100,9 @@ namespace Proyecto_taller.Data
                 .HasColumnType("decimal(10,2)");
 
             modelBuilder.Entity<Reserva>()
-                .HasOne(r => r.Cliente)
+                .HasOne(r => r.Vehiculo)
                 .WithMany()
-                .HasForeignKey(r => r.ClienteID)
+                .HasForeignKey(r => r.VehiculoID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Reserva>()

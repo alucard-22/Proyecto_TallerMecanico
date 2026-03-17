@@ -15,6 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Proyecto_taller.Views
 {
@@ -25,6 +27,17 @@ namespace Proyecto_taller.Views
         public Reservas()
         {
             InitializeComponent();
+            // Suscribir eventos después de la inicialización
+            rbTodas.Checked += FiltroEstado_Changed;
+            rbPendientes.Checked += FiltroEstado_Changed;
+            rbConfirmadas.Checked += FiltroEstado_Changed;
+            rbEnCurso.Checked += FiltroEstado_Changed;
+            rbCompletadas.Checked += FiltroEstado_Changed;
+            rbCanceladas.Checked += FiltroEstado_Changed;
+
+            // Opcional: establecer estado por código
+            rbTodas.IsChecked = true;
+
             CargarReservas();
             ActualizarEstadisticas();
         }
@@ -60,6 +73,7 @@ namespace Proyecto_taller.Views
         /// </summary>
         private void AplicarFiltros()
         {
+
             var reservasFiltradas = _todasLasReservas.AsEnumerable();
 
             // Filtro por estado
