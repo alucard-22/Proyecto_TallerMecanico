@@ -24,10 +24,15 @@ namespace Proyecto_taller.Views
     {
         private List<Reserva> _todasLasReservas = new List<Reserva>();
 
+        // ⭐ Flag para evitar que AplicarFiltros() se dispare
+        //    antes de que InitializeComponent() haya creado los controles
+        private bool _inicializado = false;
+
         public Reservas()
         {
             InitializeComponent();
-            // Suscribir eventos después de la inicialización
+
+            // ⭐ Suscribir eventos DESPUÉS de InitializeComponent
             rbTodas.Checked += FiltroEstado_Changed;
             rbPendientes.Checked += FiltroEstado_Changed;
             rbConfirmadas.Checked += FiltroEstado_Changed;
@@ -35,8 +40,11 @@ namespace Proyecto_taller.Views
             rbCompletadas.Checked += FiltroEstado_Changed;
             rbCanceladas.Checked += FiltroEstado_Changed;
 
-            // Opcional: establecer estado por código
+            // Seleccionar "Todas" sin disparar el filtro todavía
             rbTodas.IsChecked = true;
+
+            // ⭐ Marcar como inicializado ANTES de cargar datos
+            _inicializado = true;
 
             CargarReservas();
             ActualizarEstadisticas();
@@ -52,7 +60,7 @@ namespace Proyecto_taller.Views
                 using var db = new TallerDbContext();
                 _todasLasReservas = db.Reservas
                     .Include(r => r.Vehiculo)
-                        .ThenInclude(v => v.Cliente) // ⭐ Cliente se obtiene a través del vehículo
+                        .ThenInclude(v => v.Cliente)
                     .OrderByDescending(r => r.FechaHoraCita)
                     .ToList();
 
@@ -69,29 +77,35 @@ namespace Proyecto_taller.Views
         }
 
         /// <summary>
-        /// Aplica los filtros seleccionados
+        /// Aplica los filtros de estado y texto de búsqueda.
+        /// ⭐ Guard: si los controles no están listos, sale sin hacer nada.
         /// </summary>
         private void AplicarFiltros()
         {
+            // ⭐ Guard principal — evita NullReferenceException durante la construcción
+            if (!_inicializado) return;
+            if (rbTodas == null) return;
 
             var reservasFiltradas = _todasLasReservas.AsEnumerable();
 
             // Filtro por estado
-            if (rbPendientes.IsChecked == true)
+            if (rbPendientes?.IsChecked == true)
                 reservasFiltradas = reservasFiltradas.Where(r => r.Estado == "Pendiente");
-            else if (rbConfirmadas.IsChecked == true)
+            else if (rbConfirmadas?.IsChecked == true)
                 reservasFiltradas = reservasFiltradas.Where(r => r.Estado == "Confirmada");
-            else if (rbEnCurso.IsChecked == true)
+            else if (rbEnCurso?.IsChecked == true)
                 reservasFiltradas = reservasFiltradas.Where(r => r.Estado == "En Curso");
-            else if (rbCompletadas.IsChecked == true)
+            else if (rbCompletadas?.IsChecked == true)
                 reservasFiltradas = reservasFiltradas.Where(r => r.Estado == "Completada");
-            else if (rbCanceladas.IsChecked == true)
-                reservasFiltradas = reservasFiltradas.Where(r => r.Estado == "Cancelada" || r.Estado == "No Asistió");
+            else if (rbCanceladas?.IsChecked == true)
+                reservasFiltradas = reservasFiltradas.Where(r =>
+                    r.Estado == "Cancelada" || r.Estado == "No Asistió");
+            // else rbTodas → sin filtro adicional
 
-            // Filtro por búsqueda
-            if (!string.IsNullOrWhiteSpace(txtBuscar.Text))
+            // Filtro por texto de búsqueda
+            var busqueda = txtBuscar?.Text?.Trim().ToLower();
+            if (!string.IsNullOrWhiteSpace(busqueda))
             {
-                var busqueda = txtBuscar.Text.ToLower();
                 reservasFiltradas = reservasFiltradas.Where(r =>
                     (r.Vehiculo?.Cliente?.Nombre?.ToLower().Contains(busqueda) ?? false) ||
                     (r.Vehiculo?.Cliente?.Apellido?.ToLower().Contains(busqueda) ?? false) ||
@@ -100,49 +114,34 @@ namespace Proyecto_taller.Views
                     (r.Vehiculo?.Marca?.ToLower().Contains(busqueda) ?? false));
             }
 
-            dgReservas.ItemsSource = reservasFiltradas.ToList();
+            // Asignar al DataGrid (con guard por si aún no existe)
+            if (dgReservas != null)
+                dgReservas.ItemsSource = reservasFiltradas.ToList();
         }
 
         /// <summary>
-        /// Actualiza las estadísticas en el panel superior
+        /// Actualiza los contadores del panel superior
         /// </summary>
         private void ActualizarEstadisticas()
         {
+            if (!_inicializado) return;
+
             var hoy = DateTime.Today;
             var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
 
-            txtHoy.Text = _todasLasReservas.Count(r =>
+            if (txtHoy != null) txtHoy.Text = _todasLasReservas.Count(r =>
                 r.FechaHoraCita.Date == hoy &&
                 (r.Estado == "Pendiente" || r.Estado == "Confirmada" || r.Estado == "En Curso")).ToString();
 
-            txtPendientes.Text = _todasLasReservas.Count(r => r.Estado == "Pendiente").ToString();
-            txtConfirmadas.Text = _todasLasReservas.Count(r => r.Estado == "Confirmada").ToString();
-            txtEnCurso.Text = _todasLasReservas.Count(r => r.Estado == "En Curso").ToString();
-            txtEsteMes.Text = _todasLasReservas.Count(r =>
-                r.FechaHoraCita >= inicioMes &&
-                r.FechaHoraCita < inicioMes.AddMonths(1)).ToString();
+            if (txtPendientes != null) txtPendientes.Text = _todasLasReservas.Count(r => r.Estado == "Pendiente").ToString();
+            if (txtConfirmadas != null) txtConfirmadas.Text = _todasLasReservas.Count(r => r.Estado == "Confirmada").ToString();
+            if (txtEnCurso != null) txtEnCurso.Text = _todasLasReservas.Count(r => r.Estado == "En Curso").ToString();
+            if (txtEsteMes != null) txtEsteMes.Text = _todasLasReservas.Count(r =>
+                r.FechaHoraCita >= inicioMes && r.FechaHoraCita < inicioMes.AddMonths(1)).ToString();
         }
 
         /// <summary>
-        /// Maneja el cambio de estado desde el ComboBox
-        /// </summary>
-        private void EstadoComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var comboBox = sender as ComboBox;
-            if (comboBox?.SelectedItem is ComboBoxItem item)
-            {
-                var nuevoEstado = item.Tag.ToString();
-                var reserva = comboBox.DataContext as Reserva;
-
-                if (reserva != null && reserva.Estado != nuevoEstado)
-                {
-                    ActualizarEstadoReserva(reserva, nuevoEstado);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Actualiza el estado de una reserva
+        /// Cambia el estado de una reserva en BD y refresca la vista
         /// </summary>
         private void ActualizarEstadoReserva(Reserva reserva, string nuevoEstado)
         {
@@ -150,10 +149,8 @@ namespace Proyecto_taller.Views
             {
                 using var db = new TallerDbContext();
                 var reservaDb = db.Reservas.Find(reserva.ReservaID);
-
                 if (reservaDb == null) return;
 
-                // Actualizar estado y fechas correspondientes
                 reservaDb.Estado = nuevoEstado;
 
                 switch (nuevoEstado)
@@ -172,8 +169,8 @@ namespace Proyecto_taller.Views
 
                 db.SaveChanges();
 
-                // Actualizar objeto en memoria
-                reserva.Estado = nuevoEstado;
+                // Sincronizar el objeto en memoria
+                reserva.Estado = reservaDb.Estado;
                 reserva.FechaConfirmacion = reservaDb.FechaConfirmacion;
                 reserva.FechaCompletado = reservaDb.FechaCompletado;
                 reserva.FechaCancelacion = reservaDb.FechaCancelacion;
@@ -199,7 +196,40 @@ namespace Proyecto_taller.Views
             }
         }
 
-        // ====== EVENTOS DE BOTONES ======
+        // ══════════════════════════════════════════════════════
+        //  EVENTOS DE CONTROLES
+        // ══════════════════════════════════════════════════════
+
+        private void EstadoComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_inicializado) return;
+
+            var comboBox = sender as ComboBox;
+            if (comboBox?.SelectedItem is ComboBoxItem item)
+            {
+                var nuevoEstado = item.Tag?.ToString();
+                var reserva = comboBox.DataContext as Reserva;
+
+                if (reserva != null && !string.IsNullOrEmpty(nuevoEstado) && reserva.Estado != nuevoEstado)
+                    ActualizarEstadoReserva(reserva, nuevoEstado);
+            }
+        }
+
+        private void FiltroEstado_Changed(object sender, RoutedEventArgs e)
+        {
+            if (!_inicializado) return;
+            AplicarFiltros();
+        }
+
+        private void TxtBuscar_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!_inicializado) return;
+            AplicarFiltros();
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  BOTONES DE ACCIÓN
+        // ══════════════════════════════════════════════════════
 
         private void Actualizar_Click(object sender, RoutedEventArgs e)
         {
@@ -253,9 +283,7 @@ namespace Proyecto_taller.Views
                 MessageBoxImage.Question);
 
             if (resultado == MessageBoxResult.Yes)
-            {
                 ActualizarEstadoReserva(reserva, "Confirmada");
-            }
         }
 
         private void IniciarTrabajo_Click(object sender, RoutedEventArgs e)
@@ -283,9 +311,7 @@ namespace Proyecto_taller.Views
                 MessageBoxImage.Question);
 
             if (resultado == MessageBoxResult.Yes)
-            {
                 ActualizarEstadoReserva(reserva, "En Curso");
-            }
         }
 
         private void CompletarReserva_Click(object sender, RoutedEventArgs e)
@@ -313,9 +339,7 @@ namespace Proyecto_taller.Views
                 MessageBoxImage.Question);
 
             if (resultado == MessageBoxResult.Yes)
-            {
                 ActualizarEstadoReserva(reserva, "Completada");
-            }
         }
 
         private void CancelarReserva_Click(object sender, RoutedEventArgs e)
@@ -397,8 +421,8 @@ namespace Proyecto_taller.Views
             }
 
             var resultado = MessageBox.Show(
-                $"¿Está seguro de eliminar la reserva de {reserva.Vehiculo?.Cliente?.Nombre}?\n\n" +
-                $"Esta acción no se puede deshacer.",
+                $"¿Está seguro de eliminar la reserva de " +
+                $"{reserva.Vehiculo?.Cliente?.Nombre}?\n\nEsta acción no se puede deshacer.",
                 "Eliminar Reserva",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -427,16 +451,6 @@ namespace Proyecto_taller.Views
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-        }
-
-        private void FiltroEstado_Changed(object sender, RoutedEventArgs e)
-        {
-            AplicarFiltros();
-        }
-
-        private void TxtBuscar_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            AplicarFiltros();
         }
     }
 }

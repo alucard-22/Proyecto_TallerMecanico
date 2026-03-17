@@ -116,7 +116,7 @@
                     <TextBlock Text="🔧 DATOS DEL TRABAJO" Style="{StaticResource SectionTitle}"/>
 
                     <TextBlock Text="Tipo de Trabajo: *" Style="{StaticResource FormLabel}"/>
-                    <ComboBox x:Name="cmbTipoTrabajo" SelectedIndex="0">
+                    <ComboBox x:Name="cmbTipoTrabajo" SelectedIndex="0" Foreground="#FF909090">
                         <ComboBoxItem Content="Mecánica"/>
                         <ComboBoxItem Content="Chapería"/>
                         <ComboBoxItem Content="Pintura"/>
