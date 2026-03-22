@@ -1,176 +1,515 @@
-﻿<!-- REGISTRO_RAPIDO_WINDOW.XAML -->
-<Window x:Class="Proyecto_taller.Views.RegistroRapidoWindow"
+﻿<Window x:Class="Proyecto_taller.Views.RegistroRapidoWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Registro Rápido de Trabajo"
-        Height="750" Width="720"
+        Height="700" Width="720"
+        MinHeight="520" MinWidth="600"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
-        Background="Transparent"
-        WindowStyle="None"
-        AllowsTransparency="True">
+        ResizeMode="CanResize"
+        Background="{StaticResource BgSurface}">
 
-    <Border Background="{StaticResource BgSurface}"
-            BorderBrush="{StaticResource AccentPrimary}"
-            BorderThickness="1" CornerRadius="12">
-        <Border.Effect>
-            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="6" BlurRadius="28" Opacity="0.5"/>
-        </Border.Effect>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <Border Grid.Row="0" Background="{StaticResource BgCard}"
-                    CornerRadius="11,11,0,0" Padding="22,16">
-                <Grid>
+        <!-- ── Header ── -->
+        <Border Grid.Row="0" Background="{StaticResource BgCard}" Padding="22,16">
+            <Grid>
+                <StackPanel>
                     <TextBlock Text="⚡  Registro Rápido de Trabajo"
                                Foreground="{StaticResource TextPrimary}"
-                               FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <Button Content="✕" Click="CloseButton_Click"
-                            Background="Transparent" Foreground="{StaticResource TextMuted}"
-                            BorderThickness="0" FontSize="18" Cursor="Hand"
-                            Padding="10,4" HorizontalAlignment="Right"/>
-                </Grid>
-            </Border>
-
-            <!-- Form -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,18">
-                <StackPanel>
-                    <!-- Cliente -->
-                    <TextBlock Text="📋 DATOS DEL CLIENTE" Style="{StaticResource SectionTitle}"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="14"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Nombre: *"   Style="{StaticResource FormLabel}"/>
-                            <TextBox x:Name="txtNombre"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Apellido: *" Style="{StaticResource FormLabel}"/>
-                            <TextBox x:Name="txtApellido"/>
-                        </StackPanel>
-                    </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="14"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Teléfono: *" Style="{StaticResource FormLabel}"/>
-                            <TextBox x:Name="txtTelefono"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Email:"      Style="{StaticResource FormLabel}"/>
-                            <TextBox x:Name="txtEmail"/>
-                        </StackPanel>
-                    </Grid>
-                    <TextBlock Text="Dirección:" Style="{StaticResource FormLabel}"/>
-                    <TextBox x:Name="txtDireccion" Text="Sin dirección"/>
-
-                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,14" Opacity="0.4"/>
-
-                    <!-- Vehículo -->
-                    <TextBlock Text="🚗 DATOS DEL VEHÍCULO" Style="{StaticResource SectionTitle}"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="14"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Marca: *"  Style="{StaticResource FormLabel}"/>
-                            <TextBox x:Name="txtMarca"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Modelo: *" Style="{StaticResource FormLabel}"/>
-                            <TextBox x:Name="txtModelo"/>
-                        </StackPanel>
-                    </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="14"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Placa: *" Style="{StaticResource FormLabel}"/>
-                            <TextBox x:Name="txtPlaca"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Año:"     Style="{StaticResource FormLabel}"/>
-                            <TextBox x:Name="txtAnio"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,14" Opacity="0.4"/>
-
-                    <!-- Trabajo -->
-                    <TextBlock Text="🔧 DATOS DEL TRABAJO" Style="{StaticResource SectionTitle}"/>
-
-                    <TextBlock Text="Tipo de Trabajo: *" Style="{StaticResource FormLabel}"/>
-                    <ComboBox x:Name="cmbTipoTrabajo" SelectedIndex="0" Foreground="#FF807F7F">
-                        <ComboBoxItem Content="Mecánica"/>
-                        <ComboBoxItem Content="Chapería"/>
-                        <ComboBoxItem Content="Pintura"/>
-                        <ComboBoxItem Content="Electricidad"/>
-                        <ComboBoxItem Content="Mantenimiento General"/>
-                    </ComboBox>
-
-                    <TextBlock Text="Descripción del Problema: *" Style="{StaticResource FormLabel}"/>
-                    <TextBox x:Name="txtDescripcion"
-                             Height="72" TextWrapping="Wrap"
-                             AcceptsReturn="True"
-                             VerticalScrollBarVisibility="Auto"/>
-
-                    <Grid Margin="0,0,0,8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="14"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Precio Estimado (Bs.):" Style="{StaticResource FormLabel}"/>
-                            <TextBox x:Name="txtPrecio" Text="0"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Fecha Estimada de Entrega:" Style="{StaticResource FormLabel}"/>
-                            <DatePicker x:Name="dpFechaEntrega"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Text="Estado Inicial:" Style="{StaticResource FormLabel}"/>
-                    <ComboBox x:Name="cmbEstado" SelectedIndex="0">
-                        <ComboBoxItem Content="Pendiente"/>
-                        <ComboBoxItem Content="En Progreso"/>
-                    </ComboBox>
-
-                    <Border Background="{StaticResource AccentMuted}"
-                            CornerRadius="6" Padding="12,10" Margin="0,14,0,0">
-                        <TextBlock Foreground="{StaticResource AccentLight}"
-                                   FontSize="11" TextWrapping="Wrap">
-                            <Run Text="ℹ️ "/>
-                            <Run Text="Los campos (*) son obligatorios. Los servicios y repuestos se agregan después desde el módulo Trabajos."/>
-                        </TextBlock>
-                    </Border>
+                               FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="Busca un cliente existente o registra uno nuevo"
+                               Foreground="{StaticResource TextMuted}"
+                               FontSize="11" Margin="0,4,0,0"/>
                 </StackPanel>
-            </ScrollViewer>
+                <Button Content="✕" Click="Cancelar_Click"
+                        Background="Transparent" Foreground="{StaticResource TextMuted}"
+                        BorderThickness="0" FontSize="18" Cursor="Hand"
+                        Padding="10,4" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+            </Grid>
+        </Border>
 
-            <!-- Footer -->
-            <Border Grid.Row="2" Background="{StaticResource BgCard}"
-                    CornerRadius="0,0,11,11" Padding="24,14">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="✕ Cancelar"         Click="CloseButton_Click"   Style="{StaticResource BtnDanger}"/>
-                    <Button Content="✅ Registrar Trabajo" Click="RegistrarButton_Click" Style="{StaticResource BtnSuccess}"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-    </Border>
+        <!-- ── Formulario ── -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,16">
+            <StackPanel>
+
+                <!-- ════════════════════════════════════════
+                     BLOQUE 1 — Buscar cliente existente
+                ════════════════════════════════════════ -->
+                <Border Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="16,14"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1" Margin="0,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <Border Width="24" Height="24" CornerRadius="5"
+                                    Background="{StaticResource AccentMuted}" Margin="0,0,8,0">
+                                <TextBlock Text="🔍" FontSize="12"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="BUSCAR CLIENTE EXISTENTE"
+                                       Foreground="{StaticResource AccentLight}"
+                                       FontSize="11" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Barra de búsqueda -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    Background="{StaticResource BgInput}"
+                                    BorderBrush="{StaticResource BorderColor}"
+                                    BorderThickness="1" CornerRadius="6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="🔍"
+                                               Foreground="{StaticResource TextMuted}"
+                                               FontSize="12" VerticalAlignment="Center"
+                                               Margin="10,0,6,0" Opacity="0.6"/>
+                                    <TextBox Grid.Column="1"
+                                             x:Name="txtBuscarCliente"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             Padding="4,9"
+                                             TextChanged="TxtBuscarCliente_TextChanged"/>
+                                </Grid>
+                            </Border>
+                            <Button Grid.Column="2"
+                                    Content="🔍 Buscar"
+                                    Click="BuscarCliente_Click"
+                                    Style="{StaticResource BtnGhost}"
+                                    Padding="14,9"/>
+                        </Grid>
+
+                        <!-- Resultados de búsqueda -->
+                        <Border x:Name="panelResultadosBusqueda"
+                                Visibility="Collapsed"
+                                Background="{StaticResource BgInput}"
+                                BorderBrush="{StaticResource AccentPrimary}"
+                                BorderThickness="1" CornerRadius="6"
+                                Margin="0,6,0,0" MaxHeight="170">
+                            <ListBox x:Name="lstResultadosBusqueda"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     SelectionChanged="LstResultados_SelectionChanged">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="4,4">
+                                            <TextBlock FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimary}"
+                                                       FontSize="13">
+                                                <Run Text="{Binding Nombre}"/>
+                                                <Run Text=" "/>
+                                                <Run Text="{Binding Apellido}"/>
+                                            </TextBlock>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="📞 "
+                                                           Foreground="{StaticResource TextMuted}"
+                                                           FontSize="11"/>
+                                                <TextBlock Text="{Binding Telefono}"
+                                                           Foreground="{StaticResource TextSecondary}"
+                                                           FontFamily="Consolas" FontSize="11"/>
+                                                <TextBlock Text="  ·  "
+                                                           Foreground="{StaticResource TextMuted}"
+                                                           FontSize="11"/>
+                                                <TextBlock Text="{Binding Vehiculos.Count, StringFormat={}{0} vehículo(s)}"
+                                                           Foreground="{StaticResource TextMuted}"
+                                                           FontSize="11"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+
+                        <!-- Badge cliente seleccionado -->
+                        <Border x:Name="panelClienteSeleccionado"
+                                Visibility="Collapsed"
+                                Background="#182820"
+                                BorderBrush="{StaticResource ColorSuccess}"
+                                BorderThickness="1" CornerRadius="6"
+                                Padding="12,10" Margin="0,6,0,0">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="✅ Cliente seleccionado"
+                                               Foreground="{StaticResource ColorSuccess}"
+                                               FontSize="10" FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="txtClienteSeleccionadoNombre"
+                                               Foreground="{StaticResource TextPrimary}"
+                                               FontSize="14" FontWeight="SemiBold"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        <TextBlock x:Name="txtClienteSeleccionadoTel"
+                                                   Foreground="{StaticResource TextSecondary}"
+                                                   FontFamily="Consolas" FontSize="12"/>
+                                        <TextBlock Text="  ·  "
+                                                   Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                                        <TextBlock x:Name="txtClienteSeleccionadoCorreo"
+                                                   Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <Button Content="✕ Cambiar"
+                                        Click="LimpiarClienteSeleccionado_Click"
+                                        Background="Transparent"
+                                        Foreground="{StaticResource TextMuted}"
+                                        BorderThickness="0" Cursor="Hand"
+                                        FontSize="11" HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Toggle nuevo cliente -->
+                <Border Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="14,10"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1" Margin="0,0,0,12">
+                    <CheckBox x:Name="chkNuevoCliente"
+                              Content="Es un cliente nuevo — ingresar datos manualmente"
+                              Foreground="{StaticResource TextSecondary}"
+                              FontSize="13"
+                              Checked="ChkNuevoCliente_Changed"
+                              Unchecked="ChkNuevoCliente_Changed"/>
+                </Border>
+
+                <!-- ════════════════════════════════════════
+                     BLOQUE 2 — Datos del nuevo cliente
+                ════════════════════════════════════════ -->
+                <Border x:Name="panelNuevoCliente"
+                        Visibility="Collapsed"
+                        Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="16,14"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1" Margin="0,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Width="24" Height="24" CornerRadius="5"
+                                    Background="#1A2535" Margin="0,0,8,0">
+                                <TextBlock Text="👤" FontSize="12"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="DATOS DEL NUEVO CLIENTE"
+                                       Foreground="{StaticResource ColorInfo}"
+                                       FontSize="11" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Nombre: *" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="txtNombre"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Apellido: *" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="txtApellido"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Teléfono: *" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="txtTelefono"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Email:" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="txtEmail"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Dirección:" Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="txtDireccion" Text="Sin dirección"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ════════════════════════════════════════
+                     BLOQUE 3 — Vehículo
+                     Muestra selector si hay cliente elegido,
+                     formulario manual si es cliente nuevo
+                ════════════════════════════════════════ -->
+
+                <!-- Selector de vehículo existente -->
+                <Border x:Name="panelVehiculoExistente"
+                        Visibility="Collapsed"
+                        Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="16,14"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1" Margin="0,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Width="24" Height="24" CornerRadius="5"
+                                    Background="#1A2535" Margin="0,0,8,0">
+                                <TextBlock Text="🚗" FontSize="12"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="VEHÍCULO DEL CLIENTE"
+                                       Foreground="{StaticResource ColorInfo}"
+                                       FontSize="11" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- ComboBox de vehículos registrados -->
+                        <TextBlock Text="Seleccionar vehículo registrado:"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="cmbVehiculosCliente"
+                                      Grid.Column="0"
+                                      SelectionChanged="CmbVehiculosCliente_SelectionChanged">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                                            <TextBlock FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimary}">
+                                                <Run Text="{Binding Marca}"/>
+                                                <Run Text=" "/>
+                                                <Run Text="{Binding Modelo}"/>
+                                            </TextBlock>
+                                            <TextBlock Text="  —  "
+                                                       Foreground="{StaticResource TextMuted}"/>
+                                            <TextBlock Text="{Binding Placa}"
+                                                       FontFamily="Consolas"
+                                                       Foreground="{StaticResource AccentLight}"/>
+                                            <TextBlock x:Name="txtAnioVehiculo"
+                                                       Foreground="{StaticResource TextMuted}"
+                                                       FontSize="11" Margin="6,0,0,0"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="2"
+                                    Content="➕ Otro vehículo"
+                                    Click="OtroVehiculo_Click"
+                                    Style="{StaticResource BtnGhost}"
+                                    Padding="12,8"/>
+                        </Grid>
+
+                        <!-- Badge de vehículo confirmado -->
+                        <Border x:Name="panelVehiculoConfirmado"
+                                Visibility="Collapsed"
+                                Background="{StaticResource AccentMuted}"
+                                BorderBrush="{StaticResource AccentPrimary}"
+                                BorderThickness="1" CornerRadius="6"
+                                Padding="12,8" Margin="0,8,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🚗  "
+                                           Foreground="{StaticResource AccentLight}"
+                                           FontSize="14" VerticalAlignment="Center"/>
+                                <StackPanel>
+                                    <TextBlock x:Name="txtVehiculoConfirmadoNombre"
+                                               Foreground="{StaticResource TextPrimary}"
+                                               FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock x:Name="txtVehiculoConfirmadoPlaca"
+                                               Foreground="{StaticResource AccentLight}"
+                                               FontFamily="Consolas" FontSize="12"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Formulario vehículo nuevo (dentro del panel existente,
+                             aparece cuando el usuario elige "Otro vehículo") -->
+                        <Border x:Name="panelNuevoVehiculoInline"
+                                Visibility="Collapsed"
+                                Background="{StaticResource BgInput}"
+                                CornerRadius="6" Padding="14,12"
+                                Margin="0,10,0,0">
+                            <StackPanel>
+                                <TextBlock Text="📝  Datos del nuevo vehículo:"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Marca: *" Style="{StaticResource FormLabel}"/>
+                                        <TextBox x:Name="txtMarcaNuevo"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Modelo: *" Style="{StaticResource FormLabel}"/>
+                                        <TextBox x:Name="txtModeloNuevo"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="100"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Placa: *" Style="{StaticResource FormLabel}"/>
+                                        <TextBox x:Name="txtPlacaNuevo"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Año:" Style="{StaticResource FormLabel}"/>
+                                        <TextBox x:Name="txtAnioNuevo"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Formulario vehículo para cliente nuevo -->
+                <Border x:Name="panelVehiculoNuevoCliente"
+                        Visibility="Collapsed"
+                        Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="16,14"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1" Margin="0,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Width="24" Height="24" CornerRadius="5"
+                                    Background="#1A2535" Margin="0,0,8,0">
+                                <TextBlock Text="🚗" FontSize="12"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="DATOS DEL VEHÍCULO"
+                                       Foreground="{StaticResource ColorInfo}"
+                                       FontSize="11" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Marca: *" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="txtMarca"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Modelo: *" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="txtModelo"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Placa: *" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="txtPlaca"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Año:" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="txtAnio"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ════════════════════════════════════════
+                     BLOQUE 4 — Datos del trabajo
+                ════════════════════════════════════════ -->
+                <Border Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="16,14"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1" Margin="0,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Width="24" Height="24" CornerRadius="5"
+                                    Background="#2D2010" Margin="0,0,8,0">
+                                <TextBlock Text="🔧" FontSize="12"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="DATOS DEL TRABAJO"
+                                       Foreground="{StaticResource ColorWarning}"
+                                       FontSize="11" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock Text="Tipo de Trabajo: *" Style="{StaticResource FormLabel}"/>
+                        <ComboBox x:Name="cmbTipoTrabajo" SelectedIndex="0">
+                            <ComboBoxItem Content="Mecánica"/>
+                            <ComboBoxItem Content="Chapería"/>
+                            <ComboBoxItem Content="Pintura"/>
+                            <ComboBoxItem Content="Electricidad"/>
+                            <ComboBoxItem Content="Mantenimiento General"/>
+                            <ComboBoxItem Content="Diagnóstico"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Descripción del Problema: *" Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="txtDescripcion"
+                                 Height="70" TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto"/>
+
+                        <Grid Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Precio Estimado (Bs.):" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="txtPrecio" Text="0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Fecha Estimada de Entrega:" Style="{StaticResource FormLabel}"/>
+                                <DatePicker x:Name="dpFechaEntrega"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Estado Inicial:" Style="{StaticResource FormLabel}"/>
+                        <ComboBox x:Name="cmbEstado" SelectedIndex="0">
+                            <ComboBoxItem Content="Pendiente"/>
+                            <ComboBoxItem Content="En Progreso"/>
+                        </ComboBox>
+
+                        <Border Background="{StaticResource AccentMuted}"
+                                CornerRadius="6" Padding="12,10" Margin="0,14,0,0">
+                            <TextBlock Foreground="{StaticResource AccentLight}"
+                                       FontSize="11" TextWrapping="Wrap">
+                                <Run Text="ℹ️  "/>
+                                <Run Text="Los servicios y repuestos se agregan después desde el módulo Trabajos."/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ── Footer ── -->
+        <Border Grid.Row="2" Background="{StaticResource BgCard}" Padding="22,14">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="✕  Cancelar"
+                        Click="Cancelar_Click"
+                        Style="{StaticResource BtnDanger}"/>
+                <Button Content="✅  Registrar Trabajo"
+                        Click="Registrar_Click"
+                        Style="{StaticResource BtnSuccess}"
+                        Padding="22,9"/>
+            </StackPanel>
+        </Border>
+    </Grid>
 </Window>
