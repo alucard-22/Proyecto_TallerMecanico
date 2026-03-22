@@ -1,4 +1,6 @@
-﻿using Proyecto_taller.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Proyecto_taller.Data;
+using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using Proyecto_taller.ViewModels;
 using System;
@@ -15,441 +17,329 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace Proyecto_taller.Views
 {
-    public partial class Reservas : UserControl
+    /// <summary>
+    /// Módulo de Reservas — corregido:
+    ///   • Ahora es Page (no UserControl), se navega correctamente
+    ///   • Sin ReservasViewModel desconectado (todo en code-behind)
+    ///   • Estado manejado con botones explícitos (sin ComboBox inline que causaba bugs)
+    ///   • Validación de transiciones de estado
+    ///   • WhatsApp integrado en Confirmar y Cancelar
+    /// </summary>
+    public partial class Reservas : Page
     {
-        private List<Reserva> _todasLasReservas = new List<Reserva>();
-
-        // ⭐ Flag para evitar que AplicarFiltros() se dispare
-        //    antes de que InitializeComponent() haya creado los controles
-        private bool _inicializado = false;
+        private List<Reserva> _todas = new();
+        private bool _cargado = false;
 
         public Reservas()
         {
             InitializeComponent();
-
-            // ⭐ Suscribir eventos DESPUÉS de InitializeComponent
-            rbTodas.Checked += FiltroEstado_Changed;
-            rbPendientes.Checked += FiltroEstado_Changed;
-            rbConfirmadas.Checked += FiltroEstado_Changed;
-            rbEnCurso.Checked += FiltroEstado_Changed;
-            rbCompletadas.Checked += FiltroEstado_Changed;
-            rbCanceladas.Checked += FiltroEstado_Changed;
-
-            // Seleccionar "Todas" sin disparar el filtro todavía
-            rbTodas.IsChecked = true;
-
-            // ⭐ Marcar como inicializado ANTES de cargar datos
-            _inicializado = true;
-
-            CargarReservas();
-            ActualizarEstadisticas();
+            Loaded += (_, __) => { _cargado = true; Cargar(); };
         }
 
-        /// <summary>
-        /// Carga todas las reservas desde la base de datos
-        /// </summary>
-        private void CargarReservas()
+        // ─────────────────────────────────────────────────────────
+        //  CARGA Y FILTRO
+        // ─────────────────────────────────────────────────────────
+
+        private void Cargar()
         {
             try
             {
                 using var db = new TallerDbContext();
-                _todasLasReservas = db.Reservas
-                    .Include(r => r.Vehiculo)
-                        .ThenInclude(v => v.Cliente)
+                _todas = db.Reservas
+                    .Include(r => r.Vehiculo).ThenInclude(v => v.Cliente)
                     .OrderByDescending(r => r.FechaHoraCita)
                     .ToList();
 
-                AplicarFiltros();
+                AplicarFiltro();
+                ActualizarEstadisticas();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Error al cargar reservas:\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar reservas:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        /// <summary>
-        /// Aplica los filtros de estado y texto de búsqueda.
-        /// ⭐ Guard: si los controles no están listos, sale sin hacer nada.
-        /// </summary>
-        private void AplicarFiltros()
+        private void AplicarFiltro()
         {
-            // ⭐ Guard principal — evita NullReferenceException durante la construcción
-            if (!_inicializado) return;
-            if (rbTodas == null) return;
+            if (!_cargado) return;
 
-            var reservasFiltradas = _todasLasReservas.AsEnumerable();
+            IEnumerable<Reserva> lista = _todas;
 
-            // Filtro por estado
-            if (rbPendientes?.IsChecked == true)
-                reservasFiltradas = reservasFiltradas.Where(r => r.Estado == "Pendiente");
-            else if (rbConfirmadas?.IsChecked == true)
-                reservasFiltradas = reservasFiltradas.Where(r => r.Estado == "Confirmada");
-            else if (rbEnCurso?.IsChecked == true)
-                reservasFiltradas = reservasFiltradas.Where(r => r.Estado == "En Curso");
-            else if (rbCompletadas?.IsChecked == true)
-                reservasFiltradas = reservasFiltradas.Where(r => r.Estado == "Completada");
+            if (rbPendientes?.IsChecked == true) lista = lista.Where(r => r.Estado == "Pendiente");
+            else if (rbConfirmadas?.IsChecked == true) lista = lista.Where(r => r.Estado == "Confirmada");
+            else if (rbEnCurso?.IsChecked == true) lista = lista.Where(r => r.Estado == "En Curso");
+            else if (rbCompletadas?.IsChecked == true) lista = lista.Where(r => r.Estado == "Completada");
             else if (rbCanceladas?.IsChecked == true)
-                reservasFiltradas = reservasFiltradas.Where(r =>
-                    r.Estado == "Cancelada" || r.Estado == "No Asistió");
-            // else rbTodas → sin filtro adicional
+                lista = lista.Where(r => r.Estado == "Cancelada" || r.Estado == "No Asistió");
 
-            // Filtro por texto de búsqueda
-            var busqueda = txtBuscar?.Text?.Trim().ToLower();
-            if (!string.IsNullOrWhiteSpace(busqueda))
-            {
-                reservasFiltradas = reservasFiltradas.Where(r =>
-                    (r.Vehiculo?.Cliente?.Nombre?.ToLower().Contains(busqueda) ?? false) ||
-                    (r.Vehiculo?.Cliente?.Apellido?.ToLower().Contains(busqueda) ?? false) ||
-                    (r.Vehiculo?.Cliente?.Telefono?.ToLower().Contains(busqueda) ?? false) ||
-                    (r.Vehiculo?.Placa?.ToLower().Contains(busqueda) ?? false) ||
-                    (r.Vehiculo?.Marca?.ToLower().Contains(busqueda) ?? false));
-            }
+            string busq = txtBuscar?.Text?.Trim().ToLower() ?? "";
+            if (!string.IsNullOrEmpty(busq))
+                lista = lista.Where(r =>
+                    (r.Vehiculo?.Cliente?.Nombre?.ToLower().Contains(busq) ?? false) ||
+                    (r.Vehiculo?.Cliente?.Apellido?.ToLower().Contains(busq) ?? false) ||
+                    (r.Vehiculo?.Cliente?.Telefono?.Contains(busq) ?? false) ||
+                    (r.Vehiculo?.Placa?.ToLower().Contains(busq) ?? false) ||
+                    (r.Vehiculo?.Marca?.ToLower().Contains(busq) ?? false) ||
+                    (r.TipoServicio?.ToLower().Contains(busq) ?? false));
 
-            // Asignar al DataGrid (con guard por si aún no existe)
-            if (dgReservas != null)
-                dgReservas.ItemsSource = reservasFiltradas.ToList();
+            var result = lista.ToList();
+            dgReservas.ItemsSource = result;
+            txtTotalReservas.Text = _todas.Count.ToString();
         }
 
-        /// <summary>
-        /// Actualiza los contadores del panel superior
-        /// </summary>
         private void ActualizarEstadisticas()
         {
-            if (!_inicializado) return;
-
             var hoy = DateTime.Today;
-            var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
+            var inicioM = new DateTime(hoy.Year, hoy.Month, 1);
 
-            if (txtHoy != null) txtHoy.Text = _todasLasReservas.Count(r =>
-                r.FechaHoraCita.Date == hoy &&
-                (r.Estado == "Pendiente" || r.Estado == "Confirmada" || r.Estado == "En Curso")).ToString();
-
-            if (txtPendientes != null) txtPendientes.Text = _todasLasReservas.Count(r => r.Estado == "Pendiente").ToString();
-            if (txtConfirmadas != null) txtConfirmadas.Text = _todasLasReservas.Count(r => r.Estado == "Confirmada").ToString();
-            if (txtEnCurso != null) txtEnCurso.Text = _todasLasReservas.Count(r => r.Estado == "En Curso").ToString();
-            if (txtEsteMes != null) txtEsteMes.Text = _todasLasReservas.Count(r =>
-                r.FechaHoraCita >= inicioMes && r.FechaHoraCita < inicioMes.AddMonths(1)).ToString();
+            statHoy.Text = _todas.Count(r => r.FechaHoraCita.Date == hoy &&
+                                                   r.Estado is "Pendiente" or "Confirmada" or "En Curso").ToString();
+            statPendientes.Text = _todas.Count(r => r.Estado == "Pendiente").ToString();
+            statConfirmadas.Text = _todas.Count(r => r.Estado == "Confirmada").ToString();
+            statEnCurso.Text = _todas.Count(r => r.Estado == "En Curso").ToString();
+            statMes.Text = _todas.Count(r => r.FechaHoraCita >= inicioM &&
+                                                    r.FechaHoraCita < inicioM.AddMonths(1)).ToString();
         }
 
-        /// <summary>
-        /// Cambia el estado de una reserva en BD y refresca la vista
-        /// </summary>
-        private void ActualizarEstadoReserva(Reserva reserva, string nuevoEstado)
+        // ─────────────────────────────────────────────────────────
+        //  EVENTOS DE FILTRO / BÚSQUEDA
+        // ─────────────────────────────────────────────────────────
+
+        private void Filtro_Changed(object sender, RoutedEventArgs e)
+            => AplicarFiltro();
+
+        private void TxtBuscar_Changed(object sender, TextChangedEventArgs e)
+            => AplicarFiltro();
+
+        // ─────────────────────────────────────────────────────────
+        //  RESERVA SELECCIONADA
+        // ─────────────────────────────────────────────────────────
+
+        private Reserva SeleccionActual => dgReservas.SelectedItem as Reserva;
+
+        private bool ValidarSeleccion(string accion = "realizar esta acción")
         {
-            try
-            {
-                using var db = new TallerDbContext();
-                var reservaDb = db.Reservas.Find(reserva.ReservaID);
-                if (reservaDb == null) return;
-
-                reservaDb.Estado = nuevoEstado;
-
-                switch (nuevoEstado)
-                {
-                    case "Confirmada":
-                        reservaDb.FechaConfirmacion = DateTime.Now;
-                        break;
-                    case "Completada":
-                        reservaDb.FechaCompletado = DateTime.Now;
-                        break;
-                    case "Cancelada":
-                    case "No Asistió":
-                        reservaDb.FechaCancelacion = DateTime.Now;
-                        break;
-                }
-
-                db.SaveChanges();
-
-                // Sincronizar el objeto en memoria
-                reserva.Estado = reservaDb.Estado;
-                reserva.FechaConfirmacion = reservaDb.FechaConfirmacion;
-                reserva.FechaCompletado = reservaDb.FechaCompletado;
-                reserva.FechaCancelacion = reservaDb.FechaCancelacion;
-
-                dgReservas.Items.Refresh();
-                ActualizarEstadisticas();
-
-                MessageBox.Show(
-                    $"Estado actualizado a: {nuevoEstado}",
-                    "Estado Actualizado",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Error al actualizar estado:\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-
-                CargarReservas();
-            }
+            if (SeleccionActual != null) return true;
+            MessageBox.Show($"Selecciona una reserva para {accion}.",
+                "Sin selección", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
         }
 
-        // ══════════════════════════════════════════════════════
-        //  EVENTOS DE CONTROLES
-        // ══════════════════════════════════════════════════════
-
-        private void EstadoComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (!_inicializado) return;
-
-            var comboBox = sender as ComboBox;
-            if (comboBox?.SelectedItem is ComboBoxItem item)
-            {
-                var nuevoEstado = item.Tag?.ToString();
-                var reserva = comboBox.DataContext as Reserva;
-
-                if (reserva != null && !string.IsNullOrEmpty(nuevoEstado) && reserva.Estado != nuevoEstado)
-                    ActualizarEstadoReserva(reserva, nuevoEstado);
-            }
-        }
-
-        private void FiltroEstado_Changed(object sender, RoutedEventArgs e)
-        {
-            if (!_inicializado) return;
-            AplicarFiltros();
-        }
-
-        private void TxtBuscar_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (!_inicializado) return;
-            AplicarFiltros();
-        }
-
-        // ══════════════════════════════════════════════════════
+        // ─────────────────────────────────────────────────────────
         //  BOTONES DE ACCIÓN
-        // ══════════════════════════════════════════════════════
+        // ─────────────────────────────────────────────────────────
 
         private void Actualizar_Click(object sender, RoutedEventArgs e)
         {
-            CargarReservas();
-            ActualizarEstadisticas();
+            Cargar();
             MessageBox.Show("Reservas actualizadas.", "Actualizar",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void NuevaReserva_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var ventana = new NuevaReservaWindow();
-                if (ventana.ShowDialog() == true)
-                {
-                    CargarReservas();
-                    ActualizarEstadisticas();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al abrir ventana:\n{ex.Message}",
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            var win = new NuevaReservaWindow();
+            if (win.ShowDialog() == true) Cargar();
         }
 
-        private void ConfirmarReserva_Click(object sender, RoutedEventArgs e)
+        private void Confirmar_Click(object sender, RoutedEventArgs e)
         {
-            var reserva = dgReservas.SelectedItem as Reserva;
-            if (reserva == null)
+            if (!ValidarSeleccion("confirmar")) return;
+            var r = SeleccionActual;
+
+            if (r.Estado != "Pendiente")
             {
-                MessageBox.Show("Seleccione una reserva.", "Advertencia",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                MessageBox.Show("Solo se pueden confirmar reservas en estado Pendiente.",
+                    "Estado inválido", MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
 
-            if (reserva.Estado != "Pendiente")
-            {
-                MessageBox.Show("Solo se pueden confirmar reservas pendientes.",
-                    "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            var resp = MessageBox.Show(
+                $"¿Confirmar la reserva de {r.Vehiculo?.Cliente?.Nombre} {r.Vehiculo?.Cliente?.Apellido}?\n\n" +
+                $"📅 {r.FechaHoraCita:dd/MM/yyyy HH:mm}\n🔧 {r.TipoServicio}\n\n" +
+                $"Se enviará confirmación por WhatsApp si el cliente tiene número registrado.",
+                "Confirmar Reserva", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            var resultado = MessageBox.Show(
-                $"¿Confirmar la reserva de {reserva.Vehiculo?.Cliente?.Nombre}?\n\n" +
-                $"📅 Fecha: {reserva.FechaHoraCita:dd/MM/yyyy HH:mm}\n" +
-                $"🛠️ Servicio: {reserva.TipoServicio}",
-                "Confirmar Reserva",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
+            if (resp != MessageBoxResult.Yes) return;
 
-            if (resultado == MessageBoxResult.Yes)
-                ActualizarEstadoReserva(reserva, "Confirmada");
+            CambiarEstado(r.ReservaID, "Confirmada", fechaConfirmacion: DateTime.Now);
+
+            // WhatsApp de confirmación
+            var tel = r.Vehiculo?.Cliente?.Telefono;
+            if (!string.IsNullOrWhiteSpace(tel))
+                WhatsAppHelper.EnviarConfirmacion(
+                    tel,
+                    $"{r.Vehiculo?.Cliente?.Nombre} {r.Vehiculo?.Cliente?.Apellido}",
+                    r.FechaHoraCita,
+                    r.TipoServicio,
+                    r.PrecioEstimado);
         }
 
-        private void IniciarTrabajo_Click(object sender, RoutedEventArgs e)
+        private void Iniciar_Click(object sender, RoutedEventArgs e)
         {
-            var reserva = dgReservas.SelectedItem as Reserva;
-            if (reserva == null)
+            if (!ValidarSeleccion("iniciar")) return;
+            var r = SeleccionActual;
+
+            if (r.Estado is not ("Pendiente" or "Confirmada"))
             {
-                MessageBox.Show("Seleccione una reserva.", "Advertencia",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                MessageBox.Show("Solo se pueden iniciar reservas Pendientes o Confirmadas.",
+                    "Estado inválido", MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
 
-            if (reserva.Estado != "Confirmada" && reserva.Estado != "Pendiente")
-            {
-                MessageBox.Show("Solo se pueden iniciar reservas confirmadas o pendientes.",
-                    "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            var resp = MessageBox.Show(
+                $"¿Iniciar el trabajo para {r.Vehiculo?.Cliente?.Nombre}?\n\nEsto marcará la reserva como 'En Curso'.",
+                "Iniciar Trabajo", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            var resultado = MessageBox.Show(
-                $"¿Iniciar trabajo para {reserva.Vehiculo?.Cliente?.Nombre}?\n\n" +
-                $"Esto marcará la reserva como 'En Curso'.",
-                "Iniciar Trabajo",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (resultado == MessageBoxResult.Yes)
-                ActualizarEstadoReserva(reserva, "En Curso");
+            if (resp == MessageBoxResult.Yes) CambiarEstado(r.ReservaID, "En Curso");
         }
 
-        private void CompletarReserva_Click(object sender, RoutedEventArgs e)
+        private void Completar_Click(object sender, RoutedEventArgs e)
         {
-            var reserva = dgReservas.SelectedItem as Reserva;
-            if (reserva == null)
+            if (!ValidarSeleccion("completar")) return;
+            var r = SeleccionActual;
+
+            if (r.Estado != "En Curso")
             {
-                MessageBox.Show("Seleccione una reserva.", "Advertencia",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                MessageBox.Show("Solo se pueden completar reservas que están En Curso.",
+                    "Estado inválido", MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
 
-            if (reserva.Estado != "En Curso")
-            {
-                MessageBox.Show("Solo se pueden completar reservas en curso.",
-                    "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            var resp = MessageBox.Show(
+                $"¿Marcar como completada la reserva de {r.Vehiculo?.Cliente?.Nombre}?",
+                "Completar Reserva", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            var resultado = MessageBox.Show(
-                $"¿Completar la reserva de {reserva.Vehiculo?.Cliente?.Nombre}?\n\n" +
-                $"Esto marcará el servicio como finalizado.",
-                "Completar Reserva",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (resultado == MessageBoxResult.Yes)
-                ActualizarEstadoReserva(reserva, "Completada");
+            if (resp == MessageBoxResult.Yes)
+                CambiarEstado(r.ReservaID, "Completada", fechaCompletado: DateTime.Now);
         }
 
-        private void CancelarReserva_Click(object sender, RoutedEventArgs e)
+        private void Cancelar_Click(object sender, RoutedEventArgs e)
         {
-            var reserva = dgReservas.SelectedItem as Reserva;
-            if (reserva == null)
+            if (!ValidarSeleccion("cancelar")) return;
+            var r = SeleccionActual;
+
+            if (r.Estado == "Completada")
             {
-                MessageBox.Show("Seleccione una reserva.", "Advertencia",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                MessageBox.Show("No se pueden cancelar reservas ya completadas.",
+                    "Operación no permitida", MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
 
-            if (reserva.Estado == "Completada")
-            {
-                MessageBox.Show("No se pueden cancelar reservas completadas.",
-                    "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            var win = new CancelarReservaWindow();
+            if (win.ShowDialog() != true) return;
 
-            var ventana = new CancelarReservaWindow();
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    using var db = new TallerDbContext();
-                    var reservaDb = db.Reservas.Find(reserva.ReservaID);
-                    if (reservaDb != null)
-                    {
-                        reservaDb.Estado = ventana.EsNoShow ? "No Asistió" : "Cancelada";
-                        reservaDb.FechaCancelacion = DateTime.Now;
-                        reservaDb.MotivoCancelacion = ventana.Motivo;
-                        db.SaveChanges();
+            string nuevoEstado = win.EsNoShow ? "No Asistió" : "Cancelada";
+            CambiarEstado(r.ReservaID, nuevoEstado,
+                fechaCancelacion: DateTime.Now, motivo: win.Motivo);
 
-                        CargarReservas();
-                        ActualizarEstadisticas();
-
-                        MessageBox.Show("Reserva cancelada exitosamente.", "Cancelar",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al cancelar:\n{ex.Message}", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            // WhatsApp de cancelación
+            var tel = r.Vehiculo?.Cliente?.Telefono;
+            if (!string.IsNullOrWhiteSpace(tel))
+                WhatsAppHelper.EnviarCancelacion(
+                    tel,
+                    $"{r.Vehiculo?.Cliente?.Nombre} {r.Vehiculo?.Cliente?.Apellido}",
+                    r.FechaHoraCita,
+                    r.TipoServicio,
+                    win.Motivo);
         }
 
-        private void VerDetalles_Click(object sender, RoutedEventArgs e)
+        private void WhatsApp_Click(object sender, RoutedEventArgs e)
         {
-            var reserva = dgReservas.SelectedItem as Reserva;
-            if (reserva == null)
+            if (!ValidarSeleccion("enviar WhatsApp")) return;
+            var r = SeleccionActual;
+
+            var tel = r.Vehiculo?.Cliente?.Telefono;
+            if (string.IsNullOrWhiteSpace(tel))
             {
-                MessageBox.Show("Seleccione una reserva.", "Advertencia",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                MessageBox.Show("Este cliente no tiene número de teléfono registrado.",
+                    "Sin teléfono", MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
+
+            // Mostrar opciones de mensaje
+            var win = new WhatsAppManualWindow(r);
+            win.ShowDialog();
+        }
+
+        private void Detalles_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ValidarSeleccion("ver detalles")) return;
+            var win = new DetallesReservaWindow(SeleccionActual.ReservaID);
+            win.ShowDialog();
+        }
+
+        private void Eliminar_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ValidarSeleccion("eliminar")) return;
+            var r = SeleccionActual;
+
+            var resp = MessageBox.Show(
+                $"¿Eliminar la reserva #{r.ReservaID} de {r.Vehiculo?.Cliente?.Nombre}?\n\nEsta acción no se puede deshacer.",
+                "Confirmar Eliminación", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (resp != MessageBoxResult.Yes) return;
 
             try
             {
-                var ventana = new DetallesReservaWindow(reserva.ReservaID);
-                ventana.ShowDialog();
+                using var db = new TallerDbContext();
+                var reservaDb = db.Reservas.Find(r.ReservaID);
+                if (reservaDb != null) { db.Reservas.Remove(reservaDb); db.SaveChanges(); }
+                Cargar();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al abrir detalles:\n{ex.Message}", "Error",
+                MessageBox.Show($"Error al eliminar:\n{ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void EliminarReserva_Click(object sender, RoutedEventArgs e)
+        private void dgReservas_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var reserva = dgReservas.SelectedItem as Reserva;
-            if (reserva == null)
+            if (SeleccionActual == null) return;
+            var win = new DetallesReservaWindow(SeleccionActual.ReservaID);
+            win.ShowDialog();
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  CAMBIO DE ESTADO — función centralizada
+        // ─────────────────────────────────────────────────────────
+
+        private void CambiarEstado(
+            int reservaId,
+            string nuevoEstado,
+            DateTime? fechaConfirmacion = null,
+            DateTime? fechaCompletado = null,
+            DateTime? fechaCancelacion = null,
+            string motivo = "")
+        {
+            try
             {
-                MessageBox.Show("Seleccione una reserva.", "Advertencia",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                using var db = new TallerDbContext();
+                var reserva = db.Reservas.Find(reservaId);
+                if (reserva == null) return;
+
+                reserva.Estado = nuevoEstado;
+
+                if (fechaConfirmacion.HasValue) reserva.FechaConfirmacion = fechaConfirmacion;
+                if (fechaCompletado.HasValue) reserva.FechaCompletado = fechaCompletado;
+                if (fechaCancelacion.HasValue)
+                {
+                    reserva.FechaCancelacion = fechaCancelacion;
+                    reserva.MotivoCancelacion = motivo;
+                }
+
+                db.SaveChanges();
+
+                MessageBox.Show($"Estado actualizado: {nuevoEstado}",
+                    "Actualizado", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                Cargar();
             }
-
-            var resultado = MessageBox.Show(
-                $"¿Está seguro de eliminar la reserva de " +
-                $"{reserva.Vehiculo?.Cliente?.Nombre}?\n\nEsta acción no se puede deshacer.",
-                "Eliminar Reserva",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (resultado == MessageBoxResult.Yes)
+            catch (Exception ex)
             {
-                try
-                {
-                    using var db = new TallerDbContext();
-                    var reservaDb = db.Reservas.Find(reserva.ReservaID);
-                    if (reservaDb != null)
-                    {
-                        db.Reservas.Remove(reservaDb);
-                        db.SaveChanges();
-
-                        CargarReservas();
-                        ActualizarEstadisticas();
-
-                        MessageBox.Show("Reserva eliminada exitosamente.", "Eliminar",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al eliminar:\n{ex.Message}", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                MessageBox.Show($"Error al cambiar estado:\n{ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

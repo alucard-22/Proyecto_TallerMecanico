@@ -1,0 +1,102 @@
+﻿<Window x:Class="Proyecto_taller.Views.WhatsAppManualWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Enviar WhatsApp"
+        Height="370" Width="460"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True">
+
+    <Border Background="{StaticResource BgSurface}"
+            BorderBrush="{StaticResource ColorSuccess}"
+            BorderThickness="1" CornerRadius="10">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="4" BlurRadius="18" Opacity="0.5"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="{StaticResource BgCard}"
+                    CornerRadius="9,9,0,0" Padding="20,14">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock Text="💬  Enviar WhatsApp"
+                                   Foreground="{StaticResource ColorSuccess}"
+                                   FontSize="15" FontWeight="Bold"/>
+                        <TextBlock x:Name="txtClienteInfo"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,3,0,0"/>
+                    </StackPanel>
+                    <Button Content="✕" Click="Cerrar_Click"
+                            Background="Transparent" Foreground="{StaticResource TextMuted}"
+                            BorderThickness="0" FontSize="16" Cursor="Hand"
+                            Padding="8,4" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Margin="20,16">
+                <TextBlock Text="¿Qué mensaje quieres enviar?"
+                           Foreground="{StaticResource TextSecondary}"
+                           FontSize="13" FontWeight="SemiBold" Margin="0,0,0,14"/>
+
+                <Button Click="EnviarConfirmacion_Click"
+                        Style="{StaticResource BtnSuccess}"
+                        HorizontalAlignment="Stretch"
+                        Padding="16,12" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✅  " FontSize="14"/>
+                        <StackPanel>
+                            <TextBlock Text="Confirmación de reserva"
+                                       FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock Text="Su reserva ha sido confirmada"
+                                       FontSize="11" Opacity="0.7"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+
+                <Button Click="EnviarRecordatorio_Click"
+                        Style="{StaticResource BtnPrimary}"
+                        HorizontalAlignment="Stretch"
+                        Padding="16,12" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔔  " FontSize="14"/>
+                        <StackPanel>
+                            <TextBlock Text="Recordatorio de cita"
+                                       FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock Text="Recuérdele su cita de mañana"
+                                       FontSize="11" Opacity="0.7"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+
+                <Button Click="EnviarCancelacion_Click"
+                        Style="{StaticResource BtnDanger}"
+                        HorizontalAlignment="Stretch"
+                        Padding="16,12">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="❌  " FontSize="14"/>
+                        <StackPanel>
+                            <TextBlock Text="Notificación de cancelación"
+                                       FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock Text="Su reserva ha sido cancelada"
+                                       FontSize="11" Opacity="0.7"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <Border Grid.Row="2" Background="{StaticResource BgCard}"
+                    CornerRadius="0,0,9,9" Padding="20,12">
+                <Button Content="Cerrar" Click="Cerrar_Click"
+                        Style="{StaticResource BtnSecondary}"
+                        HorizontalAlignment="Right" Width="100"/>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

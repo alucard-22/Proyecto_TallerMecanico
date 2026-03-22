@@ -1,0 +1,80 @@
+﻿<Window x:Class="Proyecto_taller.Views.NuevoVehiculoDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Agregar Vehículo"
+        Height="360" Width="440"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{StaticResource BgSurface}">
+
+    <Border Background="{StaticResource BgSurface}"
+            BorderBrush="{StaticResource AccentPrimary}"
+            BorderThickness="1" CornerRadius="0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="{StaticResource BgCard}"
+                    CornerRadius="0" Padding="20,14">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock Text="🚗  Agregar Nuevo Vehículo"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   FontSize="15" FontWeight="Bold"/>
+                        <TextBlock x:Name="txtClienteInfo"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,3,0,0"/>
+                    </StackPanel>
+                    <Button Content="✕" Click="Cancelar_Click"
+                            Background="Transparent" Foreground="{StaticResource TextMuted}"
+                            BorderThickness="0" FontSize="16" Cursor="Hand"
+                            Padding="8,4" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Margin="20,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Marca: *"  Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="txtMarca"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Modelo: *" Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="txtModelo"/>
+                    </StackPanel>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Placa: *" Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="txtPlaca"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Año:"     Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="txtAnio"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <Border Grid.Row="2" Background="{StaticResource BgCard}"
+                    CornerRadius="0" Padding="20,12">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="✕ Cancelar"  Click="Cancelar_Click"  Style="{StaticResource BtnDanger}"/>
+                    <Button Content="✅ Agregar"   Click="Guardar_Click"   Style="{StaticResource BtnSuccess}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

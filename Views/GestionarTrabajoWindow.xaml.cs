@@ -11,22 +11,43 @@ namespace Proyecto_taller.Views
 {
     public partial class GestionarTrabajoWindow : Window
     {
-        private int _trabajoId;
+        private readonly int _trabajoId;
         private Trabajo _trabajo;
-        private List<Servicio> _todosLosServicios;
-        private List<Repuesto> _todosLosRepuestos;
-        private List<ServicioTrabajoItem> _serviciosTrabajo;
-        private List<RepuestoTrabajoItem> _repuestosTrabajo;
+
+        // Listas en memoria que el usuario edita
+        private List<Servicio> _todosLosServicios = new();
+        private List<Repuesto> _todosLosRepuestos = new();
+        private List<ServicioItem> _serviciosTrabajo = new();
+        private List<RepuestoItem> _repuestosTrabajo = new();
+
+        // ── Subtotales calculados ─────────────────────────────
+        private decimal TotalServicios => _serviciosTrabajo.Sum(s => s.Subtotal);
+        private decimal TotalRepuestos => _repuestosTrabajo.Sum(r => r.Subtotal);
+        private decimal Subtotal => TotalServicios + TotalRepuestos;
+
+        /// <summary>
+        /// Precio que se guardará: el manual si lo ingresó el usuario, o el subtotal calculado.
+        /// </summary>
+        private decimal PrecioAGuardar
+        {
+            get
+            {
+                if (decimal.TryParse(txtPrecioManual.Text.Trim(), out decimal manual) && manual > 0)
+                    return manual;
+                return Subtotal;
+            }
+        }
 
         public GestionarTrabajoWindow(int trabajoId)
         {
             InitializeComponent();
             _trabajoId = trabajoId;
-            _serviciosTrabajo = new List<ServicioTrabajoItem>();
-            _repuestosTrabajo = new List<RepuestoTrabajoItem>();
-
-            CargarDatos();
+            Loaded += (_, __) => CargarDatos();
         }
+
+        // ─────────────────────────────────────────────────────────
+        //  CARGA INICIAL
+        // ─────────────────────────────────────────────────────────
 
         private void CargarDatos()
         {
@@ -34,345 +55,353 @@ namespace Proyecto_taller.Views
             {
                 using var db = new TallerDbContext();
 
-                // Cargar trabajo con sus relaciones
                 _trabajo = db.Trabajos
-                    .Include(t => t.Vehiculo)
-                        .ThenInclude(v => v.Cliente)
-                    .Include(t => t.Servicios)
-                        .ThenInclude(ts => ts.Servicio)
-                    .Include(t => t.Repuestos)
-                        .ThenInclude(tr => tr.Repuesto)
+                    .Include(t => t.Vehiculo).ThenInclude(v => v.Cliente)
+                    .Include(t => t.Servicios).ThenInclude(ts => ts.Servicio)
+                    .Include(t => t.Repuestos).ThenInclude(tr => tr.Repuesto)
                     .FirstOrDefault(t => t.TrabajoID == _trabajoId);
 
-                if (_trabajo == null)
-                {
-                    MessageBox.Show("No se encontró el trabajo.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Close();
-                    return;
-                }
+                if (_trabajo == null) { Close(); return; }
 
-                // Actualizar información del header
-                txtTituloTrabajo.Text = $"🔧 Gestionar Trabajo #{_trabajo.TrabajoID}";
-                txtInfoTrabajo.Text = $"{_trabajo.Vehiculo?.Marca} {_trabajo.Vehiculo?.Modelo} - {_trabajo.Vehiculo?.Cliente?.Nombre} {_trabajo.Vehiculo?.Cliente?.Apellido}";
+                // Header
+                txtTitulo.Text = $"🔧  Gestionar Trabajo #{_trabajo.TrabajoID}";
+                txtSubtitulo.Text = $"{_trabajo.Vehiculo?.Marca} {_trabajo.Vehiculo?.Modelo} · {_trabajo.Vehiculo?.Placa}  —  {_trabajo.Vehiculo?.Cliente?.Nombre} {_trabajo.Vehiculo?.Cliente?.Apellido}";
 
-                // Cargar todos los servicios y repuestos disponibles
+                // Catalogo disponible
                 _todosLosServicios = db.Servicios.OrderBy(s => s.Nombre).ToList();
-                _todosLosRepuestos = db.Repuestos.Where(r => r.StockActual > 0).OrderBy(r => r.Nombre).ToList();
+                // Repuestos disponibles = todos, incluyendo los ya asignados
+                // (para que al reeditar se muestre el stock real devuelto)
+                _todosLosRepuestos = db.Repuestos.OrderBy(r => r.Nombre).ToList();
 
                 dgServiciosDisponibles.ItemsSource = _todosLosServicios;
                 dgRepuestosDisponibles.ItemsSource = _todosLosRepuestos;
 
-                // Cargar servicios ya asignados al trabajo
+                // Servicios ya asignados
                 if (_trabajo.Servicios != null)
-                {
                     foreach (var ts in _trabajo.Servicios)
-                    {
-                        _serviciosTrabajo.Add(new ServicioTrabajoItem
+                        _serviciosTrabajo.Add(new ServicioItem
                         {
                             ServicioID = ts.ServicioID,
-                            NombreServicio = ts.Servicio?.Nombre ?? "Servicio",
+                            NombreServicio = ts.Servicio?.Nombre ?? "—",
                             Cantidad = ts.Cantidad,
                             CostoUnitario = ts.Servicio?.CostoBase ?? 0,
                             Subtotal = ts.Subtotal
                         });
-                    }
-                }
 
-                // Cargar repuestos ya asignados al trabajo
+                // Repuestos ya asignados
                 if (_trabajo.Repuestos != null)
-                {
                     foreach (var tr in _trabajo.Repuestos)
-                    {
-                        _repuestosTrabajo.Add(new RepuestoTrabajoItem
+                        _repuestosTrabajo.Add(new RepuestoItem
                         {
                             RepuestoID = tr.RepuestoID,
-                            NombreRepuesto = tr.Repuesto?.Nombre ?? "Repuesto",
+                            NombreRepuesto = tr.Repuesto?.Nombre ?? "—",
                             Cantidad = tr.Cantidad,
                             PrecioUnitario = tr.PrecioUnitario,
                             Subtotal = tr.Subtotal
                         });
-                    }
-                }
 
-                ActualizarGrids();
-                CalcularTotales();
+                // Estado
+                SetComboEstado(_trabajo.Estado);
+                dpFechaEntrega.SelectedDate = _trabajo.FechaEntrega ?? DateTime.Now.AddDays(3);
+                txtNotas.Text = _trabajo.Descripcion ?? "";
+
+                // Precio manual solo si había uno guardado (no por defecto)
+                // Lo dejamos vacío para no confundir con el subtotal calculado
+                txtPrecioManual.Text = "";
+
+                ActualizarTotales();
+                RefrescarGrids();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar datos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
+        // ─────────────────────────────────────────────────────────
+        //  AGREGAR / ELIMINAR SERVICIOS
+        // ─────────────────────────────────────────────────────────
+
         private void AgregarServicio_Click(object sender, RoutedEventArgs e)
         {
-            var servicioSeleccionado = dgServiciosDisponibles.SelectedItem as Servicio;
-            if (servicioSeleccionado == null)
+            var svc = dgServiciosDisponibles.SelectedItem as Servicio;
+            if (svc == null)
             {
-                MessageBox.Show("Seleccione un servicio de la lista.", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                MessageBox.Show("Seleccione un servicio.", "Advertencia",
+                    MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
 
-            if (!int.TryParse(txtCantidadServicio.Text, out int cantidad) || cantidad <= 0)
+            if (!int.TryParse(txtCantidadServicio.Text, out int cant) || cant <= 0)
             {
-                MessageBox.Show("Ingrese una cantidad válida.", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                MessageBox.Show("Cantidad inválida.", "Advertencia",
+                    MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
 
-            // Verificar si el servicio ya está agregado
-            var servicioExistente = _serviciosTrabajo.FirstOrDefault(s => s.ServicioID == servicioSeleccionado.ServicioID);
-            if (servicioExistente != null)
+            var existente = _serviciosTrabajo.FirstOrDefault(s => s.ServicioID == svc.ServicioID);
+            if (existente != null)
             {
-                // Si ya existe, sumar la cantidad
-                servicioExistente.Cantidad += cantidad;
-                servicioExistente.Subtotal = servicioExistente.Cantidad * servicioExistente.CostoUnitario;
+                existente.Cantidad += cant;
+                existente.Subtotal = existente.Cantidad * existente.CostoUnitario;
             }
             else
             {
-                // Si no existe, agregarlo
-                _serviciosTrabajo.Add(new ServicioTrabajoItem
+                _serviciosTrabajo.Add(new ServicioItem
                 {
-                    ServicioID = servicioSeleccionado.ServicioID,
-                    NombreServicio = servicioSeleccionado.Nombre,
-                    Cantidad = cantidad,
-                    CostoUnitario = servicioSeleccionado.CostoBase,
-                    Subtotal = cantidad * servicioSeleccionado.CostoBase
+                    ServicioID = svc.ServicioID,
+                    NombreServicio = svc.Nombre,
+                    Cantidad = cant,
+                    CostoUnitario = svc.CostoBase,
+                    Subtotal = cant * svc.CostoBase
                 });
             }
 
             txtCantidadServicio.Text = "1";
-            ActualizarGrids();
-            CalcularTotales();
-        }
-
-        private void AgregarRepuesto_Click(object sender, RoutedEventArgs e)
-        {
-            var repuestoSeleccionado = dgRepuestosDisponibles.SelectedItem as Repuesto;
-            if (repuestoSeleccionado == null)
-            {
-                MessageBox.Show("Seleccione un repuesto de la lista.", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!int.TryParse(txtCantidadRepuesto.Text, out int cantidad) || cantidad <= 0)
-            {
-                MessageBox.Show("Ingrese una cantidad válida.", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Verificar stock disponible
-            var cantidadYaAsignada = _repuestosTrabajo
-                .Where(r => r.RepuestoID == repuestoSeleccionado.RepuestoID)
-                .Sum(r => r.Cantidad);
-
-            if (cantidadYaAsignada + cantidad > repuestoSeleccionado.StockActual)
-            {
-                MessageBox.Show(
-                    $"Stock insuficiente.\n\nDisponible: {repuestoSeleccionado.StockActual}\nYa asignado: {cantidadYaAsignada}\nIntentando agregar: {cantidad}",
-                    "Stock Insuficiente",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            // Verificar si el repuesto ya está agregado
-            var repuestoExistente = _repuestosTrabajo.FirstOrDefault(r => r.RepuestoID == repuestoSeleccionado.RepuestoID);
-            if (repuestoExistente != null)
-            {
-                // Si ya existe, sumar la cantidad
-                repuestoExistente.Cantidad += cantidad;
-                repuestoExistente.Subtotal = repuestoExistente.Cantidad * repuestoExistente.PrecioUnitario;
-            }
-            else
-            {
-                // Si no existe, agregarlo
-                _repuestosTrabajo.Add(new RepuestoTrabajoItem
-                {
-                    RepuestoID = repuestoSeleccionado.RepuestoID,
-                    NombreRepuesto = repuestoSeleccionado.Nombre,
-                    Cantidad = cantidad,
-                    PrecioUnitario = repuestoSeleccionado.PrecioUnitario,
-                    Subtotal = cantidad * repuestoSeleccionado.PrecioUnitario
-                });
-            }
-
-            txtCantidadRepuesto.Text = "1";
-            ActualizarGrids();
-            CalcularTotales();
+            RefrescarGrids();
+            ActualizarTotales();
         }
 
         private void EliminarServicio_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var servicio = button?.DataContext as ServicioTrabajoItem;
-            if (servicio != null)
+            var item = (sender as Button)?.DataContext as ServicioItem;
+            if (item == null) return;
+            _serviciosTrabajo.Remove(item);
+            RefrescarGrids();
+            ActualizarTotales();
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  AGREGAR / ELIMINAR REPUESTOS
+        // ─────────────────────────────────────────────────────────
+
+        private void AgregarRepuesto_Click(object sender, RoutedEventArgs e)
+        {
+            var rep = dgRepuestosDisponibles.SelectedItem as Repuesto;
+            if (rep == null)
             {
-                _serviciosTrabajo.Remove(servicio);
-                ActualizarGrids();
-                CalcularTotales();
+                MessageBox.Show("Seleccione un repuesto.", "Advertencia",
+                    MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
+
+            if (!int.TryParse(txtCantidadRepuesto.Text, out int cant) || cant <= 0)
+            {
+                MessageBox.Show("Cantidad inválida.", "Advertencia",
+                    MessageBoxButton.OK, MessageBoxImage.Warning); return;
+            }
+
+            // Stock real disponible = StockActual en BD + lo que ya estaba asignado a este trabajo
+            int yaAsignado = _repuestosTrabajo.Where(r => r.RepuestoID == rep.RepuestoID).Sum(r => r.Cantidad);
+            int stockOrigen = _trabajo.Repuestos?
+                .Where(r => r.RepuestoID == rep.RepuestoID)
+                .Sum(r => r.Cantidad) ?? 0;
+            int stockDisp = rep.StockActual + stockOrigen;  // stock real disponible para este trabajo
+
+            if (yaAsignado + cant > stockDisp)
+            {
+                MessageBox.Show(
+                    $"Stock insuficiente para '{rep.Nombre}'.\n\n" +
+                    $"Disponible (real): {stockDisp}\n" +
+                    $"Ya asignado:       {yaAsignado}\n" +
+                    $"Solicitado:        {cant}",
+                    "Stock Insuficiente",
+                    MessageBoxButton.OK, MessageBoxImage.Warning); return;
+            }
+
+            var existente = _repuestosTrabajo.FirstOrDefault(r => r.RepuestoID == rep.RepuestoID);
+            if (existente != null)
+            {
+                existente.Cantidad += cant;
+                existente.Subtotal = existente.Cantidad * existente.PrecioUnitario;
+            }
+            else
+            {
+                _repuestosTrabajo.Add(new RepuestoItem
+                {
+                    RepuestoID = rep.RepuestoID,
+                    NombreRepuesto = rep.Nombre,
+                    Cantidad = cant,
+                    PrecioUnitario = rep.PrecioUnitario,
+                    Subtotal = cant * rep.PrecioUnitario
+                });
+            }
+
+            txtCantidadRepuesto.Text = "1";
+            RefrescarGrids();
+            ActualizarTotales();
         }
 
         private void EliminarRepuesto_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var repuesto = button?.DataContext as RepuestoTrabajoItem;
-            if (repuesto != null)
-            {
-                _repuestosTrabajo.Remove(repuesto);
-                ActualizarGrids();
-                CalcularTotales();
-            }
+            var item = (sender as Button)?.DataContext as RepuestoItem;
+            if (item == null) return;
+            _repuestosTrabajo.Remove(item);
+            RefrescarGrids();
+            ActualizarTotales();
         }
 
-        private void ActualizarGrids()
-        {
-            dgServiciosTrabajo.ItemsSource = null;
-            dgServiciosTrabajo.ItemsSource = _serviciosTrabajo;
+        // ─────────────────────────────────────────────────────────
+        //  GUARDAR  (sin finalizar)  ← bug de stock CORREGIDO
+        // ─────────────────────────────────────────────────────────
 
-            dgRepuestosTrabajo.ItemsSource = null;
-            dgRepuestosTrabajo.ItemsSource = _repuestosTrabajo;
-        }
-
-        private void CalcularTotales()
-        {
-            decimal totalServicios = _serviciosTrabajo.Sum(s => s.Subtotal);
-            decimal totalRepuestos = _repuestosTrabajo.Sum(r => r.Subtotal);
-            decimal totalGeneral = totalServicios + totalRepuestos;
-
-            txtTotalServicios.Text = $"Bs. {totalServicios:N2}";
-            txtTotalRepuestos.Text = $"Bs. {totalRepuestos:N2}";
-            txtTotalGeneral.Text = $"Bs. {totalGeneral:N2}";
-        }
-
-        private void GuardarCambios_Click(object sender, RoutedEventArgs e)
+        private void Guardar_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 using var db = new TallerDbContext();
 
-                // Cargar el trabajo con sus relaciones
                 var trabajo = db.Trabajos
                     .Include(t => t.Servicios)
                     .Include(t => t.Repuestos)
                     .FirstOrDefault(t => t.TrabajoID == _trabajoId);
 
-                if (trabajo == null)
-                {
-                    MessageBox.Show("No se encontró el trabajo.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
+                if (trabajo == null) return;
 
-                // Eliminar servicios y repuestos existentes
-                db.Trabajos_Servicios.RemoveRange(trabajo.Servicios);
-                db.Trabajos_Repuestos.RemoveRange(trabajo.Repuestos);
+                // ╔══════════════════════════════════════════╗
+                // ║  PASO 1 — Restaurar stock de repuestos   ║
+                // ║  ANTERIORES antes de eliminarlos         ║
+                // ╚══════════════════════════════════════════╝
+                if (trabajo.Repuestos != null)
+                    foreach (var tr in trabajo.Repuestos)
+                    {
+                        var rep = db.Repuestos.Find(tr.RepuestoID);
+                        if (rep != null) rep.StockActual += tr.Cantidad;
+                    }
+
+                // PASO 2 — Eliminar relaciones anteriores
+                db.Trabajos_Servicios.RemoveRange(trabajo.Servicios ?? Enumerable.Empty<Trabajos_Servicios>());
+                db.Trabajos_Repuestos.RemoveRange(trabajo.Repuestos ?? Enumerable.Empty<Trabajos_Repuestos>());
                 db.SaveChanges();
 
-                // Agregar nuevos servicios
-                foreach (var servicio in _serviciosTrabajo)
-                {
+                // PASO 3 — Insertar servicios nuevos
+                foreach (var s in _serviciosTrabajo)
                     db.Trabajos_Servicios.Add(new Trabajos_Servicios
                     {
                         TrabajoID = _trabajoId,
-                        ServicioID = servicio.ServicioID,
-                        Cantidad = servicio.Cantidad,
-                        Subtotal = servicio.Subtotal
+                        ServicioID = s.ServicioID,
+                        Cantidad = s.Cantidad,
+                        Subtotal = s.Subtotal
                     });
-                }
 
-                // Agregar nuevos repuestos
-                foreach (var repuesto in _repuestosTrabajo)
+                // PASO 4 — Insertar repuestos nuevos y descontar stock
+                foreach (var r in _repuestosTrabajo)
                 {
                     db.Trabajos_Repuestos.Add(new Trabajos_Repuestos
                     {
                         TrabajoID = _trabajoId,
-                        RepuestoID = repuesto.RepuestoID,
-                        Cantidad = repuesto.Cantidad,
-                        PrecioUnitario = repuesto.PrecioUnitario,
-                        Subtotal = repuesto.Subtotal
+                        RepuestoID = r.RepuestoID,
+                        Cantidad = r.Cantidad,
+                        PrecioUnitario = r.PrecioUnitario,
+                        Subtotal = r.Subtotal
                     });
-
-                    // Actualizar stock del repuesto
-                    var repuestoDb = db.Repuestos.Find(repuesto.RepuestoID);
-                    if (repuestoDb != null)
-                    {
-                        repuestoDb.StockActual -= repuesto.Cantidad;
-                    }
+                    var rep = db.Repuestos.Find(r.RepuestoID);
+                    if (rep != null) rep.StockActual -= r.Cantidad;
                 }
 
-                // Actualizar precio final del trabajo
-                decimal total = _serviciosTrabajo.Sum(s => s.Subtotal) + _repuestosTrabajo.Sum(r => r.Subtotal);
-                trabajo.PrecioFinal = total;
+                // PASO 5 — Actualizar datos del trabajo
+                // Estado
+                var comboItem = cmbEstado.SelectedItem as ComboBoxItem;
+                if (comboItem != null)
+                    trabajo.Estado = comboItem.Tag?.ToString() ?? trabajo.Estado;
+
+                // Descripción / notas
+                if (!string.IsNullOrWhiteSpace(txtNotas.Text))
+                    trabajo.Descripcion = txtNotas.Text.Trim();
+
+                // Fecha de entrega
+                if (dpFechaEntrega.SelectedDate.HasValue)
+                    trabajo.FechaEntrega = dpFechaEntrega.SelectedDate.Value;
+
+                // PrecioFinal: solo guardamos el precio calculado/manual como referencia
+                // (NO se marca como finalizado aquí — eso lo hace FinalizarTrabajoWindow)
+                trabajo.PrecioFinal = null;  // se limpia para que no aparezca antes de finalizar
 
                 db.SaveChanges();
 
                 MessageBox.Show(
-                    $"✅ CAMBIOS GUARDADOS EXITOSAMENTE\n\n" +
+                    $"✅ Cambios guardados correctamente.\n\n" +
                     $"Servicios: {_serviciosTrabajo.Count}\n" +
                     $"Repuestos: {_repuestosTrabajo.Count}\n\n" +
-                    $"Total del Trabajo: Bs. {total:N2}",
-                    "Éxito",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    $"Subtotal actual: Bs. {Subtotal:N2}\n\n" +
+                    $"Para cerrar la orden usa 'Finalizar Trabajo'.",
+                    "Guardado", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 DialogResult = true;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar cambios: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al guardar: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  HELPERS UI
+        // ─────────────────────────────────────────────────────────
+
+        private void RefrescarGrids()
+        {
+            dgServiciosTrabajo.ItemsSource = null;
+            dgServiciosTrabajo.ItemsSource = _serviciosTrabajo;
+            dgRepuestosTrabajo.ItemsSource = null;
+            dgRepuestosTrabajo.ItemsSource = _repuestosTrabajo;
+        }
+
+        private void ActualizarTotales()
+        {
+            lblTotalServicios.Text = $"Bs. {TotalServicios:N2}";
+            lblTotalRepuestos.Text = $"Bs. {TotalRepuestos:N2}";
+            lblSubtotal.Text = $"Bs. {Subtotal:N2}";
+            lblTotalFooter.Text = $"Bs. {PrecioAGuardar:N2}";
+            lblPrecioAGuardar.Text = $"Bs. {PrecioAGuardar:N2}";
+        }
+
+        private void SetComboEstado(string estado)
+        {
+            foreach (ComboBoxItem item in cmbEstado.Items)
+                if (item.Tag?.ToString() == estado)
+                { cmbEstado.SelectedItem = item; return; }
+            cmbEstado.SelectedIndex = 0;
         }
 
         private void TxtBuscarServicio_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var filtro = txtBuscarServicio.Text.ToLower();
-            if (string.IsNullOrWhiteSpace(filtro))
-            {
-                dgServiciosDisponibles.ItemsSource = _todosLosServicios;
-            }
-            else
-            {
-                dgServiciosDisponibles.ItemsSource = _todosLosServicios
-                    .Where(s => s.Nombre.ToLower().Contains(filtro) ||
-                               (s.Descripcion != null && s.Descripcion.ToLower().Contains(filtro)))
-                    .ToList();
-            }
+            var f = txtBuscarServicio.Text.ToLower();
+            dgServiciosDisponibles.ItemsSource = string.IsNullOrWhiteSpace(f)
+                ? _todosLosServicios
+                : _todosLosServicios.Where(s => s.Nombre.ToLower().Contains(f) ||
+                    (s.Descripcion?.ToLower().Contains(f) ?? false)).ToList();
         }
 
         private void TxtBuscarRepuesto_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var filtro = txtBuscarRepuesto.Text.ToLower();
-            if (string.IsNullOrWhiteSpace(filtro))
-            {
-                dgRepuestosDisponibles.ItemsSource = _todosLosRepuestos;
-            }
-            else
-            {
-                dgRepuestosDisponibles.ItemsSource = _todosLosRepuestos
-                    .Where(r => r.Nombre.ToLower().Contains(filtro) ||
-                               (r.Descripcion != null && r.Descripcion.ToLower().Contains(filtro)))
-                    .ToList();
-            }
+            var f = txtBuscarRepuesto.Text.ToLower();
+            dgRepuestosDisponibles.ItemsSource = string.IsNullOrWhiteSpace(f)
+                ? _todosLosRepuestos
+                : _todosLosRepuestos.Where(r => r.Nombre.ToLower().Contains(f) ||
+                    (r.Descripcion?.ToLower().Contains(f) ?? false)).ToList();
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            var resultado = MessageBox.Show(
-                "¿Está seguro de cerrar sin guardar?\nSe perderán los cambios no guardados.",
-                "Confirmar",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
+        private void TxtPrecioManual_TextChanged(object sender, TextChangedEventArgs e)
+            => ActualizarTotales();
 
-            if (resultado == MessageBoxResult.Yes)
-            {
-                DialogResult = false;
-                Close();
-            }
+        private void CmbEstado_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            // no acción adicional necesaria; se lee al guardar
+        }
+
+        private void Cancelar_Click(object sender, RoutedEventArgs e)
+        {
+            var r = MessageBox.Show(
+                "¿Salir sin guardar? Se perderán los cambios no guardados.",
+                "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (r == MessageBoxResult.Yes) { DialogResult = false; Close(); }
         }
     }
 
-    // Clases auxiliares para el binding
-    public class ServicioTrabajoItem
+    // ── DTOs para binding ─────────────────────────────────────────
+    public class ServicioItem
     {
         public int ServicioID { get; set; }
         public string NombreServicio { get; set; }
@@ -381,7 +410,7 @@ namespace Proyecto_taller.Views
         public decimal Subtotal { get; set; }
     }
 
-    public class RepuestoTrabajoItem
+    public class RepuestoItem
     {
         public int RepuestoID { get; set; }
         public string NombreRepuesto { get; set; }

@@ -24,14 +24,14 @@
 
                 <!-- Título -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="38" Height="38" CornerRadius="8" Margin="0,0,12,0">
+                    <Border Width="42" Height="42" CornerRadius="10" Margin="0,0,14,0">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                 <GradientStop Color="#6366F1" Offset="0"/>
                                 <GradientStop Color="#8B5CF6" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <TextBlock Text="🛠️" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="🛠️" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="Gestión de Trabajos" Style="{StaticResource PageTitle}"/>
@@ -40,28 +40,66 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Botones -->
-                <StackPanel Grid.Row="2" Orientation="Horizontal">
-                    <Button Content="🔄 Actualizar"           Command="{Binding CargarTrabajosCommand}"              Style="{StaticResource BtnSecondary}"/>
-                    <Button Content="➕ Nuevo Trabajo"          Command="{Binding AgregarTrabajoCommand}"              Style="{StaticResource BtnPrimary}"/>
-                    <Button Content="🛠️ Servicios y Repuestos" Command="{Binding GestionarServiciosRepuestosCommand}" Style="{StaticResource BtnWarning}"/>
-                    <Button Content="✅ Finalizar"              Command="{Binding FinalizarTrabajoCommand}"            Style="{StaticResource BtnSuccess}"/>
-                    <Button Content="🗑️ Eliminar"               Command="{Binding EliminarTrabajoCommand}"             Style="{StaticResource BtnDanger}"/>
+                <!-- Botones de acción -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,0">
+                    <!-- Grupo izquierdo: CRUD básico -->
+                    <Button Content="🔄  Actualizar"
+                            Command="{Binding CargarTrabajosCommand}"
+                            Style="{StaticResource BtnSecondary}"/>
+                    <Button Content="➕  Nuevo Trabajo"
+                            Command="{Binding NuevoTrabajoCommand}"
+                            Style="{StaticResource BtnPrimary}"/>
+
+                    <!-- Separador visual -->
+                    <Border Width="1" Background="{StaticResource BorderColor}"
+                            Margin="8,4" Opacity="0.5"/>
+
+                    <!-- Grupo centro: operaciones del trabajo seleccionado -->
+                    <Button Content="📋  Ver Detalles"
+                            Command="{Binding VerDetallesCommand}"
+                            Style="{StaticResource BtnGhost}"
+                            ToolTip="Ver cliente, vehículo, servicios y resumen del trabajo"/>
+                    <Button Content="🔧  Gestionar Trabajo"
+                            Command="{Binding GestionarCommand}"
+                            Style="{StaticResource BtnWarning}"
+                            ToolTip="Agregar/quitar servicios, repuestos y modificar precio"/>
+
+                    <!-- Separador visual -->
+                    <Border Width="1" Background="{StaticResource BorderColor}"
+                            Margin="8,4" Opacity="0.5"/>
+
+                    <!-- Grupo derecho: ciclo de vida -->
+                    <Button Content="✅  Finalizar Trabajo"
+                            Command="{Binding FinalizarCommand}"
+                            Style="{StaticResource BtnSuccess}"
+                            ToolTip="Calcular precio final, aplicar descuento y cerrar el trabajo"/>
+                    <Button Content="🗑️  Eliminar"
+                            Command="{Binding EliminarCommand}"
+                            Style="{StaticResource BtnDanger}"/>
                 </StackPanel>
 
-                <!-- Filtros -->
-                <Border Grid.Row="4"
-                        Background="{StaticResource BgCard}"
-                        CornerRadius="6" Padding="12,8">
+                <!-- Filtros por estado -->
+                <Border Grid.Row="4" Background="{StaticResource BgCard}"
+                        CornerRadius="6" Padding="14,9">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Estado:"
                                    Foreground="{StaticResource TextSecondary}"
                                    FontWeight="SemiBold" FontSize="12"
-                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
-                        <RadioButton Content="📋 Todos"       IsChecked="{Binding FiltroTodos}"       GroupName="FiltroTrab" VerticalAlignment="Center"/>
-                        <RadioButton Content="⏳ Pendientes"  IsChecked="{Binding FiltroPendientes}"  GroupName="FiltroTrab" VerticalAlignment="Center"/>
-                        <RadioButton Content="🔄 En Progreso" IsChecked="{Binding FiltroEnProgreso}"  GroupName="FiltroTrab" VerticalAlignment="Center"/>
-                        <RadioButton Content="✅ Finalizados"  IsChecked="{Binding FiltroFinalizados}" GroupName="FiltroTrab" VerticalAlignment="Center"/>
+                                   VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        <RadioButton Content="📋  Todos"
+                                     IsChecked="{Binding FiltroTodos}"
+                                     GroupName="FiltroTrab" VerticalAlignment="Center"/>
+                        <RadioButton Content="⏳  Pendientes"
+                                     IsChecked="{Binding FiltroPendientes}"
+                                     GroupName="FiltroTrab" VerticalAlignment="Center"/>
+                        <RadioButton Content="🔄  En Progreso"
+                                     IsChecked="{Binding FiltroEnProgreso}"
+                                     GroupName="FiltroTrab" VerticalAlignment="Center"/>
+                        <RadioButton Content="✅  Finalizados"
+                                     IsChecked="{Binding FiltroFinalizados}"
+                                     GroupName="FiltroTrab" VerticalAlignment="Center"/>
+
+
                     </StackPanel>
                 </Border>
             </Grid>
@@ -73,21 +111,15 @@
                 CornerRadius="10"
                 BorderBrush="{StaticResource BorderColor}"
                 BorderThickness="1">
+
             <DataGrid x:Name="dgTrabajos"
                       ItemsSource="{Binding Trabajos}"
                       SelectedItem="{Binding TrabajoSeleccionado}"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      IsReadOnly="True"
+                      MouseDoubleClick="dgTrabajos_MouseDoubleClick"
                       Margin="0">
-                <!-- ComboBox de Estado dentro del DataGrid -->
-                <DataGrid.Resources>
-                    <Style x:Key="EstadoComboBox" TargetType="ComboBox">
-                        <Setter Property="Background"      Value="Transparent"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding"         Value="6,3"/>
-                        <Setter Property="FontWeight"      Value="SemiBold"/>
-                        <Setter Property="FontSize"        Value="11"/>
-                        <Setter Property="Foreground"      Value="{StaticResource TextPrimary}"/>
-                    </Style>
-                </DataGrid.Resources>
 
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
@@ -106,7 +138,9 @@
                 </DataGrid.RowStyle>
 
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" Binding="{Binding TrabajoID}" Width="60" IsReadOnly="True">
+
+                    <!-- ID -->
+                    <DataGridTextColumn Header="ID" Binding="{Binding TrabajoID}" Width="60">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -116,44 +150,96 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Vehículo" Binding="{Binding Vehiculo.Marca}"  Width="110">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Modelo"  Binding="{Binding Vehiculo.Modelo}" Width="110"/>
-                    <DataGridTextColumn Header="Placa"   Binding="{Binding Vehiculo.Placa}"  Width="90">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="FontFamily" Value="Consolas"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Cliente"     Binding="{Binding Vehiculo.Cliente.Nombre}" Width="*"/>
-                    <DataGridTextColumn Header="Descripción" Binding="{Binding Descripcion}"             Width="*"/>
-                    <DataGridTextColumn Header="Tipo"        Binding="{Binding TipoTrabajo}"              Width="110"/>
-
-                    <!-- Estado editable -->
+                    <!-- Estado con badge de color -->
                     <DataGridTemplateColumn Header="Estado" Width="130">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <ComboBox SelectedValue="{Binding Estado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource EstadoComboBox}"
-                                          SelectionChanged="EstadoComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="⏳ Pendiente"  Tag="Pendiente"/>
-                                    <ComboBoxItem Content="🔄 En Progreso" Tag="En Progreso"/>
-                                    <ComboBoxItem Content="✅ Finalizado"  Tag="Finalizado"/>
-                                </ComboBox>
+                                <Border x:Name="badge" CornerRadius="12" Padding="10,3"
+                                        HorizontalAlignment="Left" Margin="6,0">
+                                    <TextBlock x:Name="txtEstado"
+                                               Text="{Binding Estado}"
+                                               FontSize="11" FontWeight="SemiBold"/>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#312E6B"/>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Estado}" Value="Pendiente">
+                                        <Setter TargetName="badge"    Property="Background" Value="#3D2E18"/>
+                                        <Setter TargetName="txtEstado" Property="Foreground" Value="#F59E0B"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Estado}" Value="En Progreso">
+                                        <Setter TargetName="badge"    Property="Background" Value="#1A2535"/>
+                                        <Setter TargetName="txtEstado" Property="Foreground" Value="#3B82F6"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Estado}" Value="Finalizado">
+                                        <Setter TargetName="badge"    Property="Background" Value="#182820"/>
+                                        <Setter TargetName="txtEstado" Property="Foreground" Value="#10B981"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="Fecha Ingreso"
+                    <!-- Cliente -->
+                    <DataGridTextColumn Header="Cliente" Width="140">
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding StringFormat="{}{0} {1}">
+                                <Binding Path="Vehiculo.Cliente.Nombre"/>
+                                <Binding Path="Vehiculo.Cliente.Apellido"/>
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Vehículo -->
+                    <DataGridTextColumn Header="Vehículo" Width="150">
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding StringFormat="{}{0} {1} ({2})">
+                                <Binding Path="Vehiculo.Marca"/>
+                                <Binding Path="Vehiculo.Modelo"/>
+                                <Binding Path="Vehiculo.Placa"/>
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontFamily" Value="Consolas"/>
+                                <Setter Property="FontSize"   Value="12"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Tipo y Descripción -->
+                    <DataGridTextColumn Header="Tipo"        Binding="{Binding TipoTrabajo}"  Width="110"/>
+                    <DataGridTextColumn Header="Descripción" Binding="{Binding Descripcion}"  Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+                                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Fechas -->
+                    <DataGridTextColumn Header="Ingreso"
                                         Binding="{Binding FechaIngreso, StringFormat=dd/MM/yyyy}"
-                                        Width="110">
+                                        Width="95">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+                                <Setter Property="FontSize"   Value="11"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Entrega"
+                                        Binding="{Binding FechaEntrega, StringFormat=dd/MM/yyyy}"
+                                        Width="95">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
@@ -162,26 +248,31 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="P. Estimado"
+                    <!-- Precio estimado -->
+                    <DataGridTextColumn Header="Estimado"
                                         Binding="{Binding PrecioEstimado, StringFormat=Bs. {0:N2}}"
-                                        Width="110">
+                                        Width="105">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="P. Final"
+                    <!-- Precio final (solo si está finalizado) -->
+                    <DataGridTextColumn Header="Final"
                                         Binding="{Binding PrecioFinal, StringFormat=Bs. {0:N2}}"
                                         Width="110">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
-                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
                                 <Setter Property="Foreground" Value="#6EE7B7"/>
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
+
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
