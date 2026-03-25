@@ -14,7 +14,8 @@ namespace Proyecto_taller.Helpers
 {
     /// <summary>
     /// Genera PDF de factura usando iTextSharp.
-    /// Extraído de FacturacionViewModel para poder usarlo también desde DetallesFacturaWindow.
+    /// FIX: los datos del taller (nombre, dirección, teléfono, email) se leen
+    /// desde ConfiguracionHelper en lugar de estar hardcodeados en el código.
     /// </summary>
     public static class FacturacionPdfHelper
     {
@@ -24,44 +25,56 @@ namespace Proyecto_taller.Helpers
 
             try
             {
-                // ── Preparar ruta ────────────────────────────────────────────────
+                // ── Leer datos del taller desde configuración ─────────────────
+                // FIX: antes estaban hardcodeados; ahora reflejan lo que el
+                // usuario configuró en el módulo de Configuración.
+                var cfg = ConfiguracionHelper.CargarConfiguracion();
+
+                string nombreTaller = cfg.NombreTaller;
+                string direccionTaller = cfg.DireccionTaller;
+                string telefonoTaller = cfg.TelefonoTaller;
+                string emailTaller = cfg.EmailTaller;
+
+                // ── Preparar ruta ─────────────────────────────────────────────
                 var cliente = factura.Trabajo?.Vehiculo?.Cliente;
                 string nombreCliente = $"{cliente?.Nombre}_{cliente?.Apellido}";
 
-                // Limpiar caracteres inválidos
-                foreach (char c in Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).Distinct())
+                foreach (char c in Path.GetInvalidFileNameChars()
+                    .Concat(Path.GetInvalidPathChars()).Distinct())
                     nombreCliente = nombreCliente.Replace(c, '_');
 
-                string carpetaBase = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TallerElChoco_Facturas");
+                string carpetaBase = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "TallerElChoco_Facturas");
                 string carpetaCliente = Path.Combine(carpetaBase, nombreCliente);
-
                 Directory.CreateDirectory(carpetaCliente);
 
                 string nombreArchivo = $"Factura_{factura.NumeroFactura.Replace("/", "-")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
                 string rutaCompleta = Path.Combine(carpetaCliente, nombreArchivo);
 
-                // ── Fuentes ──────────────────────────────────────────────────────
+                // ── Fuentes ───────────────────────────────────────────────────
                 var fTitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.Black);
                 var fSubtitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 13, BaseColor.Black);
                 var fNormal = FontFactory.GetFont(FontFactory.HELVETICA, 10, BaseColor.Black);
                 var fNegrita = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.Black);
                 var fTotal = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 13, BaseColor.Black);
 
-                // ── Documento ────────────────────────────────────────────────────
+                // ── Documento ─────────────────────────────────────────────────
                 var doc = new Document(PageSize.Letter);
                 var writer = PdfWriter.GetInstance(doc, new FileStream(rutaCompleta, FileMode.Create));
                 doc.Open();
 
-                // Encabezado taller
-                var encabezado = new Paragraph("TALLER MECÁNICO EL CHOCO", fTitulo)
-                { Alignment = Element.ALIGN_CENTER };
-                doc.Add(encabezado);
+                // Encabezado taller (datos dinámicos desde configuración)
+                doc.Add(new Paragraph(nombreTaller.ToUpper(), fTitulo)
+                { Alignment = Element.ALIGN_CENTER });
 
-                var direccion = new Paragraph("Av. América #1234, Cochabamba\nTel: 4-4567890 | contacto@tallerelchoco.com", fNormal)
-                { Alignment = Element.ALIGN_CENTER, SpacingAfter = 12f };
-                doc.Add(direccion);
+                doc.Add(new Paragraph(
+                    $"{direccionTaller}\nTel: {telefonoTaller} | {emailTaller}", fNormal)
+                { Alignment = Element.ALIGN_CENTER, SpacingAfter = 12f });
 
-                doc.Add(new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(1f, 100f, BaseColor.Black, Element.ALIGN_CENTER, -1))));
+                doc.Add(new Paragraph(new Chunk(
+                    new iTextSharp.text.pdf.draw.LineSeparator(
+                        1f, 100f, BaseColor.Black, Element.ALIGN_CENTER, -1))));
                 doc.Add(new Paragraph(" "));
 
                 // Info factura
@@ -101,7 +114,7 @@ namespace Proyecto_taller.Helpers
                 AgregarFila(tablaVehiculo, "Año:", v?.Anio?.ToString() ?? "N/A", fNegrita, fNormal);
                 doc.Add(tablaVehiculo);
 
-                // Descripción trabajo
+                // Descripción del trabajo
                 if (!string.IsNullOrWhiteSpace(factura.Trabajo?.Descripcion))
                 {
                     AgregarSeccion(doc, "DESCRIPCIÓN DEL TRABAJO", fSubtitulo);
@@ -120,36 +133,35 @@ namespace Proyecto_taller.Helpers
                 AgregarFila(tablaCostos, "Subtotal:", $"Bs. {factura.Subtotal:N2}", fNegrita, fNormal);
                 AgregarFila(tablaCostos, "Descuento:", $"Bs. {factura.Descuento:N2}", fNegrita, fNormal);
 
-                // Separador
-                var linea = new PdfPCell(new Phrase(" ")) { Colspan = 2, Border = Rectangle.TOP_BORDER, BorderWidthTop = 1.5f };
+                var linea = new PdfPCell(new Phrase(" "))
+                {
+                    Colspan = 2,
+                    Border = Rectangle.TOP_BORDER,
+                    BorderWidthTop = 1.5f
+                };
                 tablaCostos.AddCell(linea);
 
-                // Total
-                var cTotal1 = new PdfPCell(new Phrase("TOTAL:", fTotal)) { Border = Rectangle.NO_BORDER, PaddingTop = 4f };
-                var cTotal2 = new PdfPCell(new Phrase($"Bs. {factura.Total:N2}", fTotal))
-                {
-                    Border = Rectangle.NO_BORDER,
-                    HorizontalAlignment = Element.ALIGN_RIGHT,
-                    PaddingTop = 4f
-                };
-                tablaCostos.AddCell(cTotal1);
-                tablaCostos.AddCell(cTotal2);
+                tablaCostos.AddCell(new PdfPCell(new Phrase("TOTAL:", fTotal))
+                { Border = Rectangle.NO_BORDER, PaddingTop = 4f });
+                tablaCostos.AddCell(new PdfPCell(new Phrase($"Bs. {factura.Total:N2}", fTotal))
+                { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, PaddingTop = 4f });
+
                 doc.Add(tablaCostos);
 
-                // Pie
+                // Pie de página
                 doc.Add(new Paragraph(" "));
-                doc.Add(new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.5f, 100f, BaseColor.Gray, Element.ALIGN_CENTER, -1))));
-                doc.Add(new Paragraph($"Documento generado el {DateTime.Now:dd/MM/yyyy HH:mm} — Taller Mecánico El Choco",
+                doc.Add(new Paragraph(new Chunk(
+                    new iTextSharp.text.pdf.draw.LineSeparator(
+                        0.5f, 100f, BaseColor.Gray, Element.ALIGN_CENTER, -1))));
+                doc.Add(new Paragraph(
+                    $"Documento generado el {DateTime.Now:dd/MM/yyyy HH:mm} — {nombreTaller}",
                     FontFactory.GetFont(FontFactory.HELVETICA, 8, BaseColor.Gray))
-                {
-                    Alignment = Element.ALIGN_CENTER,
-                    SpacingBefore = 8f
-                });
+                { Alignment = Element.ALIGN_CENTER, SpacingBefore = 8f });
 
                 doc.Close();
                 writer.Close();
 
-                // Preguntar al usuario
+                // Preguntar al usuario qué hacer
                 var r = MessageBox.Show(
                     $"✅ PDF generado exitosamente\n\n📄 {nombreArchivo}\n📁 {carpetaCliente}\n\n¿Abrir el archivo?",
                     "PDF Generado", MessageBoxButton.YesNo, MessageBoxImage.Information);
@@ -158,7 +170,8 @@ namespace Proyecto_taller.Helpers
                     Process.Start(new ProcessStartInfo(rutaCompleta) { UseShellExecute = true });
                 else
                 {
-                    var abrirCarpeta = MessageBox.Show("¿Abrir la carpeta?", "Abrir Carpeta",
+                    var abrirCarpeta = MessageBox.Show(
+                        "¿Abrir la carpeta?", "Abrir Carpeta",
                         MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (abrirCarpeta == MessageBoxResult.Yes)
                         Process.Start(new ProcessStartInfo(carpetaCliente) { UseShellExecute = true });
@@ -166,25 +179,23 @@ namespace Proyecto_taller.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al generar PDF:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al generar PDF:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ── Helpers ──────────────────────────────────────────────────────────────
+        // ── Helpers ───────────────────────────────────────────────────────────
 
         private static void AgregarSeccion(Document doc, string titulo, Font fuente)
-        {
-            var p = new Paragraph(titulo, fuente) { SpacingBefore = 8f, SpacingAfter = 8f };
-            doc.Add(p);
-        }
+            => doc.Add(new Paragraph(titulo, fuente) { SpacingBefore = 8f, SpacingAfter = 8f });
 
-        private static void AgregarFila(PdfPTable tabla, string etiqueta, string valor, Font fEtiqueta, Font fValor)
+        private static void AgregarFila(
+            PdfPTable tabla, string etiqueta, string valor, Font fEtiqueta, Font fValor)
         {
-            var c1 = new PdfPCell(new Phrase(etiqueta, fEtiqueta)) { Border = Rectangle.NO_BORDER, PaddingBottom = 4f };
-            var c2 = new PdfPCell(new Phrase(valor, fValor)) { Border = Rectangle.NO_BORDER, PaddingBottom = 4f };
-            tabla.AddCell(c1);
-            tabla.AddCell(c2);
+            tabla.AddCell(new PdfPCell(new Phrase(etiqueta, fEtiqueta))
+            { Border = Rectangle.NO_BORDER, PaddingBottom = 4f });
+            tabla.AddCell(new PdfPCell(new Phrase(valor, fValor))
+            { Border = Rectangle.NO_BORDER, PaddingBottom = 4f });
         }
     }
 }

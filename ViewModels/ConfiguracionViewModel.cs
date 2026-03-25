@@ -20,30 +20,28 @@ namespace Proyecto_taller.ViewModels
 {
     public class ConfiguracionViewModel : INotifyPropertyChanged
     {
-        // ── Información del taller ────────────────────────────────
-        private string _nombreTaller;
-        private string _direccionTaller;
-        private string _telefonoTaller;
-        private string _emailTaller;
-        private string _nitTaller;
+        // ── Información del taller ────────────────────────────────────────────
+        private string _nombreTaller = string.Empty;
+        private string _direccionTaller = string.Empty;
+        private string _telefonoTaller = string.Empty;
+        private string _emailTaller = string.Empty;
+        private string _nitTaller = string.Empty;
 
-        // ── Facturación ───────────────────────────────────────────
+        // ── Facturación ───────────────────────────────────────────────────────
         private decimal _descuentoMaximo;
         private bool _solicitarNIT;
 
-        // ── Base de datos ─────────────────────────────────────────
-        private string _connectionString;
+        // ── Base de datos ─────────────────────────────────────────────────────
+        private string _connectionString = string.Empty;
         private DateTime _ultimoRespaldo;
         private int _totalRegistros;
 
-        // ── Servicios ─────────────────────────────────────────────
-        private Servicio _servicioSeleccionado;
+        // ── Servicios ─────────────────────────────────────────────────────────
+        private Servicio? _servicioSeleccionado;
 
         public ObservableCollection<Servicio> Servicios { get; set; } = new();
 
-        // ─────────────────────────────────────────────────────────
-        //  PROPIEDADES
-        // ─────────────────────────────────────────────────────────
+        // ── Propiedades ───────────────────────────────────────────────────────
 
         public string NombreTaller
         {
@@ -95,7 +93,7 @@ namespace Proyecto_taller.ViewModels
             get => _totalRegistros;
             set { _totalRegistros = value; OnPropertyChanged(); }
         }
-        public Servicio ServicioSeleccionado
+        public Servicio? ServicioSeleccionado
         {
             get => _servicioSeleccionado;
             set
@@ -106,12 +104,11 @@ namespace Proyecto_taller.ViewModels
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  COMANDOS
-        // ─────────────────────────────────────────────────────────
+        // ── Comandos ──────────────────────────────────────────────────────────
 
         public ICommand GuardarInformacionCommand { get; }
         public ICommand GuardarFacturacionCommand { get; }
+        public ICommand GuardarConexionCommand { get; }
         public ICommand ProbarConexionCommand { get; }
         public ICommand RespaldarBDCommand { get; }
         public ICommand AgregarServicioCommand { get; }
@@ -121,10 +118,13 @@ namespace Proyecto_taller.ViewModels
         public ICommand VerEstadisticasCommand { get; }
         public ICommand ReiniciarBDCommand { get; }
 
+        // ── Constructor ───────────────────────────────────────────────────────
+
         public ConfiguracionViewModel()
         {
             GuardarInformacionCommand = new RelayCommand(GuardarInformacion);
             GuardarFacturacionCommand = new RelayCommand(GuardarFacturacion);
+            GuardarConexionCommand = new RelayCommand(GuardarConexion);
             ProbarConexionCommand = new RelayCommand(ProbarConexion);
             RespaldarBDCommand = new RelayCommand(RespaldarBD);
             AgregarServicioCommand = new RelayCommand(AgregarServicio);
@@ -141,9 +141,7 @@ namespace Proyecto_taller.ViewModels
             CargarEstadisticas();
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  CARGA INICIAL
-        // ─────────────────────────────────────────────────────────
+        // ── Carga inicial ─────────────────────────────────────────────────────
 
         private void CargarConfiguracion()
         {
@@ -157,12 +155,19 @@ namespace Proyecto_taller.ViewModels
                 NITTaller = config.NITTaller;
                 DescuentoMaximo = config.DescuentoMaximo;
                 SolicitarNIT = config.SolicitarNIT;
-                ConnectionString = config.ConnectionString;
                 UltimoRespaldo = config.UltimoRespaldo;
+
+                // FIX: leer la cadena de conexión desde appsettings.json real,
+                // no del JSON de AppData (que era solo una copia desactualizada).
+                var connReal = ConfiguracionHelper.LeerConnectionStringActual();
+                ConnectionString = string.IsNullOrEmpty(connReal)
+                    ? config.ConnectionString
+                    : connReal;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar configuración:\n{ex.Message}\n\nSe usarán valores por defecto.",
+                MessageBox.Show(
+                    $"Error al cargar configuración:\n{ex.Message}\n\nSe usarán valores por defecto.",
                     "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
@@ -180,28 +185,33 @@ namespace Proyecto_taller.ViewModels
             try
             {
                 using var db = new TallerDbContext();
-                TotalRegistros = db.Clientes.Count() +
-                                 db.Vehiculos.Count() +
-                                 db.Trabajos.Count() +
-                                 db.Facturas.Count();
+                TotalRegistros = db.Clientes.Count()
+                               + db.Vehiculos.Count()
+                               + db.Trabajos.Count()
+                               + db.Facturas.Count();
             }
             catch { TotalRegistros = 0; }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  INFORMACIÓN DEL TALLER
-        // ─────────────────────────────────────────────────────────
+        // ── Información del taller ────────────────────────────────────────────
 
         private void GuardarInformacion()
         {
+            if (string.IsNullOrWhiteSpace(NombreTaller))
+            {
+                MessageBox.Show("El nombre del taller no puede estar vacío.",
+                    "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 var config = ConfiguracionHelper.CargarConfiguracion();
-                config.NombreTaller = NombreTaller;
-                config.DireccionTaller = DireccionTaller;
-                config.TelefonoTaller = TelefonoTaller;
-                config.EmailTaller = EmailTaller;
-                config.NITTaller = NITTaller;
+                config.NombreTaller = NombreTaller.Trim();
+                config.DireccionTaller = DireccionTaller.Trim();
+                config.TelefonoTaller = TelefonoTaller.Trim();
+                config.EmailTaller = EmailTaller.Trim();
+                config.NITTaller = NITTaller.Trim();
                 ConfiguracionHelper.GuardarConfiguracion(config);
 
                 MessageBox.Show(
@@ -210,19 +220,19 @@ namespace Proyecto_taller.ViewModels
                     $"Dirección: {DireccionTaller}\n" +
                     $"Teléfono:  {TelefonoTaller}\n" +
                     $"Email:     {EmailTaller}\n" +
-                    $"NIT:       {NITTaller}",
+                    $"NIT:       {NITTaller}\n\n" +
+                    $"Los PDFs de facturas generados a partir de ahora\n" +
+                    $"usarán estos datos actualizados.",
                     "Guardado", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al guardar:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  FACTURACIÓN
-        // ─────────────────────────────────────────────────────────
+        // ── Facturación ───────────────────────────────────────────────────────
 
         private void GuardarFacturacion()
         {
@@ -248,32 +258,80 @@ namespace Proyecto_taller.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al guardar:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  CONEXIÓN A BD
-        //  Probar con la connection string que el usuario escribió,
-        //  no la hardcodeada del contexto.
-        // ─────────────────────────────────────────────────────────
+        // ── Cadena de conexión ────────────────────────────────────────────────
+        // FIX: ahora "Guardar Conexión" escribe en appsettings.json directamente,
+        // para que TallerDbContext la lea en el próximo arranque de la app.
+
+        private void GuardarConexion()
+        {
+            if (string.IsNullOrWhiteSpace(ConnectionString))
+            {
+                MessageBox.Show("La cadena de conexión no puede estar vacía.",
+                    "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Probar la conexión antes de guardar
+            try
+            {
+                using var conn = new SqlConnection(ConnectionString);
+                conn.Open();
+                conn.Close();
+            }
+            catch (Exception ex)
+            {
+                var continuar = MessageBox.Show(
+                    $"⚠️  La conexión falló con la cadena ingresada:\n\n{ex.Message}\n\n" +
+                    $"¿Guardar igualmente? (La app no funcionará hasta que la cadena sea correcta)",
+                    "Conexión fallida", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (continuar != MessageBoxResult.Yes) return;
+            }
+
+            try
+            {
+                // Guardar en appsettings.json (lo que lee TallerDbContext)
+                ConfiguracionHelper.GuardarConnectionString(ConnectionString);
+
+                // Guardar también en el JSON de preferencias como copia de referencia
+                var config = ConfiguracionHelper.CargarConfiguracion();
+                config.ConnectionString = ConnectionString;
+                ConfiguracionHelper.GuardarConfiguracion(config);
+
+                MessageBox.Show(
+                    $"✅  CADENA DE CONEXIÓN GUARDADA\n\n" +
+                    $"El cambio toma efecto al reiniciar la aplicación.\n\n" +
+                    $"Archivo actualizado:\nappsettings.json",
+                    "Guardado", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar la cadena:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ── Probar conexión ───────────────────────────────────────────────────
 
         private void ProbarConexion()
         {
             try
             {
-                // Probamos abriendo una conexión ADO.NET directa con la cadena
-                // que el usuario ve en pantalla, no la del contexto.
                 using var conn = new SqlConnection(ConnectionString);
                 conn.Open();
-                conn.Close();
 
                 MessageBox.Show(
-                    "✅  Conexión exitosa con la base de datos.\n\n" +
+                    $"✅  Conexión exitosa con la base de datos.\n\n" +
                     $"Servidor: {conn.DataSource}\n" +
                     $"BD:       {conn.Database}",
                     "Conexión OK", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                conn.Close();
             }
             catch (Exception ex)
             {
@@ -285,11 +343,7 @@ namespace Proyecto_taller.ViewModels
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  RESPALDO REAL
-        //  Ejecuta BACKUP DATABASE de SQL Server y guarda el .bak
-        //  en Documentos/TallerElChoco_Backups/
-        // ─────────────────────────────────────────────────────────
+        // ── Respaldo ──────────────────────────────────────────────────────────
 
         private void RespaldarBD()
         {
@@ -303,7 +357,6 @@ namespace Proyecto_taller.ViewModels
 
             try
             {
-                // Carpeta destino
                 string carpeta = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                     "TallerElChoco_Backups");
@@ -313,29 +366,24 @@ namespace Proyecto_taller.ViewModels
                 string nombreArchivo = $"TallerMecanico_{fechaStr}.bak";
                 string rutaBak = Path.Combine(carpeta, nombreArchivo);
 
-                // SQL Server necesita la ruta del servidor (que en localhost == ruta local)
-                string sql = $"BACKUP DATABASE [TallerMecanico] TO DISK = N'{rutaBak}' " +
-                             $"WITH NOFORMAT, INIT, NAME = N'TallerMecanico-Backup', " +
-                             $"SKIP, NOREWIND, NOUNLOAD, STATS = 10";
+                string sql =
+                    $"BACKUP DATABASE [TallerMecanico] TO DISK = N'{rutaBak}' " +
+                    $"WITH NOFORMAT, INIT, NAME = N'TallerMecanico-Backup', " +
+                    $"SKIP, NOREWIND, NOUNLOAD, STATS = 10";
 
                 using var conn = new SqlConnection(ConnectionString);
-                using var command = new SqlCommand(sql, conn);
-                command.CommandTimeout = 120; // 2 minutos para BD grandes
-
+                using var command = new SqlCommand(sql, conn) { CommandTimeout = 120 };
                 conn.Open();
                 command.ExecuteNonQuery();
                 conn.Close();
 
-                // Actualizar fecha en config
                 UltimoRespaldo = DateTime.Now;
                 var config = ConfiguracionHelper.CargarConfiguracion();
                 config.UltimoRespaldo = UltimoRespaldo;
                 ConfiguracionHelper.GuardarConfiguracion(config);
 
                 var abrir = MessageBox.Show(
-                    $"✅  RESPALDO CREADO EXITOSAMENTE\n\n" +
-                    $"📁  {rutaBak}\n\n" +
-                    $"¿Abrir la carpeta de respaldos?",
+                    $"✅  RESPALDO CREADO EXITOSAMENTE\n\n📁  {rutaBak}\n\n¿Abrir la carpeta?",
                     "Respaldo OK", MessageBoxButton.YesNo, MessageBoxImage.Information);
 
                 if (abrir == MessageBoxResult.Yes)
@@ -345,21 +393,16 @@ namespace Proyecto_taller.ViewModels
             {
                 MessageBox.Show(
                     $"❌  Error al crear el respaldo:\n\n{ex.Message}\n\n" +
-                    $"Verifica que:\n" +
-                    $"• SQL Server tiene permisos de escritura en la carpeta destino\n" +
-                    $"• La conexión a la base de datos es correcta\n" +
-                    $"• El servicio SQL Server está ejecutándose",
+                    $"Verifica que SQL Server tenga permisos de escritura en la carpeta destino.",
                     "Error de Respaldo", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  SERVICIOS — CRUD completo
-        // ─────────────────────────────────────────────────────────
+        // ── Servicios — CRUD ──────────────────────────────────────────────────
 
         private void AgregarServicio()
         {
-            var win = new EditarServicioWindow(); // constructor sin parámetros = nuevo
+            var win = new EditarServicioWindow();
             if (win.ShowDialog() == true)
                 CargarServicios();
         }
@@ -367,7 +410,6 @@ namespace Proyecto_taller.ViewModels
         private void EditarServicio()
         {
             if (ServicioSeleccionado == null) return;
-
             var win = new EditarServicioWindow(ServicioSeleccionado);
             if (win.ShowDialog() == true)
                 CargarServicios();
@@ -379,7 +421,7 @@ namespace Proyecto_taller.ViewModels
 
             var r = MessageBox.Show(
                 $"¿Eliminar el servicio '{ServicioSeleccionado.Nombre}'?\n\n" +
-                $"⚠️ Si este servicio está asociado a trabajos existentes, la eliminación fallará.",
+                $"⚠️ Si está asociado a trabajos existentes, la eliminación fallará.",
                 "Confirmar Eliminación", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (r != MessageBoxResult.Yes) return;
@@ -388,15 +430,14 @@ namespace Proyecto_taller.ViewModels
             {
                 using var db = new TallerDbContext();
 
-                // Verificar si tiene trabajos asociados
                 bool tieneTrabajos = db.Trabajos_Servicios
                     .Any(ts => ts.ServicioID == ServicioSeleccionado.ServicioID);
 
                 if (tieneTrabajos)
                 {
                     MessageBox.Show(
-                        $"No se puede eliminar '{ServicioSeleccionado.Nombre}' porque está " +
-                        $"asociado a uno o más trabajos.\n\nPuedes cambiar su nombre o costo en su lugar.",
+                        $"No se puede eliminar '{ServicioSeleccionado.Nombre}' porque está\n" +
+                        $"asociado a uno o más trabajos.\n\nPuedes cambiar su nombre o costo.",
                         "No se puede eliminar", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -410,15 +451,12 @@ namespace Proyecto_taller.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al eliminar:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al eliminar:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  LIMPIAR LOGS — limpia los archivos .log reales
-        //  (si no usas archivos de log, limpia la carpeta temp de la app)
-        // ─────────────────────────────────────────────────────────
+        // ── Limpiar logs ──────────────────────────────────────────────────────
 
         private void LimpiarLogs()
         {
@@ -432,10 +470,14 @@ namespace Proyecto_taller.ViewModels
             try
             {
                 string carpetaApp = Path.GetDirectoryName(
-                    ConfiguracionHelper.ObtenerRutaConfiguracion());
+                    ConfiguracionHelper.ObtenerRutaConfiguracion())!;
 
                 if (!Directory.Exists(carpetaApp))
-                { MessageBox.Show("No hay carpeta de logs.", "Info", MessageBoxButton.OK, MessageBoxImage.Information); return; }
+                {
+                    MessageBox.Show("No hay carpeta de logs.",
+                        "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
 
                 var archivosLog = Directory.GetFiles(carpetaApp, "*.log");
                 int eliminados = 0;
@@ -454,14 +496,12 @@ namespace Proyecto_taller.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al limpiar logs:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al limpiar logs:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  ESTADÍSTICAS
-        // ─────────────────────────────────────────────────────────
+        // ── Estadísticas ──────────────────────────────────────────────────────
 
         private void VerEstadisticas()
         {
@@ -475,21 +515,22 @@ namespace Proyecto_taller.ViewModels
 
                 string stats =
                     $"📊  ESTADÍSTICAS DEL SISTEMA\n" +
-                    $"{'━',38}\n\n" +
-                    $"👥  Clientes:          {db.Clientes.Count()}\n" +
-                    $"🚗  Vehículos:         {db.Vehiculos.Count()}\n\n" +
-                    $"🔧  Trabajos:          {db.Trabajos.Count()}\n" +
-                    $"    ⏳ Pendientes:     {db.Trabajos.Count(t => t.Estado == "Pendiente")}\n" +
-                    $"    🔄 En Progreso:    {db.Trabajos.Count(t => t.Estado == "En Progreso")}\n" +
-                    $"    ✅ Finalizados:    {db.Trabajos.Count(t => t.Estado == "Finalizado")}\n\n" +
-                    $"📅  Reservas:          {db.Reservas.Count()}\n" +
-                    $"    ⏳ Pendientes:     {db.Reservas.Count(r => r.Estado == "Pendiente")}\n\n" +
-                    $"📄  Facturas:          {db.Facturas.Count()}\n" +
+                    $"{"━",38}\n\n" +
+                    $"👥  Clientes:           {db.Clientes.Count()}\n" +
+                    $"🚗  Vehículos:          {db.Vehiculos.Count()}\n\n" +
+                    $"🔧  Trabajos:           {db.Trabajos.Count()}\n" +
+                    $"    ⏳ Pendientes:      {db.Trabajos.Count(t => t.Estado == "Pendiente")}\n" +
+                    $"    🔄 En Progreso:     {db.Trabajos.Count(t => t.Estado == "En Progreso")}\n" +
+                    $"    ✅ Finalizados:     {db.Trabajos.Count(t => t.Estado == "Finalizado")}\n\n" +
+                    $"📅  Reservas:           {db.Reservas.Count()}\n" +
+                    $"    ⏳ Pendientes:      {db.Reservas.Count(r => r.Estado == "Pendiente")}\n\n" +
+                    $"📄  Facturas:           {db.Facturas.Count()}\n" +
                     $"    💰 Total facturado: Bs. {totalFacturado:N2}\n\n" +
-                    $"⚙️   Servicios:         {db.Servicios.Count()}\n" +
-                    $"📦  Repuestos:         {db.Repuestos.Count()}\n" +
-                    $"    ⚠️ Stock bajo:     {db.Repuestos.Count(r => r.StockActual <= r.StockMinimo)}\n\n" +
-                    $"{'━',38}\n" +
+                    $"⚙️   Servicios:          {db.Servicios.Count()}\n" +
+                    $"📦  Repuestos:          {db.Repuestos.Count()}\n" +
+                    $"    ⚠️ Stock bajo:      {db.Repuestos.Count(r => r.StockActual <= r.StockMinimo)}\n\n" +
+                    $"👤  Usuarios:           {db.Usuarios.Count()}\n\n" +
+                    $"{"━",38}\n" +
                     $"Total registros: {TotalRegistros}";
 
                 MessageBox.Show(stats, "Estadísticas del Sistema",
@@ -497,14 +538,15 @@ namespace Proyecto_taller.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar estadísticas:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar estadísticas:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  REINICIAR BD
-        // ─────────────────────────────────────────────────────────
+        // ── Reiniciar BD ──────────────────────────────────────────────────────
+        // FIX: antes no borraba usuarios, dejando el sistema en estado inconsistente.
+        // Ahora pregunta explícitamente si también se quieren borrar los usuarios,
+        // y siempre preserva al admin para no dejar el sistema sin acceso.
 
         private void ReiniciarBD()
         {
@@ -523,10 +565,20 @@ namespace Proyecto_taller.ViewModels
 
             if (r2 != MessageBoxResult.Yes) return;
 
+            // FIX: preguntar explícitamente qué hacer con los usuarios
+            var r3 = MessageBox.Show(
+                "¿También deseas reiniciar los USUARIOS del sistema?\n\n" +
+                "• Sí → se borran todos los usuarios excepto 'admin'\n" +
+                "• No → se conservan todos los usuarios actuales",
+                "Reiniciar Usuarios", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            bool reiniciarUsuarios = (r3 == MessageBoxResult.Yes);
+
             try
             {
                 using var db = new TallerDbContext();
 
+                // Borrar en orden para respetar las FK
                 db.Pagos.RemoveRange(db.Pagos);
                 db.Trabajos_Repuestos.RemoveRange(db.Trabajos_Repuestos);
                 db.Trabajos_Servicios.RemoveRange(db.Trabajos_Servicios);
@@ -535,26 +587,41 @@ namespace Proyecto_taller.ViewModels
                 db.Trabajos.RemoveRange(db.Trabajos);
                 db.Vehiculos.RemoveRange(db.Vehiculos);
                 db.Clientes.RemoveRange(db.Clientes);
-                db.SaveChanges();
 
+                if (reiniciarUsuarios)
+                {
+                    // Preservar al admin para no dejar el sistema sin acceso
+                    var usuariosABorrar = db.Usuarios
+                        .Where(u => u.NombreUsuario.ToLower() != "admin")
+                        .ToList();
+                    db.Usuarios.RemoveRange(usuariosABorrar);
+                }
+
+                db.SaveChanges();
                 CargarEstadisticas();
 
-                MessageBox.Show("Base de datos reiniciada. Todos los datos han sido eliminados.",
+                string mensajeUsuarios = reiniciarUsuarios
+                    ? "Usuarios:   reiniciados (se conservó 'admin')"
+                    : "Usuarios:   conservados sin cambios";
+
+                MessageBox.Show(
+                    $"✅  BASE DE DATOS REINICIADA\n\n" +
+                    $"Clientes, vehículos, trabajos,\n" +
+                    $"reservas y facturas eliminados.\n" +
+                    $"{mensajeUsuarios}",
                     "Reinicio Completado", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al reiniciar:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al reiniciar:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  INotifyPropertyChanged
-        // ─────────────────────────────────────────────────────────
+        // ── INotifyPropertyChanged ────────────────────────────────────────────
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

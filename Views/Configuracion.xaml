@@ -12,28 +12,32 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <!-- Título -->
             <StackPanel Grid.Row="0">
                 <TextBlock Text="⚙️  Configuración del Sistema"
                            Style="{StaticResource PageTitle}" FontSize="26"/>
                 <TextBlock Text="Gestiona la información del taller y parámetros del sistema"
-                           Foreground="{StaticResource TextMuted}" FontSize="13" Margin="0,4,0,0"/>
+                           Foreground="{StaticResource TextMuted}"
+                           FontSize="13" Margin="0,4,0,0"/>
             </StackPanel>
 
             <StackPanel Grid.Row="2">
 
-                <!-- ── Información del Taller ── -->
+                <!-- ══════════════════════════════════════════════
+                     INFORMACIÓN DEL TALLER
+                ══════════════════════════════════════════════ -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="🏢  Información del Taller"
                                    Style="{StaticResource SectionTitle}" FontSize="16"/>
 
-                        <TextBlock Text="Nombre del Taller:" Style="{StaticResource FormLabel}"/>
-                        <TextBox Text="{Binding NombreTaller, UpdateSourceTrigger=PropertyChanged}"
-                                 Margin="0,0,0,0"/>
+                        <TextBlock Text="Nombre del taller:"
+                                   Style="{StaticResource FormLabel}"/>
+                        <TextBox Text="{Binding NombreTaller, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="Dirección:" Style="{StaticResource FormLabel}"/>
-                        <TextBox Text="{Binding DireccionTaller, UpdateSourceTrigger=PropertyChanged}"
-                                 Margin="0,0,0,0"/>
+                        <TextBlock Text="Dirección:"
+                                   Style="{StaticResource FormLabel}"/>
+                        <TextBox Text="{Binding DireccionTaller, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -42,18 +46,32 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Teléfono:" Style="{StaticResource FormLabel}"/>
+                                <TextBlock Text="Teléfono:"
+                                           Style="{StaticResource FormLabel}"/>
                                 <TextBox Text="{Binding TelefonoTaller, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Email:" Style="{StaticResource FormLabel}"/>
+                                <TextBlock Text="Email:"
+                                           Style="{StaticResource FormLabel}"/>
                                 <TextBox Text="{Binding EmailTaller, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                         </Grid>
 
-                        <TextBlock Text="NIT:" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Text="NIT / RUT:"
+                                   Style="{StaticResource FormLabel}"/>
                         <TextBox Text="{Binding NITTaller, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="0,0,0,16"/>
+
+                        <!-- Nota sobre el PDF -->
+                        <Border Background="{StaticResource AccentMuted}"
+                                CornerRadius="6" Padding="12,9"
+                                Margin="0,0,0,14">
+                            <TextBlock Foreground="{StaticResource AccentLight}"
+                                       FontSize="11" TextWrapping="Wrap">
+                                <Run Text="ℹ️  "/>
+                                <Run Text="Estos datos aparecen en el encabezado de todos los PDFs de facturas generados."/>
+                            </TextBlock>
+                        </Border>
 
                         <Button Content="💾  Guardar Información"
                                 Command="{Binding GuardarInformacionCommand}"
@@ -62,13 +80,16 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Facturación ── -->
+                <!-- ══════════════════════════════════════════════
+                     FACTURACIÓN
+                ══════════════════════════════════════════════ -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="📄  Configuración de Facturación"
                                    Style="{StaticResource SectionTitle}" FontSize="16"/>
 
-                        <TextBlock Text="Descuento Máximo (%):" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Text="Descuento máximo permitido (%):"
+                                   Style="{StaticResource FormLabel}"/>
                         <TextBox Text="{Binding DescuentoMaximo, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="0,0,0,12"/>
 
@@ -83,21 +104,38 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Base de Datos ── -->
+                <!-- ══════════════════════════════════════════════
+                     BASE DE DATOS
+                ══════════════════════════════════════════════ -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="🗄️  Base de Datos"
                                    Style="{StaticResource SectionTitle}" FontSize="16"/>
 
-                        <TextBlock Text="Cadena de Conexión:" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Text="Cadena de conexión:"
+                                   Style="{StaticResource FormLabel}"/>
                         <TextBox Text="{Binding ConnectionString, UpdateSourceTrigger=PropertyChanged}"
-                                 Margin="0,0,0,4"
-                                 TextWrapping="Wrap"/>
+                                 TextWrapping="Wrap"
+                                 Margin="0,0,0,4"/>
 
-                        <TextBlock Text="⚠️  Cambiar esta cadena no modifica appsettings.json. Reinicia la aplicación para que tome efecto."
-                                   Foreground="{StaticResource ColorWarning}"
-                                   FontSize="10" TextWrapping="Wrap"
-                                   Margin="0,0,0,16"/>
+                        <!-- FIX: aviso más claro sobre qué hace cada botón -->
+                        <Border Background="{StaticResource BgInput}"
+                                CornerRadius="6" Padding="12,9" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Foreground="{StaticResource TextSecondary}"
+                                           FontSize="11" TextWrapping="Wrap"
+                                           Margin="0,0,0,4">
+                                    <Run Text="🔄 Probar Conexión"/>
+                                    <Run Text=" — verifica si la cadena actual puede conectarse a SQL Server."/>
+                                </TextBlock>
+                                <TextBlock Foreground="{StaticResource TextSecondary}"
+                                           FontSize="11" TextWrapping="Wrap"
+                                           Margin="0,0,0,4">
+                                    <Run Text="💾 Guardar Conexión"/>
+                                    <Run Text=" — escribe la cadena en appsettings.json. El cambio toma efecto al reiniciar la app."/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -105,15 +143,24 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
+
+                            <!-- Botones izquierda -->
                             <StackPanel Grid.Column="0" Orientation="Horizontal">
                                 <Button Content="🔄  Probar Conexión"
                                         Command="{Binding ProbarConexionCommand}"
                                         Style="{StaticResource BtnGhost}"/>
+                                <Button Content="💾  Guardar Conexión"
+                                        Command="{Binding GuardarConexionCommand}"
+                                        Style="{StaticResource BtnPrimary}"/>
                                 <Button Content="📦  Respaldar BD"
                                         Command="{Binding RespaldarBDCommand}"
-                                        Style="{StaticResource BtnPrimary}"/>
+                                        Style="{StaticResource BtnSuccess}"/>
                             </StackPanel>
-                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+
+                            <!-- Último respaldo derecha -->
+                            <StackPanel Grid.Column="2"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
                                 <TextBlock Text="Último respaldo: "
                                            Foreground="{StaticResource TextMuted}"
                                            FontSize="11" VerticalAlignment="Center"/>
@@ -125,7 +172,9 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Servicios ── -->
+                <!-- ══════════════════════════════════════════════
+                     GESTIÓN DE SERVICIOS
+                ══════════════════════════════════════════════ -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="⚙️  Gestión de Servicios"
@@ -134,7 +183,7 @@
                         <ListBox x:Name="lstServicios"
                                  ItemsSource="{Binding Servicios}"
                                  SelectedItem="{Binding ServicioSeleccionado}"
-                                 Height="160"
+                                 Height="170"
                                  Background="{StaticResource BgInput}"
                                  BorderBrush="{StaticResource BorderColor}"
                                  BorderThickness="1"
@@ -180,11 +229,27 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Mantenimiento ── -->
+                <!-- ══════════════════════════════════════════════
+                     MANTENIMIENTO
+                ══════════════════════════════════════════════ -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="🛠️  Mantenimiento del Sistema"
                                    Style="{StaticResource SectionTitle}" FontSize="16"/>
+
+                        <!-- Aviso sobre Reiniciar BD -->
+                        <Border Background="#2D1A1A"
+                                BorderBrush="{StaticResource ColorDanger}"
+                                BorderThickness="1"
+                                CornerRadius="6" Padding="12,9"
+                                Margin="0,0,0,14">
+                            <TextBlock Foreground="#FCA5A5"
+                                       FontSize="11" TextWrapping="Wrap">
+                                <Run FontWeight="Bold" Text="⚠️  Reiniciar BD"/>
+                                <Run Text=" elimina TODOS los clientes, vehículos, trabajos, reservas y facturas. Esta acción NO se puede deshacer."/>
+                            </TextBlock>
+                        </Border>
+
                         <StackPanel Orientation="Horizontal">
                             <Button Content="🗑️  Limpiar Logs"
                                     Command="{Binding LimpiarLogsCommand}"
@@ -199,7 +264,9 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Info del sistema ── -->
+                <!-- ══════════════════════════════════════════════
+                     INFORMACIÓN DEL SISTEMA
+                ══════════════════════════════════════════════ -->
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
                         <TextBlock Text="ℹ️  Información del Sistema"
@@ -216,27 +283,41 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Versión:"
-                                       Foreground="{StaticResource TextMuted}" Margin="0,4"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="1.0.0"
-                                       Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                       Text="Versión:"
+                                       Foreground="{StaticResource TextMuted}"
+                                       Margin="0,4"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                       Text="1.0.0"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       Margin="0,4"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Base de Datos:"
-                                       Foreground="{StaticResource TextMuted}" Margin="0,4"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="TallerMecanico"
-                                       Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0"
+                                       Text="Base de Datos:"
+                                       Foreground="{StaticResource TextMuted}"
+                                       Margin="0,4"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                       Text="TallerMecanico"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       Margin="0,4"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Último Respaldo:"
-                                       Foreground="{StaticResource TextMuted}" Margin="0,4"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0"
+                                       Text="Último Respaldo:"
+                                       Foreground="{StaticResource TextMuted}"
+                                       Margin="0,4"/>
                             <TextBlock Grid.Row="2" Grid.Column="1"
                                        Text="{Binding UltimoRespaldo, StringFormat=dd/MM/yyyy HH:mm}"
-                                       Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                                       Foreground="{StaticResource TextPrimary}"
+                                       Margin="0,4"/>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Total Registros:"
-                                       Foreground="{StaticResource TextMuted}" Margin="0,4"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0"
+                                       Text="Total Registros:"
+                                       Foreground="{StaticResource TextMuted}"
+                                       Margin="0,4"/>
                             <TextBlock Grid.Row="3" Grid.Column="1"
                                        Text="{Binding TotalRegistros}"
-                                       Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                                       Foreground="{StaticResource TextPrimary}"
+                                       Margin="0,4"/>
                         </Grid>
                     </StackPanel>
                 </Border>
