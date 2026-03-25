@@ -16,9 +16,6 @@ using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
-    /// <summary>
-    /// Lógica de interacción para Inventario.xaml
-    /// </summary>
     public partial class Inventario : Page
     {
         public Inventario()

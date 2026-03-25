@@ -8,22 +8,33 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
+using Proyecto_taller.Views;
 
 namespace Proyecto_taller.ViewModels
 {
     public class InventarioViewModel : INotifyPropertyChanged
     {
-        private Repuesto _repuestoSeleccionado;
+        // ─── Estado ───────────────────────────────────────────────────────────
+
+        private Repuesto? _repuestoSeleccionado;
         private bool _filtroTodos = true;
         private bool _filtroStockBajo;
         private bool _filtroSinStock;
         private int _repuestosStockBajo;
         private int _totalRepuestos;
+        private decimal _valorTotalInventario;
+        private string _textoBusqueda = string.Empty;
 
-        public ObservableCollection<Repuesto> Repuestos { get; set; }
+        // Colección maestra (sin filtrar) para búsqueda local
+        private ObservableCollection<Repuesto> _todosMaestro = new();
 
-        public Repuesto RepuestoSeleccionado
+        public ObservableCollection<Repuesto> Repuestos { get; set; } = new();
+
+        // ─── Propiedades ──────────────────────────────────────────────────────
+
+        public Repuesto? RepuestoSeleccionado
         {
             get => _repuestoSeleccionado;
             set
@@ -37,56 +48,50 @@ namespace Proyecto_taller.ViewModels
         public int RepuestosStockBajo
         {
             get => _repuestosStockBajo;
-            set
-            {
-                _repuestosStockBajo = value;
-                OnPropertyChanged();
-            }
+            set { _repuestosStockBajo = value; OnPropertyChanged(); }
         }
 
         public int TotalRepuestos
         {
             get => _totalRepuestos;
+            set { _totalRepuestos = value; OnPropertyChanged(); }
+        }
+
+        public decimal ValorTotalInventario
+        {
+            get => _valorTotalInventario;
+            set { _valorTotalInventario = value; OnPropertyChanged(); }
+        }
+
+        public string TextoBusqueda
+        {
+            get => _textoBusqueda;
             set
             {
-                _totalRepuestos = value;
+                _textoBusqueda = value;
                 OnPropertyChanged();
+                AplicarFiltroYBusqueda();
             }
         }
 
-        // Propiedades para los filtros
+        // Filtros de radio (excluyentes)
         public bool FiltroTodos
         {
             get => _filtroTodos;
-            set
-            {
-                _filtroTodos = value;
-                OnPropertyChanged();
-                if (value) AplicarFiltro("Todos");
-            }
+            set { _filtroTodos = value; OnPropertyChanged(); if (value) AplicarFiltroYBusqueda(); }
         }
-
         public bool FiltroStockBajo
         {
             get => _filtroStockBajo;
-            set
-            {
-                _filtroStockBajo = value;
-                OnPropertyChanged();
-                if (value) AplicarFiltro("StockBajo");
-            }
+            set { _filtroStockBajo = value; OnPropertyChanged(); if (value) AplicarFiltroYBusqueda(); }
         }
-
         public bool FiltroSinStock
         {
             get => _filtroSinStock;
-            set
-            {
-                _filtroSinStock = value;
-                OnPropertyChanged();
-                if (value) AplicarFiltro("SinStock");
-            }
+            set { _filtroSinStock = value; OnPropertyChanged(); if (value) AplicarFiltroYBusqueda(); }
         }
+
+        // ─── Comandos ─────────────────────────────────────────────────────────
 
         public ICommand CargarRepuestosCommand { get; }
         public ICommand AgregarRepuestoCommand { get; }
@@ -94,283 +99,278 @@ namespace Proyecto_taller.ViewModels
         public ICommand EntradaStockCommand { get; }
         public ICommand SalidaStockCommand { get; }
         public ICommand EliminarRepuestoCommand { get; }
+        public ICommand LimpiarBusquedaCommand { get; }
+
+        // ─── Constructor ──────────────────────────────────────────────────────
 
         public InventarioViewModel()
         {
-            Repuestos = new ObservableCollection<Repuesto>();
-
             CargarRepuestosCommand = new RelayCommand(CargarRepuestos);
             AgregarRepuestoCommand = new RelayCommand(AgregarRepuesto);
             EditarRepuestoCommand = new RelayCommand(EditarRepuesto, () => RepuestoSeleccionado != null);
             EntradaStockCommand = new RelayCommand(EntradaStock, () => RepuestoSeleccionado != null);
-            SalidaStockCommand = new RelayCommand(SalidaStock, () => RepuestoSeleccionado != null);
+            SalidaStockCommand = new RelayCommand(SalidaStock, () => RepuestoSeleccionado != null && RepuestoSeleccionado.StockActual > 0);
             EliminarRepuestoCommand = new RelayCommand(EliminarRepuesto, () => RepuestoSeleccionado != null);
+            LimpiarBusquedaCommand = new RelayCommand(() => TextoBusqueda = string.Empty);
 
             CargarRepuestos();
         }
 
-        private void CargarRepuestos()
+        // ─── Carga y filtro ───────────────────────────────────────────────────
+
+        public void CargarRepuestos()
         {
-            Repuestos.Clear();
+            var idAnterior = RepuestoSeleccionado?.RepuestoID;
+
             using var db = new TallerDbContext();
+            var lista = db.Repuestos.OrderBy(r => r.Nombre).ToList();
 
-            var repuestos = db.Repuestos.OrderBy(r => r.Nombre).ToList();
+            _todosMaestro.Clear();
+            foreach (var r in lista)
+                _todosMaestro.Add(r);
 
-            foreach (var repuesto in repuestos)
-            {
-                Repuestos.Add(repuesto);
-            }
-
+            AplicarFiltroYBusqueda();
             ActualizarEstadisticas();
+
+            // Restaurar selección si sigue existiendo
+            if (idAnterior.HasValue)
+                RepuestoSeleccionado = Repuestos.FirstOrDefault(r => r.RepuestoID == idAnterior.Value);
         }
 
-        private void AplicarFiltro(string filtro)
+        private void AplicarFiltroYBusqueda()
         {
-            Repuestos.Clear();
-            using var db = new TallerDbContext();
+            var query = _todosMaestro.AsEnumerable();
 
-            var query = db.Repuestos.AsQueryable();
-
-            if (filtro == "StockBajo")
-            {
-                query = query.Where(r => r.StockActual <= r.StockMinimo && r.StockActual > 0);
-            }
-            else if (filtro == "SinStock")
-            {
+            // Filtro de radio
+            if (FiltroStockBajo)
+                query = query.Where(r => r.StockActual > 0 && r.StockActual <= r.StockMinimo);
+            else if (FiltroSinStock)
                 query = query.Where(r => r.StockActual == 0);
-            }
 
-            var repuestos = query.OrderBy(r => r.Nombre).ToList();
+            // Búsqueda por texto
+            var texto = TextoBusqueda.Trim().ToLower();
+            if (!string.IsNullOrEmpty(texto))
+                query = query.Where(r =>
+                    r.Nombre.ToLower().Contains(texto) ||
+                    (r.Descripcion?.ToLower().Contains(texto) ?? false));
 
-            foreach (var repuesto in repuestos)
-            {
-                Repuestos.Add(repuesto);
-            }
-
-            ActualizarEstadisticas();
+            Repuestos.Clear();
+            foreach (var r in query)
+                Repuestos.Add(r);
         }
 
         private void ActualizarEstadisticas()
         {
-            using var db = new TallerDbContext();
-            TotalRepuestos = db.Repuestos.Count();
-            RepuestosStockBajo = db.Repuestos.Count(r => r.StockActual <= r.StockMinimo);
+            TotalRepuestos = _todosMaestro.Count;
+            RepuestosStockBajo = _todosMaestro.Count(r => r.StockActual <= r.StockMinimo);
+            ValorTotalInventario = _todosMaestro.Sum(r => r.ValorTotal);
         }
+
+        // ─── Agregar repuesto ─────────────────────────────────────────────────
 
         private void AgregarRepuesto()
         {
-            using var db = new TallerDbContext();
-
-            var nuevo = new Repuesto
-            {
-                Nombre = "Nuevo Repuesto",
-                Descripcion = "Descripción del repuesto",
-                PrecioUnitario = 50.00m,
-                StockActual = 0,
-                StockMinimo = 5
-            };
-
-            db.Repuestos.Add(nuevo);
-            db.SaveChanges();
-            Repuestos.Add(nuevo);
-
-            ActualizarEstadisticas();
-
-            System.Windows.MessageBox.Show(
-                "Repuesto agregado exitosamente. Recuerde editarlo con los datos correctos.",
-                "Éxito",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
+            var win = new EditarRepuestoWindow();   // modo Nuevo
+            if (win.ShowDialog() == true)
+                CargarRepuestos();
         }
+
+        // ─── Editar repuesto ──────────────────────────────────────────────────
 
         private void EditarRepuesto()
         {
             if (RepuestoSeleccionado == null) return;
 
-            System.Windows.MessageBox.Show(
-                $"Editando repuesto: {RepuestoSeleccionado.Nombre}\n" +
-                $"Stock actual: {RepuestoSeleccionado.StockActual}\n" +
-                $"Precio: Bs. {RepuestoSeleccionado.PrecioUnitario:N2}",
-                "Editar Repuesto");
+            // Recargar desde BD para obtener datos frescos
+            using var db = new TallerDbContext();
+            var repFresco = db.Repuestos.Find(RepuestoSeleccionado.RepuestoID);
+            if (repFresco == null)
+            {
+                MessageBox.Show("El repuesto ya no existe en la base de datos.",
+                    "No encontrado", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CargarRepuestos();
+                return;
+            }
+
+            var win = new EditarRepuestoWindow(repFresco);   // modo Editar
+            if (win.ShowDialog() == true)
+                CargarRepuestos();
         }
+
+        // ─── Entrada de stock ─────────────────────────────────────────────────
 
         private void EntradaStock()
         {
             if (RepuestoSeleccionado == null) return;
 
-            // Aquí podrías abrir un diálogo para ingresar la cantidad
-            var inputDialog = new InputDialog("Entrada de Stock", "Ingrese la cantidad a agregar:");
+            var win = new EntradaSalidaStockWindow(RepuestoSeleccionado, TipoMovimiento.Entrada);
 
-            if (inputDialog.ShowDialog() == true && int.TryParse(inputDialog.ResponseText, out int cantidad) && cantidad > 0)
+            if (win.ShowDialog() != true) return;
+
+            try
             {
                 using var db = new TallerDbContext();
-                var repuesto = db.Repuestos.Find(RepuestoSeleccionado.RepuestoID);
+                var rep = db.Repuestos.Find(RepuestoSeleccionado.RepuestoID);
+                if (rep == null) return;
 
-                if (repuesto != null)
-                {
-                    repuesto.StockActual += cantidad;
-                    db.SaveChanges();
+                int stockAnterior = rep.StockActual;
+                rep.StockActual += win.CantidadMovida;
+                db.SaveChanges();
 
-                    RepuestoSeleccionado.StockActual = repuesto.StockActual;
-                    OnPropertyChanged(nameof(Repuestos));
-                    ActualizarEstadisticas();
+                // Actualizar en memoria inmediatamente (sin recargar todo)
+                RepuestoSeleccionado.StockActual = rep.StockActual;
+                ActualizarEstadisticas();
+                CommandManager.InvalidateRequerySuggested();
 
-                    System.Windows.MessageBox.Show(
-                        $"Se agregaron {cantidad} unidades al stock.\nNuevo stock: {repuesto.StockActual}",
-                        "Entrada de Stock",
-                        System.Windows.MessageBoxButton.OK,
-                        System.Windows.MessageBoxImage.Information);
-                }
+                MessageBox.Show(
+                    $"✅  Entrada registrada correctamente.\n\n" +
+                    $"Repuesto:         {rep.Nombre}\n" +
+                    $"Cantidad entrada: +{win.CantidadMovida}\n" +
+                    $"Stock anterior:   {stockAnterior}\n" +
+                    $"Stock actual:     {rep.StockActual}" +
+                    (string.IsNullOrEmpty(win.Motivo) ? "" : $"\nMotivo:           {win.Motivo}"),
+                    "Entrada de Stock",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al registrar la entrada:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        // ─── Salida de stock ──────────────────────────────────────────────────
 
         private void SalidaStock()
         {
             if (RepuestoSeleccionado == null) return;
 
-            var inputDialog = new InputDialog("Salida de Stock", "Ingrese la cantidad a retirar:");
-
-            if (inputDialog.ShowDialog() == true && int.TryParse(inputDialog.ResponseText, out int cantidad) && cantidad > 0)
+            if (RepuestoSeleccionado.StockActual <= 0)
             {
-                if (cantidad > RepuestoSeleccionado.StockActual)
+                MessageBox.Show(
+                    $"'{RepuestoSeleccionado.Nombre}' no tiene stock disponible para retirar.",
+                    "Sin stock", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var win = new EntradaSalidaStockWindow(RepuestoSeleccionado, TipoMovimiento.Salida);
+
+            if (win.ShowDialog() != true) return;
+
+            try
+            {
+                using var db = new TallerDbContext();
+
+                // ⭐ Verificación optimista: recargar stock real desde BD
+                //    por si otro usuario descontó stock mientras el diálogo estaba abierto
+                var rep = db.Repuestos.Find(RepuestoSeleccionado.RepuestoID);
+                if (rep == null) return;
+
+                if (win.CantidadMovida > rep.StockActual)
                 {
-                    System.Windows.MessageBox.Show(
-                        $"No hay suficiente stock. Stock disponible: {RepuestoSeleccionado.StockActual}",
-                        "Error",
-                        System.Windows.MessageBoxButton.OK,
-                        System.Windows.MessageBoxImage.Error);
+                    MessageBox.Show(
+                        $"El stock del repuesto cambió mientras tenías el diálogo abierto.\n\n" +
+                        $"Stock disponible actual: {rep.StockActual}\n" +
+                        $"Cantidad solicitada:     {win.CantidadMovida}\n\n" +
+                        $"Por favor, intenta de nuevo.",
+                        "Stock insuficiente",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CargarRepuestos();
                     return;
                 }
 
-                using var db = new TallerDbContext();
-                var repuesto = db.Repuestos.Find(RepuestoSeleccionado.RepuestoID);
+                int stockAnterior = rep.StockActual;
+                rep.StockActual -= win.CantidadMovida;
+                db.SaveChanges();
 
-                if (repuesto != null)
-                {
-                    repuesto.StockActual -= cantidad;
-                    db.SaveChanges();
+                // Actualizar en memoria
+                RepuestoSeleccionado.StockActual = rep.StockActual;
+                ActualizarEstadisticas();
+                CommandManager.InvalidateRequerySuggested();
 
-                    RepuestoSeleccionado.StockActual = repuesto.StockActual;
-                    OnPropertyChanged(nameof(Repuestos));
-                    ActualizarEstadisticas();
+                // Avisar si quedó en stock bajo o sin stock
+                string aviso = string.Empty;
+                if (rep.StockActual == 0)
+                    aviso = "\n\n⚠️  El repuesto quedó SIN STOCK.";
+                else if (rep.StockActual <= rep.StockMinimo)
+                    aviso = $"\n\n⚠️  El stock quedó por debajo del mínimo ({rep.StockMinimo}).";
 
-                    System.Windows.MessageBox.Show(
-                        $"Se retiraron {cantidad} unidades del stock.\nStock restante: {repuesto.StockActual}",
-                        "Salida de Stock",
-                        System.Windows.MessageBoxButton.OK,
-                        System.Windows.MessageBoxImage.Information);
-                }
+                MessageBox.Show(
+                    $"✅  Salida registrada correctamente.\n\n" +
+                    $"Repuesto:        {rep.Nombre}\n" +
+                    $"Cantidad salida: -{win.CantidadMovida}\n" +
+                    $"Stock anterior:  {stockAnterior}\n" +
+                    $"Stock actual:    {rep.StockActual}" +
+                    (string.IsNullOrEmpty(win.Motivo) ? "" : $"\nMotivo:          {win.Motivo}") +
+                    aviso,
+                    "Salida de Stock",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al registrar la salida:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        // ─── Eliminar repuesto ────────────────────────────────────────────────
 
         private void EliminarRepuesto()
         {
             if (RepuestoSeleccionado == null) return;
 
-            var resultado = System.Windows.MessageBox.Show(
-                $"¿Está seguro de eliminar el repuesto '{RepuestoSeleccionado.Nombre}'?",
+            var resultado = MessageBox.Show(
+                $"¿Eliminar el repuesto '{RepuestoSeleccionado.Nombre}'?\n\n" +
+                $"⚠️  Si este repuesto está asociado a trabajos existentes,\n" +
+                $"la eliminación fallará por integridad referencial.",
                 "Confirmar Eliminación",
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Warning);
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
 
-            if (resultado == System.Windows.MessageBoxResult.Yes)
+            if (resultado != MessageBoxResult.Yes) return;
+
+            try
             {
                 using var db = new TallerDbContext();
-                var repuesto = db.Repuestos.Find(RepuestoSeleccionado.RepuestoID);
 
-                if (repuesto != null)
+                // Verificar si está asociado a trabajos
+                bool tieneUsos = db.Trabajos_Repuestos
+                    .Any(tr => tr.RepuestoID == RepuestoSeleccionado.RepuestoID);
+
+                if (tieneUsos)
                 {
-                    db.Repuestos.Remove(repuesto);
-                    db.SaveChanges();
-                    Repuestos.Remove(RepuestoSeleccionado);
-                    ActualizarEstadisticas();
+                    MessageBox.Show(
+                        $"No se puede eliminar '{RepuestoSeleccionado.Nombre}' porque\n" +
+                        $"está asociado a uno o más trabajos.\n\n" +
+                        $"Puedes editar su nombre o precio en su lugar.",
+                        "No se puede eliminar",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
                 }
+
+                var rep = db.Repuestos.Find(RepuestoSeleccionado.RepuestoID);
+                if (rep != null)
+                {
+                    db.Repuestos.Remove(rep);
+                    db.SaveChanges();
+                }
+
+                CargarRepuestos();
+
+                MessageBox.Show("Repuesto eliminado correctamente.",
+                    "Eliminado", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al eliminar:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
+        // ─── INotifyPropertyChanged ───────────────────────────────────────────
 
-    // Clase auxiliar para entrada de datos
-    public class InputDialog : System.Windows.Window
-    {
-        public string ResponseText { get; private set; }
-        private System.Windows.Controls.TextBox txtInput;
-
-        public InputDialog(string title, string question)
-        {
-            Title = title;
-            Width = 400;
-            Height = 180;
-            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-            ResizeMode = System.Windows.ResizeMode.NoResize;
-            Background = System.Windows.Media.Brushes.White;
-
-            var grid = new System.Windows.Controls.Grid();
-            grid.Margin = new System.Windows.Thickness(20);
-
-            var stackPanel = new System.Windows.Controls.StackPanel();
-
-            var lblQuestion = new System.Windows.Controls.TextBlock
-            {
-                Text = question,
-                FontSize = 14,
-                Margin = new System.Windows.Thickness(0, 0, 0, 15)
-            };
-
-            txtInput = new System.Windows.Controls.TextBox
-            {
-                FontSize = 14,
-                Padding = new System.Windows.Thickness(8),
-                Margin = new System.Windows.Thickness(0, 0, 0, 20)
-            };
-
-            var buttonPanel = new System.Windows.Controls.StackPanel
-            {
-                Orientation = System.Windows.Controls.Orientation.Horizontal,
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
-            };
-
-            var btnOk = new System.Windows.Controls.Button
-            {
-                Content = "Aceptar",
-                Width = 100,
-                Height = 35,
-                Margin = new System.Windows.Thickness(0, 0, 10, 0),
-                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(74, 144, 226)),
-                Foreground = System.Windows.Media.Brushes.White,
-                BorderThickness = new System.Windows.Thickness(0),
-                Cursor = System.Windows.Input.Cursors.Hand
-            };
-
-            btnOk.Click += (s, e) => { ResponseText = txtInput.Text; DialogResult = true; };
-
-            var btnCancel = new System.Windows.Controls.Button
-            {
-                Content = "Cancelar",
-                Width = 100,
-                Height = 35,
-                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(231, 76, 60)),
-                Foreground = System.Windows.Media.Brushes.White,
-                BorderThickness = new System.Windows.Thickness(0),
-                Cursor = System.Windows.Input.Cursors.Hand
-            };
-
-            btnCancel.Click += (s, e) => { DialogResult = false; };
-
-            buttonPanel.Children.Add(btnOk);
-            buttonPanel.Children.Add(btnCancel);
-
-            stackPanel.Children.Add(lblQuestion);
-            stackPanel.Children.Add(txtInput);
-            stackPanel.Children.Add(buttonPanel);
-
-            grid.Children.Add(stackPanel);
-            Content = grid;
-
-            txtInput.Focus();
-        }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

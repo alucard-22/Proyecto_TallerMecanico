@@ -1,0 +1,134 @@
+﻿<Window x:Class="Proyecto_taller.Views.EditarRepuestoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Repuesto"
+        Height="460" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True">
+
+    <Border Background="{StaticResource BgSurface}"
+            BorderBrush="{StaticResource AccentPrimary}"
+            BorderThickness="1" CornerRadius="12">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="6"
+                              BlurRadius="24" Opacity="0.5"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource BgCard}"
+                    CornerRadius="11,11,0,0"
+                    Padding="22,16">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock x:Name="txtTitulo"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="Completa todos los campos obligatorios (*)"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Button Content="✕" Click="Cancelar_Click"
+                            Background="Transparent"
+                            Foreground="{StaticResource TextMuted}"
+                            BorderThickness="0" FontSize="16" Cursor="Hand"
+                            Padding="8,4"
+                            HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                </Grid>
+            </Border>
+
+            <!-- Formulario -->
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          Padding="22,16">
+                <StackPanel>
+
+                    <TextBlock Text="Nombre del repuesto: *"
+                               Style="{StaticResource FormLabel}"/>
+                    <TextBox x:Name="txtNombre"
+                             MaxLength="150"/>
+
+                    <TextBlock Text="Descripción:"
+                               Style="{StaticResource FormLabel}"/>
+                    <TextBox x:Name="txtDescripcion"
+                             Height="58"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             MaxLength="500"/>
+
+                    <!-- Precio y Stock mínimo en la misma fila -->
+                    <Grid Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Precio unitario (Bs.): *"
+                                       Style="{StaticResource FormLabel}"/>
+                            <TextBox x:Name="txtPrecio"
+                                     MaxLength="12"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Stock mínimo: *"
+                                       Style="{StaticResource FormLabel}"/>
+                            <TextBox x:Name="txtStockMinimo"
+                                     MaxLength="6"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Stock inicial solo en modo nuevo -->
+                    <StackPanel x:Name="panelStockInicial">
+                        <TextBlock Text="Stock inicial (unidades):"
+                                   Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="txtStockInicial"
+                                 Text="0"
+                                 MaxLength="6"/>
+                    </StackPanel>
+
+                    <!-- Aviso informativo -->
+                    <Border Background="{StaticResource AccentMuted}"
+                            CornerRadius="6" Padding="12,9"
+                            Margin="0,14,0,0">
+                        <TextBlock Foreground="{StaticResource AccentLight}"
+                                   FontSize="11" TextWrapping="Wrap">
+                            <Run Text="ℹ️  "/>
+                            <Run Text="El stock se modifica usando los botones Entrada / Salida del módulo de inventario. El campo 'Stock inicial' solo aplica al crear un nuevo repuesto."/>
+                        </TextBlock>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Footer -->
+            <Border Grid.Row="2"
+                    Background="{StaticResource BgCard}"
+                    CornerRadius="0,0,11,11"
+                    Padding="22,14">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="✕  Cancelar"
+                            Click="Cancelar_Click"
+                            Style="{StaticResource BtnDanger}"/>
+                    <Button x:Name="btnGuardar"
+                            Content="💾  Guardar Repuesto"
+                            Click="Guardar_Click"
+                            Style="{StaticResource BtnSuccess}"
+                            Padding="18,9"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
