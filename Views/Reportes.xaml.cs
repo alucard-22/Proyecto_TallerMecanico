@@ -16,9 +16,6 @@ using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
-    /// <summary>
-    /// Lógica de interacción para Reportes.xaml
-    /// </summary>
     public partial class Reportes : Page
     {
         public Reportes()

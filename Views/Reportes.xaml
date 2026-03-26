@@ -8,36 +8,79 @@
         <Grid Margin="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <!-- Header          -->
                 <RowDefinition Height="16"/>
                 <RowDefinition Height="Auto"/>
+                <!-- Filtros período -->
                 <RowDefinition Height="16"/>
                 <RowDefinition Height="Auto"/>
+                <!-- KPIs financiero -->
                 <RowDefinition Height="16"/>
                 <RowDefinition Height="Auto"/>
+                <!-- KPIs secundarios -->
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Gráfico tendencia + distribución trabajos -->
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Servicios + Top clientes -->
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Reservas -->
             </Grid.RowDefinitions>
 
-            <!-- Header -->
+            <!-- ════════════════════════════════════════════════════
+                 HEADER
+            ════════════════════════════════════════════════════ -->
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="📊 Reportes y Estadísticas"
+                    <TextBlock Text="📊  Reportes y Estadísticas"
                                Style="{StaticResource PageTitle}" FontSize="26"/>
                     <TextBlock Text="Análisis de rendimiento del taller"
-                               Foreground="{StaticResource TextMuted}" FontSize="13" Margin="0,4,0,0"/>
+                               Foreground="{StaticResource TextMuted}"
+                               FontSize="13" Margin="0,4,0,0"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="🔄 Actualizar"  Command="{Binding ActualizarReportesCommand}" Style="{StaticResource BtnSecondary}"/>
-                    <Button Content="📥 Exportar"    Command="{Binding ExportarExcelCommand}"      Style="{StaticResource BtnSuccess}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Indicador de carga -->
+                    <Border CornerRadius="6" Padding="10,5"
+                            Margin="0,0,8,0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background"
+                                        Value="{StaticResource AccentMuted}"/>
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Cargando}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="⏳ Cargando..."
+                                   Foreground="{StaticResource AccentLight}"
+                                   FontSize="12"/>
+                    </Border>
+                    <Button Content="🔄  Actualizar"
+                            Command="{Binding ActualizarReportesCommand}"
+                            Style="{StaticResource BtnSecondary}"/>
+                    <Button Content="📥  Exportar CSV"
+                            Command="{Binding ExportarCsvCommand}"
+                            Style="{StaticResource BtnSuccess}"
+                            ToolTip="Exporta todos los datos a un archivo .csv compatible con Excel"/>
                 </StackPanel>
             </Grid>
 
-            <!-- Filtros de período -->
+            <!-- ════════════════════════════════════════════════════
+                 FILTROS DE PERÍODO
+            ════════════════════════════════════════════════════ -->
             <Border Grid.Row="2" Style="{StaticResource Card}">
                 <StackPanel>
-                    <TextBlock Text="📅 Período de Análisis" Style="{StaticResource SectionTitle}" FontSize="15"/>
+                    <TextBlock Text="📅  Período de análisis"
+                               Style="{StaticResource SectionTitle}" FontSize="15"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -50,27 +93,85 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Inicio:"
                                    Foreground="{StaticResource TextSecondary}"
-                                   VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/>
-                        <DatePicker Grid.Column="1" SelectedDate="{Binding FechaInicio}" Margin="0,0,10,0"/>
+                                   VerticalAlignment="Center" Margin="0,0,10,0"
+                                   FontWeight="SemiBold"/>
+                        <DatePicker Grid.Column="1"
+                                    SelectedDate="{Binding FechaInicio}"
+                                    Margin="0,0,10,0"/>
                         <TextBlock Grid.Column="3" Text="Fin:"
                                    Foreground="{StaticResource TextSecondary}"
-                                   VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/>
-                        <DatePicker Grid.Column="4" SelectedDate="{Binding FechaFin}" Margin="0,0,10,0"/>
+                                   VerticalAlignment="Center" Margin="0,0,10,0"
+                                   FontWeight="SemiBold"/>
+                        <DatePicker Grid.Column="4"
+                                    SelectedDate="{Binding FechaFin}"
+                                    Margin="0,0,10,0"/>
                         <Button Grid.Column="6" Content="Aplicar"
                                 Command="{Binding AplicarFiltroCommand}"
                                 Style="{StaticResource BtnPrimary}" Margin="0"/>
                     </Grid>
                     <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                         <Button Content="Hoy"         Command="{Binding FiltroHoyCommand}"    Style="{StaticResource BtnGhost}"/>
-                        <Button Content="Esta Semana" Command="{Binding FiltroSemanaCommand}" Style="{StaticResource BtnGhost}"/>
-                        <Button Content="Este Mes"    Command="{Binding FiltroMesCommand}"    Style="{StaticResource BtnGhost}"/>
-                        <Button Content="Este Año"    Command="{Binding FiltroAnioCommand}"   Style="{StaticResource BtnGhost}"/>
+                        <Button Content="Esta semana" Command="{Binding FiltroSemanaCommand}" Style="{StaticResource BtnGhost}"/>
+                        <Button Content="Este mes"    Command="{Binding FiltroMesCommand}"    Style="{StaticResource BtnGhost}"/>
+                        <Button Content="Este año"    Command="{Binding FiltroAnioCommand}"   Style="{StaticResource BtnGhost}"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
 
-            <!-- KPIs -->
+            <!-- ════════════════════════════════════════════════════
+                 KPIs FINANCIEROS (fila 1)
+            ════════════════════════════════════════════════════ -->
             <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock Text="💰  Ingresos totales"
+                                   Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="{Binding IngresosTotales, StringFormat=Bs. {0:N2}}"
+                                   Foreground="#6EE7B7"
+                                   FontSize="28" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TotalFacturas, StringFormat={}{0} facturas pagadas}"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource Card}" Margin="4,0">
+                    <StackPanel>
+                        <TextBlock Text="🧾  Ticket promedio"
+                                   Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="{Binding TicketPromedio, StringFormat=Bs. {0:N2}}"
+                                   Foreground="{StaticResource AccentLight}"
+                                   FontSize="28" FontWeight="Bold"/>
+                        <TextBlock Text="Por factura pagada"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}" Margin="8,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="🔧  Trabajos del período"
+                                   Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="{Binding TrabajosRealizados}"
+                                   Foreground="{StaticResource ColorInfo}"
+                                   FontSize="28" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TrabajosFinalizados, StringFormat={}{0} finalizados}"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ════════════════════════════════════════════════════
+                 KPIs SECUNDARIOS (fila 2)
+            ════════════════════════════════════════════════════ -->
+            <Grid Grid.Row="6">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -78,47 +179,239 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,10,0">
+                <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,6,0">
                     <StackPanel>
-                        <TextBlock Text="💰 Ingresos Totales" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock Text="{Binding IngresosTotales, StringFormat=Bs. {0:N2}}"
-                                   Foreground="#6EE7B7" FontSize="26" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding TotalFacturas}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
-                        <TextBlock Text="Facturas pagadas" Foreground="{StaticResource TextMuted}" FontSize="11"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="1" Style="{StaticResource Card}" Margin="5,0">
-                    <StackPanel>
-                        <TextBlock Text="🔧 Trabajos Realizados" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock Text="{Binding TrabajosRealizados}"
-                                   Foreground="{StaticResource AccentLight}" FontSize="26" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding TrabajosEnProceso}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
-                        <TextBlock Text="En proceso" Foreground="{StaticResource TextMuted}" FontSize="11"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="2" Style="{StaticResource Card}" Margin="5,0">
-                    <StackPanel>
-                        <TextBlock Text="👥 Clientes Atendidos" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="👥  Clientes atendidos"
+                                   Style="{StaticResource SectionTitle}"/>
                         <TextBlock Text="{Binding ClientesAtendidos}"
-                                   Foreground="{StaticResource ColorInfo}" FontSize="26" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding ClientesNuevos}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
-                        <TextBlock Text="Clientes nuevos" Foreground="{StaticResource TextMuted}" FontSize="11"/>
+                                   Foreground="{StaticResource ColorInfo}"
+                                   FontSize="26" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding ClientesNuevos, StringFormat={}{0} nuevos}"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="3" Style="{StaticResource Card}" Margin="10,0,0,0">
+
+                <Border Grid.Column="1" Style="{StaticResource Card}" Margin="3,0">
                     <StackPanel>
-                        <TextBlock Text="📦 Repuestos Vendidos" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="📦  Repuestos usados"
+                                   Style="{StaticResource SectionTitle}"/>
                         <TextBlock Text="{Binding RepuestosVendidos}"
-                                   Foreground="{StaticResource ColorWarning}" FontSize="26" FontWeight="Bold"/>
+                                   Foreground="{StaticResource ColorWarning}"
+                                   FontSize="26" FontWeight="Bold"/>
                         <TextBlock Text="{Binding ValorRepuestos, StringFormat=Bs. {0:N2}}"
-                                   Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
-                        <TextBlock Text="Valor total" Foreground="{StaticResource TextMuted}" FontSize="11"/>
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}" Margin="3,0">
+                    <StackPanel>
+                        <TextBlock Text="📅  Reservas del período"
+                                   Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="{Binding TotalReservas}"
+                                   Foreground="{StaticResource AccentLight}"
+                                   FontSize="26" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding ReservasCompletadas, StringFormat={}{0} completadas}"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="3" Style="{StaticResource Card}" Margin="6,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="✅  Tasa de asistencia"
+                                   Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="{Binding TasaAsistencia, StringFormat={}{0}%}"
+                                   Foreground="{StaticResource ColorSuccess}"
+                                   FontSize="26" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding ReservasCanceladas, StringFormat={}{0} canceladas / no asistió}"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <!-- Servicios + Distribución trabajos -->
-            <Grid Grid.Row="6">
+            <!-- ════════════════════════════════════════════════════
+                 GRÁFICO TENDENCIA INGRESOS + DISTRIBUCIÓN TRABAJOS
+            ════════════════════════════════════════════════════ -->
+            <Grid Grid.Row="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Gráfico de barras: ingresos últimos 12 meses -->
+                <Border Grid.Column="0" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="📈  Tendencia de ingresos (últimos 12 meses)"
+                                   Style="{StaticResource SectionTitle}" FontSize="15"/>
+                        <TextBlock Text="Independiente del filtro de período"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,0,0,14"/>
+
+                        <!-- Gráfico de barras generado por binding -->
+                        <ItemsControl ItemsSource="{Binding IngresosPorMes}"
+                                      Height="180">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="2,0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Barra vertical alineada al fondo -->
+                                        <Border Grid.Row="0"
+                                                VerticalAlignment="Bottom"
+                                                CornerRadius="3,3,0,0"
+                                                MinHeight="3"
+                                                Height="{Binding AlturaBarraPx}"
+                                                ToolTip="{Binding Ingreso, StringFormat=Bs. {0:N2}}">
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                    <GradientStop Color="#6366F1" Offset="0"/>
+                                                    <GradientStop Color="#4338CA" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+
+                                        <!-- Mes -->
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding NombreMes}"
+                                                   Foreground="{StaticResource TextMuted}"
+                                                   FontSize="10"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,4,0,0"/>
+                                        <!-- Año (solo si cambia) -->
+                                        <TextBlock Grid.Row="2"
+                                                   Text="{Binding AnioCorto}"
+                                                   Foreground="{StaticResource TextMuted}"
+                                                   FontSize="9"
+                                                   HorizontalAlignment="Center"
+                                                   Opacity="0.6"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Distribución de trabajos por estado -->
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="📊  Trabajos por estado"
+                                   Style="{StaticResource SectionTitle}" FontSize="15"/>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{StaticResource ColorWarning}"
+                                         Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Pendientes"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding TrabajosPendientes}"
+                                       Foreground="{StaticResource ColorWarning}"
+                                       FontSize="18" FontWeight="Bold" Margin="12,0"/>
+                        </Grid>
+                        <Border Height="3" Margin="0,0,0,10" CornerRadius="2"
+                                HorizontalAlignment="Left"
+                                MinWidth="4"
+                                Width="{Binding BarraPendientes}">
+                            <Border.Background>
+                                <SolidColorBrush Color="#F59E0B"/>
+                            </Border.Background>
+                        </Border>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{StaticResource ColorInfo}"
+                                         Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="En Progreso"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding TrabajosEnProceso}"
+                                       Foreground="{StaticResource ColorInfo}"
+                                       FontSize="18" FontWeight="Bold" Margin="12,0"/>
+                        </Grid>
+                        <Border Height="3" Margin="0,0,0,10" CornerRadius="2"
+                                HorizontalAlignment="Left"
+                                MinWidth="4"
+                                Width="{Binding BarraEnProceso}">
+                            <Border.Background>
+                                <SolidColorBrush Color="#3B82F6"/>
+                            </Border.Background>
+                        </Border>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{StaticResource ColorSuccess}"
+                                         Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Finalizados"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding TrabajosFinalizados}"
+                                       Foreground="{StaticResource ColorSuccess}"
+                                       FontSize="18" FontWeight="Bold" Margin="12,0"/>
+                        </Grid>
+                        <Border Height="3" Margin="0,0,0,16" CornerRadius="2"
+                                HorizontalAlignment="Left"
+                                MinWidth="4"
+                                Width="{Binding BarraFinalizados}">
+                            <Border.Background>
+                                <SolidColorBrush Color="#10B981"/>
+                            </Border.Background>
+                        </Border>
+
+                        <!-- Total -->
+                        <Border Background="{StaticResource BgCard}"
+                                CornerRadius="6" Padding="12,8">
+                            <Grid>
+                                <TextBlock Text="TOTAL"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding TrabajosRealizados}"
+                                           Foreground="{StaticResource TextPrimary}"
+                                           FontSize="20" FontWeight="Bold"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ════════════════════════════════════════════════════
+                 SERVICIOS MÁS SOLICITADOS + TOP CLIENTES
+            ════════════════════════════════════════════════════ -->
+            <Grid Grid.Row="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
@@ -128,127 +421,169 @@
                 <!-- Top servicios -->
                 <Border Grid.Column="0" Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="🏆 Servicios Más Solicitados" Style="{StaticResource SectionTitle}" FontSize="15"/>
+                        <TextBlock Text="🏆  Servicios más solicitados"
+                                   Style="{StaticResource SectionTitle}" FontSize="15"/>
                         <DataGrid ItemsSource="{Binding TopServicios}"
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True"
-                                  MaxHeight="320">
+                                  MaxHeight="280">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Servicio" Binding="{Binding Nombre}" Width="*"/>
-                                <DataGridTextColumn Header="Veces"    Binding="{Binding Cantidad}" Width="70"/>
+                                <DataGridTextColumn Header="Servicio"
+                                                    Binding="{Binding Nombre}"
+                                                    Width="*"/>
+                                <DataGridTextColumn Header="Veces"
+                                                    Binding="{Binding Cantidad}"
+                                                    Width="65">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
                                 <DataGridTextColumn Header="Total"
                                                     Binding="{Binding Total, StringFormat=Bs. {0:N2}}"
-                                                    Width="110"/>
+                                                    Width="110">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter Property="Foreground"
+                                                    Value="{StaticResource AccentLight}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                     </StackPanel>
                 </Border>
 
-                <!-- Trabajos por estado -->
+                <!-- Top 5 clientes más frecuentes -->
                 <Border Grid.Column="2" Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="📈 Trabajos por Estado" Style="{StaticResource SectionTitle}" FontSize="15"/>
-
-                        <!-- Filas de estados -->
-                        <Grid Margin="0,0,0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource ColorWarning}" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Pendientes" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1" Text="{Binding TrabajosPendientes}"
-                                       Foreground="{StaticResource ColorWarning}"
-                                       FontSize="20" FontWeight="Bold" Margin="12,0"/>
-                        </Grid>
-                        <Grid Margin="0,0,0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource ColorInfo}" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="En Progreso" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1" Text="{Binding TrabajosEnProceso}"
-                                       Foreground="{StaticResource ColorInfo}"
-                                       FontSize="20" FontWeight="Bold" Margin="12,0"/>
-                        </Grid>
-                        <Grid Margin="0,0,0,14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource ColorSuccess}" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Finalizados" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1" Text="{Binding TrabajosFinalizados}"
-                                       Foreground="{StaticResource ColorSuccess}"
-                                       FontSize="20" FontWeight="Bold" Margin="12,0"/>
-                        </Grid>
-
-                        <!-- Total -->
-                        <Border Background="{StaticResource BgCard}" CornerRadius="6" Padding="12,8" Margin="0,0,0,20">
-                            <Grid>
-                                <TextBlock Text="TOTAL" Foreground="{StaticResource TextSecondary}"
-                                           FontWeight="Bold" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding TrabajosRealizados}"
-                                           Foreground="{StaticResource TextPrimary}"
-                                           FontSize="22" FontWeight="Bold"
-                                           HorizontalAlignment="Right"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- Barras visuales -->
-                        <TextBlock Text="Distribución Visual"
-                                   Foreground="{StaticResource TextMuted}"
-                                   FontSize="12" Margin="0,0,0,10"/>
-
-                        <Grid Margin="0,4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Pendientes"
-                                       Foreground="{StaticResource TextMuted}"
-                                       FontSize="11" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Background="{StaticResource ColorWarning}"
-                                    Height="20" CornerRadius="3"
-                                    Width="{Binding BarraPendientes}"
-                                    HorizontalAlignment="Left"/>
-                        </Grid>
-                        <Grid Margin="0,4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="En Progreso"
-                                       Foreground="{StaticResource TextMuted}"
-                                       FontSize="11" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Background="{StaticResource ColorInfo}"
-                                    Height="20" CornerRadius="3"
-                                    Width="{Binding BarraEnProceso}"
-                                    HorizontalAlignment="Left"/>
-                        </Grid>
-                        <Grid Margin="0,4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Finalizados"
-                                       Foreground="{StaticResource TextMuted}"
-                                       FontSize="11" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Background="{StaticResource ColorSuccess}"
-                                    Height="20" CornerRadius="3"
-                                    Width="{Binding BarraFinalizados}"
-                                    HorizontalAlignment="Left"/>
-                        </Grid>
+                        <TextBlock Text="⭐  Top 5 clientes más frecuentes"
+                                   Style="{StaticResource SectionTitle}" FontSize="15"/>
+                        <DataGrid ItemsSource="{Binding TopClientes}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  MaxHeight="280">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Cliente"
+                                                    Binding="{Binding Nombre}"
+                                                    Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Trabajos"
+                                                    Binding="{Binding TotalTrabajos}"
+                                                    Width="75">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Foreground"
+                                                    Value="{StaticResource ColorInfo}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Total"
+                                                    Binding="{Binding TotalGastado, StringFormat=Bs. {0:N2}}"
+                                                    Width="110">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter Property="Foreground"
+                                                    Value="#6EE7B7"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </StackPanel>
                 </Border>
             </Grid>
+
+            <!-- ════════════════════════════════════════════════════
+                 RESERVAS DEL PERÍODO (sección nueva)
+            ════════════════════════════════════════════════════ -->
+            <Border Grid.Row="12" Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="📅  Detalle de reservas del período"
+                               Style="{StaticResource SectionTitle}" FontSize="15"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Total reservas -->
+                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                            <TextBlock Text="Total reservas"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="12"/>
+                            <TextBlock Text="{Binding TotalReservas}"
+                                       Foreground="{StaticResource AccentLight}"
+                                       FontSize="32" FontWeight="Bold"/>
+                        </StackPanel>
+
+                        <!-- Completadas -->
+                        <StackPanel Grid.Column="1" Margin="6,0">
+                            <TextBlock Text="Completadas"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="12"/>
+                            <TextBlock Text="{Binding ReservasCompletadas}"
+                                       Foreground="{StaticResource ColorSuccess}"
+                                       FontSize="32" FontWeight="Bold"/>
+                            <Border Height="4" CornerRadius="2" Margin="0,6,0,0"
+                                    Background="{StaticResource ColorSuccess}"
+                                    HorizontalAlignment="Left" Width="80"/>
+                        </StackPanel>
+
+                        <!-- Canceladas -->
+                        <StackPanel Grid.Column="2" Margin="6,0">
+                            <TextBlock Text="Canceladas / No asistió"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="12"/>
+                            <TextBlock Text="{Binding ReservasCanceladas}"
+                                       Foreground="{StaticResource ColorDanger}"
+                                       FontSize="32" FontWeight="Bold"/>
+                            <Border Height="4" CornerRadius="2" Margin="0,6,0,0"
+                                    Background="{StaticResource ColorDanger}"
+                                    HorizontalAlignment="Left" Width="80"/>
+                        </StackPanel>
+
+                        <!-- Tasa de asistencia con barra de progreso -->
+                        <StackPanel Grid.Column="3" Margin="12,0,0,0">
+                            <TextBlock Text="Tasa de asistencia"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="12"/>
+                            <TextBlock Text="{Binding TasaAsistencia, StringFormat={}{0}%}"
+                                       Foreground="{StaticResource ColorSuccess}"
+                                       FontSize="32" FontWeight="Bold"/>
+                            <!-- Barra de progreso de tasa (sobre 160px = 100%) -->
+                            <Border Height="8" CornerRadius="4"
+                                    Background="{StaticResource BgCard}"
+                                    Margin="0,8,0,0"
+                                    Width="160"
+                                    HorizontalAlignment="Left">
+                                <Border Height="8" CornerRadius="4"
+                                        Background="{StaticResource ColorSuccess}"
+                                        HorizontalAlignment="Left"
+                                        Width="{Binding AnchoBarra}"/>
+                            </Border>
+                            <TextBlock Text="(sobre reservas no canceladas)"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="10" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
         </Grid>
     </ScrollViewer>
 </Page>
