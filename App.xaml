@@ -48,15 +48,13 @@
         <SolidColorBrush x:Key="RowSelected"       Color="#312E6B"/>
 
         <!-- Converters globales -->
-        <helpers:BoolToVisibilityConverter  x:Key="BoolToVisibility"/>
-        <helpers:PorcentajeAAnchoCon        x:Key="PorcentajeAAncho"/>
+        <!--<helpers:BoolToVisibilityConverter  x:Key="BoolToVisibility"/>
+        <helpers:PorcentajeAAnchoPorContenedor x:Key="PorcentajeAAncho"/>
         <helpers:StringToVisibilityConverter x:Key="StrToVis"/>
         <helpers:BoolToColorConverter       x:Key="BoolToColor"/>
-        <helpers:BoolToTextConverter        x:Key="BoolToText"/>
+        <helpers:BoolToTextConverter        x:Key="BoolToText"/>-->
 
-        <!-- ═══════════════════════════════════════════════════
-             CONTROLES — TextBox
-        ═══════════════════════════════════════════════════ -->
+        <!-- CONTROLES — TextBox -->
 
         <Style TargetType="TextBox">
             <Setter Property="Background"       Value="{StaticResource BgInput}"/>
@@ -88,9 +86,7 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════
-             CONTROLES — PasswordBox
-        ═══════════════════════════════════════════════════ -->
+        <!-- CONTROLES — PasswordBox -->
 
         <Style TargetType="PasswordBox">
             <Setter Property="Background"       Value="{StaticResource BgInput}"/>
@@ -121,9 +117,7 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════
-             CONTROLES — ComboBox
-        ═══════════════════════════════════════════════════ -->
+        <!-- CONTROLES — ComboBox -->
 
         <Style TargetType="ComboBox">
             <Setter Property="Background"          Value="{StaticResource BgInput}"/>
@@ -272,9 +266,7 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════
-             CONTROLES — CheckBox, RadioButton, ScrollViewer
-        ═══════════════════════════════════════════════════ -->
+        <!-- CONTROLES — CheckBox, RadioButton, ScrollViewer -->
 
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
@@ -291,9 +283,7 @@
             <Setter Property="Margin"     Value="0,0,12,0"/>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════
-             CONTROLES — DatePicker (oscuro completo)
-        ═══════════════════════════════════════════════════ -->
+        <!-- CONTROLES — DatePicker (oscuro completo) -->
 
         <!-- Texto interno del DatePicker -->
         <Style TargetType="DatePickerTextBox">
@@ -396,12 +386,7 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════
-             CALENDARIO
-             IsSelected no es accesible como Trigger directo en
-             CalendarDayButton/CalendarButton desde XAML global.
-             La selección se controla sobreescribiendo SystemColors.
-        ═══════════════════════════════════════════════════ -->
+        <!-- CALENDARIO -->
 
         <!-- Sobreescribir colores del sistema que usa Calendar
              para el día seleccionado, hover y fondo general -->
@@ -611,9 +596,7 @@
             <Setter Property="Padding"         Value="2"/>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════
-             BOTONES — template base y variantes
-        ═══════════════════════════════════════════════════ -->
+        <!-- BOTONES — template base y variantes -->
 
         <ControlTemplate x:Key="RoundedButtonTemplate" TargetType="Button">
             <Border x:Name="border"
@@ -747,9 +730,7 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════
-             DATAGRID — estilos globales
-        ═══════════════════════════════════════════════════ -->
+        <!-- DATAGRID -->
 
         <Style TargetType="DataGrid">
             <Setter Property="Background"               Value="{StaticResource BgSurface}"/>
@@ -811,9 +792,7 @@
             </Style.Triggers>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════
-             ETIQUETAS Y UTILIDADES
-        ═══════════════════════════════════════════════════ -->
+        <!-- ETIQUETAS Y UTILIDADES -->
 
         <Style x:Key="FormLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>

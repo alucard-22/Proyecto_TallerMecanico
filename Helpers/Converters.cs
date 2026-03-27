@@ -78,7 +78,7 @@ namespace Proyecto_taller.Helpers
     }
 
     /// <summary>
-    /// Convierte un porcentaje (0-100) a un ancho en píxeles.
+    /// IValueConverter: convierte un porcentaje (0-100) a un ancho en píxeles.
     /// Se usa con un parámetro que indica el ancho máximo.
     /// Ejemplo: {Binding Porcentaje, Converter={StaticResource PorcentajeAAncho}, ConverterParameter=300}
     /// </summary>
@@ -107,8 +107,12 @@ namespace Proyecto_taller.Helpers
     /// <summary>
     /// IMultiValueConverter: convierte (porcentaje 0-100, anchoContenedor) → anchoPixeles.
     /// Usado para la barra de progreso de tasa de asistencia en Reportes.
+    /// NOTA: nombre cambiado de PorcentajeAAnchoCon a PorcentajeAAnchoPorContenedor
+    /// para eliminar el conflicto de nombre duplicado que impedía compilar (CS0101).
+    /// Actualizar el registro en App.xaml:
+    ///   helpers:PorcentajeAAnchoPorContenedor x:Key="PorcentajeAAncho"
     /// </summary>
-    public class PorcentajeAAnchoCon : IMultiValueConverter
+    public class PorcentajeAAnchoPorContenedor : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
