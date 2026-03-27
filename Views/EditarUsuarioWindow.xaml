@@ -1,0 +1,107 @@
+﻿<Window x:Class="Proyecto_taller.Views.EditarUsuarioWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Editar Usuario"
+        Height="380" Width="440"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True">
+
+    <Border Background="{StaticResource BgSurface}"
+            BorderBrush="{StaticResource AccentPrimary}"
+            BorderThickness="1" CornerRadius="12">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Direction="270"
+                              ShadowDepth="6" BlurRadius="24" Opacity="0.5"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource BgCard}"
+                    CornerRadius="11,11,0,0"
+                    Padding="22,16">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock x:Name="txtTitulo"
+                                   Text="✏️  Editar Usuario"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   FontSize="17" FontWeight="Bold"/>
+                        <TextBlock x:Name="txtSubtitulo"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Button Content="✕" Click="Cancelar_Click"
+                            Background="Transparent"
+                            Foreground="{StaticResource TextMuted}"
+                            BorderThickness="0" FontSize="16"
+                            Cursor="Hand" Padding="8,4"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"/>
+                </Grid>
+            </Border>
+
+            <!-- Formulario -->
+            <StackPanel Grid.Row="1" Margin="22,18,22,10">
+
+                <TextBlock Text="Nombre de usuario (no editable):"
+                           Style="{StaticResource FormLabel}"/>
+                <Border Background="{StaticResource BgInput}"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1" CornerRadius="6"
+                        Padding="10,9" Margin="0,0,0,4">
+                    <TextBlock x:Name="txtNombreUsuario"
+                               Foreground="{StaticResource TextMuted}"
+                               FontFamily="Consolas" FontSize="13"/>
+                </Border>
+
+                <TextBlock Text="Nombre completo: *"
+                           Style="{StaticResource FormLabel}"/>
+                <TextBox x:Name="txtNombreCompleto"
+                         MaxLength="100"/>
+
+                <TextBlock Text="Rol: *"
+                           Style="{StaticResource FormLabel}"/>
+                <ComboBox x:Name="cmbRol">
+                    <ComboBoxItem Content="Administrador" Tag="Administrador"/>
+                    <ComboBoxItem Content="Empleado"      Tag="Empleado"/>
+                </ComboBox>
+
+                <Border Background="{StaticResource AccentMuted}"
+                        CornerRadius="6" Padding="12,9"
+                        Margin="0,14,0,0">
+                    <TextBlock Foreground="{StaticResource AccentLight}"
+                               FontSize="11" TextWrapping="Wrap">
+                        <Run Text="ℹ️  "/>
+                        <Run Text="Para cambiar la contraseña usa el botón 'Cambiar Contraseña' del módulo de usuarios."/>
+                    </TextBlock>
+                </Border>
+
+            </StackPanel>
+
+            <!-- Footer -->
+            <Border Grid.Row="2"
+                    Background="{StaticResource BgCard}"
+                    CornerRadius="0,0,11,11"
+                    Padding="22,14">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="✕  Cancelar"
+                            Click="Cancelar_Click"
+                            Style="{StaticResource BtnDanger}"/>
+                    <Button Content="💾  Guardar Cambios"
+                            Click="Guardar_Click"
+                            Style="{StaticResource BtnSuccess}"
+                            Padding="16,9"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

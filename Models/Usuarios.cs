@@ -10,103 +10,79 @@ namespace Proyecto_taller.Models
 {
     public class Usuario : INotifyPropertyChanged
     {
-        private int usuarioID;
-        private string nombreUsuario = string.Empty;
-        private string passwordHash = string.Empty;
-        private string nombreCompleto = string.Empty;
-        private string rol = "Empleado";
-        private bool activo = true;
-        private DateTime fechaCreacion = DateTime.Now;
-        private DateTime? ultimoAcceso;
+        private int _usuarioID;
+        private string _nombreUsuario = string.Empty;
+        private string _passwordHash = string.Empty;
+        private string _nombreCompleto = string.Empty;
+        private string _rol = "Empleado";
+        private bool _activo = true;
+        private DateTime _fechaCreacion = DateTime.Now;
+        private DateTime? _ultimoAcceso;
+        private DateTime? _fechaUltimoCambioPassword;
 
         public int UsuarioID
         {
-            get => usuarioID;
-            set
-            {
-                usuarioID = value;
-                OnPropertyChanged();
-            }
+            get => _usuarioID;
+            set { _usuarioID = value; OnPropertyChanged(); }
         }
 
         public string NombreUsuario
         {
-            get => nombreUsuario;
-            set
-            {
-                nombreUsuario = value;
-                OnPropertyChanged();
-            }
+            get => _nombreUsuario;
+            set { _nombreUsuario = value; OnPropertyChanged(); }
         }
 
         public string PasswordHash
         {
-            get => passwordHash;
-            set
-            {
-                passwordHash = value;
-                OnPropertyChanged();
-            }
+            get => _passwordHash;
+            set { _passwordHash = value; OnPropertyChanged(); }
         }
 
         public string NombreCompleto
         {
-            get => nombreCompleto;
-            set
-            {
-                nombreCompleto = value;
-                OnPropertyChanged();
-            }
+            get => _nombreCompleto;
+            set { _nombreCompleto = value; OnPropertyChanged(); }
         }
 
-        /// <summary>
-        /// Roles disponibles: Administrador, Empleado
-        /// </summary>
+        /// <summary>Roles disponibles: Administrador, Empleado</summary>
         public string Rol
         {
-            get => rol;
-            set
-            {
-                rol = value;
-                OnPropertyChanged();
-            }
+            get => _rol;
+            set { _rol = value; OnPropertyChanged(); }
         }
 
         public bool Activo
         {
-            get => activo;
-            set
-            {
-                activo = value;
-                OnPropertyChanged();
-            }
+            get => _activo;
+            set { _activo = value; OnPropertyChanged(); }
         }
 
         public DateTime FechaCreacion
         {
-            get => fechaCreacion;
-            set
-            {
-                fechaCreacion = value;
-                OnPropertyChanged();
-            }
+            get => _fechaCreacion;
+            set { _fechaCreacion = value; OnPropertyChanged(); }
         }
 
         public DateTime? UltimoAcceso
         {
-            get => ultimoAcceso;
-            set
-            {
-                ultimoAcceso = value;
-                OnPropertyChanged();
-            }
+            get => _ultimoAcceso;
+            set { _ultimoAcceso = value; OnPropertyChanged(); }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        /// <summary>
+        /// Fecha del último cambio de contraseña.
+        /// Se actualiza cada vez que CambiarPasswordWindow guarda exitosamente.
+        /// Permite auditar cuándo fue el último cambio sin guardar el historial completo.
+        /// </summary>
+        public DateTime? FechaUltimoCambioPassword
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            get => _fechaUltimoCambioPassword;
+            set { _fechaUltimoCambioPassword = value; OnPropertyChanged(); }
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

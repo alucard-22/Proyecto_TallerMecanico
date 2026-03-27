@@ -18,7 +18,7 @@ namespace Proyecto_taller.Views
 {
     public partial class CambiarPasswordWindow : Window
     {
-        private int _usuarioId;
+        private readonly int _usuarioId;
 
         public CambiarPasswordWindow(int usuarioId)
         {
@@ -28,9 +28,8 @@ namespace Proyecto_taller.Views
             using var db = new TallerDbContext();
             var usuario = db.Usuarios.Find(usuarioId);
             if (usuario != null)
-            {
-                txtUsuarioInfo.Text = $"Usuario: {usuario.NombreUsuario} - {usuario.NombreCompleto}";
-            }
+                txtUsuarioInfo.Text =
+                    $"{usuario.NombreUsuario}   ·   {usuario.NombreCompleto}";
 
             txtNuevaPassword.Focus();
         }
@@ -39,22 +38,20 @@ namespace Proyecto_taller.Views
         {
             if (string.IsNullOrWhiteSpace(txtNuevaPassword.Password))
             {
-                MessageBox.Show("Ingrese la nueva contraseña.", "Validación",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Ingresa la nueva contraseña.",
+                    "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             if (txtNuevaPassword.Password.Length < 6)
             {
-                MessageBox.Show("La contraseña debe tener al menos 6 caracteres.", "Validación",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("La contraseña debe tener al menos 6 caracteres.",
+                    "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             if (txtNuevaPassword.Password != txtConfirmarPassword.Password)
             {
-                MessageBox.Show("Las contraseñas no coinciden.", "Validación",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Las contraseñas no coinciden.",
+                    "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -66,13 +63,13 @@ namespace Proyecto_taller.Views
                 if (usuario != null)
                 {
                     usuario.PasswordHash = PasswordHelper.HashPassword(txtNuevaPassword.Password);
+                    // FIX: registrar la fecha del cambio para auditoría en el historial
+                    usuario.FechaUltimoCambioPassword = DateTime.Now;
                     db.SaveChanges();
 
                     MessageBox.Show(
-                        "✅ Contraseña cambiada exitosamente.",
-                        "Éxito",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        "✅  Contraseña cambiada exitosamente.",
+                        "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
 
                     DialogResult = true;
                     Close();
@@ -80,14 +77,11 @@ namespace Proyecto_taller.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error: {ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+        private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
     }
 }

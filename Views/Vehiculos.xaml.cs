@@ -13,6 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Proyecto_taller.ViewModels;
+using Proyecto_taller.Models;
+using Proyecto_taller.Data;
+using Proyecto_taller.Views;
+using Microsoft.EntityFrameworkCore;
 
 namespace Proyecto_taller.Views
 {
@@ -24,30 +28,14 @@ namespace Proyecto_taller.Views
             DataContext = new VehiculosViewModel();
         }
 
-        private void TxtBuscar_TextChanged(object sender, TextChangedEventArgs e)
+        // Doble clic en una fila → abrir historial de trabajos del vehículo
+        private void DgVehiculos_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var viewModel = DataContext as VehiculosViewModel;
-            if (viewModel == null) return;
+            var vm = DataContext as VehiculosViewModel;
+            if (vm?.VehiculoSeleccionado == null) return;
 
-            string filtro = txtBuscar.Text.ToLower();
-
-            if (string.IsNullOrWhiteSpace(filtro))
-            {
-                dgVehiculos.ItemsSource = viewModel.Vehiculos;
-            }
-            else
-            {
-                var vehiculosFiltrados = viewModel.Vehiculos.Where(v =>
-                    v.Placa.ToLower().Contains(filtro) ||
-                    v.Marca.ToLower().Contains(filtro) ||
-                    v.Modelo.ToLower().Contains(filtro) ||
-                    (v.Anio.HasValue && v.Anio.ToString().Contains(filtro)) ||
-                    (v.Cliente?.Nombre != null && v.Cliente.Nombre.ToLower().Contains(filtro)) ||
-                    (v.Cliente?.Apellido != null && v.Cliente.Apellido.ToLower().Contains(filtro))
-                ).ToList();
-
-                dgVehiculos.ItemsSource = vehiculosFiltrados;
-            }
+            var win = new HistorialVehiculoWindow(vm.VehiculoSeleccionado.VehiculoID);
+            win.ShowDialog();
         }
     }
 }

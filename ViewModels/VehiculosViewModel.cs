@@ -1,23 +1,33 @@
-﻿using Proyecto_taller.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Proyecto_taller.Data;
 using Proyecto_taller.Models;
+using Proyecto_taller.Views;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
-using System.Collections.ObjectModel;
-using Microsoft.EntityFrameworkCore;
 
 namespace Proyecto_taller.ViewModels
 {
     public class VehiculosViewModel : INotifyPropertyChanged
     {
-        private Vehiculo _vehiculoSeleccionado;
-        public ObservableCollection<Vehiculo> Vehiculos { get; set; }
-        public Vehiculo VehiculoSeleccionado
+        // ── Estado ────────────────────────────────────────────────────────────
+        private Vehiculo? _vehiculoSeleccionado;
+        private string _textoBusqueda = string.Empty;
+        private int _totalVehiculos;
+
+        private ObservableCollection<Vehiculo> _todosMaestro = new();
+        public ObservableCollection<Vehiculo> Vehiculos { get; set; } = new();
+
+        // ── Propiedades ───────────────────────────────────────────────────────
+
+        public Vehiculo? VehiculoSeleccionado
         {
             get => _vehiculoSeleccionado;
             set
@@ -27,90 +37,157 @@ namespace Proyecto_taller.ViewModels
                 CommandManager.InvalidateRequerySuggested();
             }
         }
+
+        public string TextoBusqueda
+        {
+            get => _textoBusqueda;
+            set
+            {
+                _textoBusqueda = value;
+                OnPropertyChanged();
+                AplicarBusqueda();
+            }
+        }
+
+        public int TotalVehiculos
+        {
+            get => _totalVehiculos;
+            set { _totalVehiculos = value; OnPropertyChanged(); }
+        }
+
+        // ── Comandos ──────────────────────────────────────────────────────────
+
         public ICommand CargarVehiculosCommand { get; }
         public ICommand AgregarVehiculoCommand { get; }
         public ICommand EditarVehiculoCommand { get; }
+        public ICommand VerHistorialCommand { get; }
         public ICommand EliminarVehiculoCommand { get; }
+        public ICommand LimpiarBusquedaCommand { get; }
+
+        // ── Constructor ───────────────────────────────────────────────────────
+
         public VehiculosViewModel()
         {
-            Vehiculos = new ObservableCollection<Vehiculo>();
             CargarVehiculosCommand = new RelayCommand(CargarVehiculos);
             AgregarVehiculoCommand = new RelayCommand(AgregarVehiculo);
-            EditarVehiculoCommand = new RelayCommand(EditarVehiculo, () => VehiculoSeleccionado != null);
-            EliminarVehiculoCommand = new RelayCommand(EliminarVehiculo, () => VehiculoSeleccionado != null);
+            EditarVehiculoCommand = new RelayCommand(EditarVehiculo,
+                                        () => VehiculoSeleccionado != null);
+            VerHistorialCommand = new RelayCommand(VerHistorial,
+                                        () => VehiculoSeleccionado != null);
+            EliminarVehiculoCommand = new RelayCommand(EliminarVehiculo,
+                                        () => VehiculoSeleccionado != null);
+            LimpiarBusquedaCommand = new RelayCommand(() => TextoBusqueda = string.Empty);
+
             CargarVehiculos();
         }
-        private void CargarVehiculos()
+
+        // ── Carga y búsqueda ──────────────────────────────────────────────────
+
+        public void CargarVehiculos()
         {
-            Vehiculos.Clear();
+            var idAnterior = VehiculoSeleccionado?.VehiculoID;
+            _todosMaestro.Clear();
+
             using var db = new TallerDbContext();
-            var vehiculos = db.Vehiculos
-            .Include(v => v.Cliente) // Cargar datos del cliente relacionado
-            .ToList();
-            foreach (var vehiculo in vehiculos)
-            {
-                Vehiculos.Add(vehiculo);
-            }
+            var lista = db.Vehiculos
+                .Include(v => v.Cliente)
+                .OrderBy(v => v.Placa)
+                .ToList();
+
+            foreach (var v in lista)
+                _todosMaestro.Add(v);
+
+            TotalVehiculos = lista.Count;
+            AplicarBusqueda();
+
+            if (idAnterior.HasValue)
+                VehiculoSeleccionado =
+                    Vehiculos.FirstOrDefault(v => v.VehiculoID == idAnterior.Value);
         }
+
+        private void AplicarBusqueda()
+        {
+            var texto = TextoBusqueda.Trim().ToLower();
+            var query = _todosMaestro.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(texto))
+                query = query.Where(v =>
+                    v.Placa.ToLower().Contains(texto)
+                    || v.Marca.ToLower().Contains(texto)
+                    || v.Modelo.ToLower().Contains(texto)
+                    || (v.Anio.HasValue && v.Anio.ToString()!.Contains(texto))
+                    || (v.Cliente?.Nombre.ToLower().Contains(texto) ?? false)
+                    || (v.Cliente?.Apellido.ToLower().Contains(texto) ?? false)
+                    || (v.Cliente?.Telefono.Contains(texto) ?? false));
+
+            Vehiculos.Clear();
+            foreach (var v in query) Vehiculos.Add(v);
+        }
+
+        // ── Agregar vehículo ──────────────────────────────────────────────────
+        // FIX: antes asignaba siempre el primer cliente de la BD.
+        // Ahora abre EditarVehiculoWindow en modo nuevo con selector real de cliente.
+
         private void AgregarVehiculo()
         {
-            using var db = new TallerDbContext();
-
-            // Obtener el primer cliente para asignarlo por defecto
-            var primerCliente = db.Clientes.FirstOrDefault();
-
-            if (primerCliente == null)
-            {
-                System.Windows.MessageBox.Show(
-                    "Debe registrar al menos un cliente antes de agregar vehículos.",
-                    "Sin Clientes",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
-                return;
-            }
-
-            var nuevo = new Vehiculo
-            {
-                Marca = "Toyota",
-                Modelo = "Corolla",
-                Anio = 2020,
-                Placa = "0000-ABC",
-                ClienteID = primerCliente.ClienteID
-            };
-
-            db.Vehiculos.Add(nuevo);
-            db.SaveChanges();
-
-            // Recargar con el cliente incluido
-            var vehiculos = db.Vehiculos
-                .Include(v => v.Cliente)
-                .FirstOrDefault(v => v.VehiculoID == nuevo.VehiculoID);
-
-            if (vehiculos != null)
-            {
-                Vehiculos.Add(vehiculos);
-            }
+            var win = new EditarVehiculoWindow();
+            if (win.ShowDialog() == true)
+                CargarVehiculos();
         }
+
+        // ── Editar vehículo ───────────────────────────────────────────────────
+        // FIX: antes solo mostraba un MessageBox informativo.
+        // Ahora abre EditarVehiculoWindow con los datos precargados.
+
         private void EditarVehiculo()
         {
             if (VehiculoSeleccionado == null) return;
 
-            System.Windows.MessageBox.Show(
-                $"Editando vehículo: {VehiculoSeleccionado.Marca} {VehiculoSeleccionado.Modelo} - Placa: {VehiculoSeleccionado.Placa}",
-                "Editar Vehículo");
+            // Recargar desde BD para obtener datos frescos
+            using var db = new TallerDbContext();
+            var vehiculo = db.Vehiculos
+                .Include(v => v.Cliente)
+                .FirstOrDefault(v => v.VehiculoID == VehiculoSeleccionado.VehiculoID);
+
+            if (vehiculo == null)
+            {
+                MessageBox.Show("El vehículo ya no existe en la base de datos.",
+                    "No encontrado", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CargarVehiculos();
+                return;
+            }
+
+            var win = new EditarVehiculoWindow(vehiculo);
+            if (win.ShowDialog() == true)
+                CargarVehiculos();
         }
+
+        // ── Historial de trabajos ─────────────────────────────────────────────
+
+        private void VerHistorial()
+        {
+            if (VehiculoSeleccionado == null) return;
+            var win = new HistorialVehiculoWindow(VehiculoSeleccionado.VehiculoID);
+            win.ShowDialog();
+        }
+
+        // ── Eliminar vehículo ─────────────────────────────────────────────────
 
         private void EliminarVehiculo()
         {
             if (VehiculoSeleccionado == null) return;
 
-            var resultado = System.Windows.MessageBox.Show(
-                $"¿Está seguro de eliminar el vehículo {VehiculoSeleccionado.Marca} {VehiculoSeleccionado.Modelo} (Placa: {VehiculoSeleccionado.Placa})?",
+            var resultado = MessageBox.Show(
+                $"¿Eliminar el vehículo {VehiculoSeleccionado.Marca} " +
+                $"{VehiculoSeleccionado.Modelo} (Placa: {VehiculoSeleccionado.Placa})?\n\n" +
+                $"⚠️  Se eliminarán también todos los trabajos y reservas asociados.",
                 "Confirmar Eliminación",
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Warning);
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
 
-            if (resultado == System.Windows.MessageBoxResult.Yes)
+            if (resultado != MessageBoxResult.Yes) return;
+
+            try
             {
                 using var db = new TallerDbContext();
                 var vehiculo = db.Vehiculos.Find(VehiculoSeleccionado.VehiculoID);
@@ -118,12 +195,21 @@ namespace Proyecto_taller.ViewModels
                 {
                     db.Vehiculos.Remove(vehiculo);
                     db.SaveChanges();
-                    Vehiculos.Remove(VehiculoSeleccionado);
                 }
+
+                CargarVehiculos();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al eliminar:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        // ── INotifyPropertyChanged ────────────────────────────────────────────
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

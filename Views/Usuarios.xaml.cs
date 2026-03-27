@@ -15,15 +15,22 @@ using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
-    /// <summary>
-    /// Lógica de interacción para Usuarios.xaml
-    /// </summary>
     public partial class Usuarios : Page
     {
         public Usuarios()
         {
             InitializeComponent();
             DataContext = new UsuariosViewModel();
+        }
+
+        // Doble clic en fila → abrir historial del usuario
+        private void DgUsuarios_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var vm = DataContext as UsuariosViewModel;
+            if (vm?.UsuarioSeleccionado == null) return;
+
+            var win = new HistorialUsuarioWindow(vm.UsuarioSeleccionado.UsuarioID);
+            win.ShowDialog();
         }
     }
 }

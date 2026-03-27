@@ -1,0 +1,310 @@
+﻿<Window x:Class="Proyecto_taller.Views.HistorialVehiculoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Historial del Vehículo"
+        Height="620" Width="820"
+        MinHeight="480" MinWidth="680"
+        WindowStartupLocation="CenterOwner"
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True">
+
+    <Border Background="{StaticResource BgSurface}"
+            BorderBrush="{StaticResource AccentPrimary}"
+            BorderThickness="1" CornerRadius="12">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Direction="270"
+                              ShadowDepth="8" BlurRadius="28" Opacity="0.55"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ── Header ── -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource BgCard}"
+                    CornerRadius="11,11,0,0"
+                    Padding="24,16">
+                <Grid>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="txtTitulo"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       FontSize="18" FontWeight="Bold"/>
+                            <Border x:Name="badgePlaca"
+                                    Background="{StaticResource AccentMuted}"
+                                    CornerRadius="12" Padding="12,3"
+                                    Margin="12,0,0,0"
+                                    VerticalAlignment="Center">
+                                <TextBlock x:Name="txtPlaca"
+                                           Foreground="{StaticResource AccentLight}"
+                                           FontFamily="Consolas"
+                                           FontSize="13" FontWeight="Bold"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock x:Name="txtSubtitulo"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="12" Margin="0,5,0,0"/>
+                    </StackPanel>
+                    <Button Content="✕" Click="Cerrar_Click"
+                            Background="Transparent"
+                            Foreground="{StaticResource TextMuted}"
+                            BorderThickness="0" FontSize="18"
+                            Cursor="Hand" Padding="10,4"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"/>
+                </Grid>
+            </Border>
+
+            <!-- ── Estadísticas rápidas ── -->
+            <Grid Grid.Row="1" Margin="24,14,24,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="14,10"
+                        Margin="0,0,6,0"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Total trabajos"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11"/>
+                        <TextBlock x:Name="txtTotalTrabajos"
+                                   Foreground="{StaticResource AccentLight}"
+                                   FontSize="24" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1"
+                        Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="14,10"
+                        Margin="3,0"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Total facturado"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11"/>
+                        <TextBlock x:Name="txtTotalFacturado"
+                                   Foreground="#6EE7B7"
+                                   FontSize="20" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="14,10"
+                        Margin="3,0"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Último ingreso"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11"/>
+                        <TextBlock x:Name="txtUltimoIngreso"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   FontSize="15" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="3"
+                        Background="{StaticResource BgCard}"
+                        CornerRadius="8" Padding="14,10"
+                        Margin="6,0,0,0"
+                        BorderBrush="{StaticResource BorderColor}"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="En curso ahora"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11"/>
+                        <TextBlock x:Name="txtEnCurso"
+                                   FontSize="24" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ── DataGrid de trabajos ── -->
+            <Border Grid.Row="2"
+                    Margin="24,14,24,0"
+                    Background="{StaticResource BgSurface}"
+                    CornerRadius="10"
+                    BorderBrush="{StaticResource BorderColor}"
+                    BorderThickness="1">
+                <DataGrid x:Name="dgHistorial"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          GridLinesVisibility="None"
+                          Margin="0"
+                          MouseDoubleClick="DgHistorial_DoubleClick">
+
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow"
+                               BasedOn="{StaticResource {x:Type DataGridRow}}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Estado}" Value="Pendiente">
+                                    <Setter Property="Background"
+                                            Value="{StaticResource RowPending}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Estado}" Value="En Progreso">
+                                    <Setter Property="Background"
+                                            Value="{StaticResource RowInProgress}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Estado}" Value="Finalizado">
+                                    <Setter Property="Background"
+                                            Value="{StaticResource RowDone}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="ID"
+                                            Binding="{Binding TrabajoID}"
+                                            Width="60">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Foreground"
+                                            Value="{StaticResource AccentLight}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <!-- Badge de estado con color -->
+                        <DataGridTemplateColumn Header="Estado" Width="130">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="badge"
+                                            CornerRadius="12" Padding="10,3"
+                                            HorizontalAlignment="Left"
+                                            Margin="6,0">
+                                        <TextBlock x:Name="txtEstado"
+                                                   Text="{Binding Estado}"
+                                                   FontSize="11" FontWeight="SemiBold"/>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background"
+                                                        Value="{StaticResource AccentMuted}"/>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Estado}"
+                                                     Value="Pendiente">
+                                            <Setter TargetName="badge"
+                                                    Property="Background" Value="#3D2E18"/>
+                                            <Setter TargetName="txtEstado"
+                                                    Property="Foreground" Value="#F59E0B"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Estado}"
+                                                     Value="En Progreso">
+                                            <Setter TargetName="badge"
+                                                    Property="Background" Value="#1A2535"/>
+                                            <Setter TargetName="txtEstado"
+                                                    Property="Foreground" Value="#3B82F6"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Estado}"
+                                                     Value="Finalizado">
+                                            <Setter TargetName="badge"
+                                                    Property="Background" Value="#182820"/>
+                                            <Setter TargetName="txtEstado"
+                                                    Property="Foreground" Value="#10B981"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="Tipo"
+                                            Binding="{Binding TipoTrabajo}"
+                                            Width="110"/>
+
+                        <DataGridTextColumn Header="Descripción"
+                                            Binding="{Binding Descripcion}"
+                                            Width="*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground"
+                                            Value="{StaticResource TextSecondary}"/>
+                                    <Setter Property="TextTrimming"
+                                            Value="CharacterEllipsis"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Ingreso"
+                                            Binding="{Binding FechaIngreso, StringFormat=dd/MM/yyyy}"
+                                            Width="95">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground"
+                                            Value="{StaticResource TextMuted}"/>
+                                    <Setter Property="FontSize" Value="11"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Entrega"
+                                            Binding="{Binding FechaEntrega, StringFormat=dd/MM/yyyy}"
+                                            Width="95">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground"
+                                            Value="{StaticResource TextMuted}"/>
+                                    <Setter Property="FontSize" Value="11"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Precio final"
+                                            Binding="{Binding PrecioFinal, StringFormat=Bs. {0:N2}}"
+                                            Width="110">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Foreground" Value="#6EE7B7"/>
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- ── Footer ── -->
+            <Border Grid.Row="3"
+                    Background="{StaticResource BgCard}"
+                    CornerRadius="0,0,11,11"
+                    Padding="24,14">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock x:Name="txtTip"
+                               Foreground="{StaticResource TextMuted}"
+                               FontSize="11"
+                               VerticalAlignment="Center"
+                               Margin="0,0,16,0"
+                               Text="Doble clic en un trabajo para ver sus detalles"/>
+                    <Button Content="✕  Cerrar"
+                            Click="Cerrar_Click"
+                            Style="{StaticResource BtnSecondary}"
+                            Width="120"/>
+                </StackPanel>
+            </Border>
+
+        </Grid>
+    </Border>
+</Window>
