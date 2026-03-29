@@ -1,8 +1,13 @@
 ﻿<Page x:Class="Proyecto_taller.Views.Clientes"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:helpers="clr-namespace:Proyecto_taller.Helpers"
       Title="Módulo de Clientes"
       Background="{StaticResource BgPrimary}">
+
+    <Page.Resources>
+        <helpers:StringToVisibilityConverter x:Key="StrToVis"/>
+    </Page.Resources>
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -59,7 +64,7 @@
                     </Border>
                 </Grid>
 
-                <!-- Búsqueda -->
+                <!-- Búsqueda mejorada con botón limpiar -->
                 <Border Grid.Row="2"
                         Background="{StaticResource BgInput}"
                         BorderBrush="{StaticResource BorderColor}"
@@ -68,6 +73,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="🔍"
                                    FontSize="13" VerticalAlignment="Center"
@@ -78,15 +84,39 @@
                                  BorderThickness="0"
                                  Padding="4,10"
                                  TextChanged="TxtBuscar_TextChanged"/>
+                        <Button Grid.Column="2"
+                                Content="✕"
+                                Click="LimpiarBusqueda_Click"
+                                Background="Transparent"
+                                Foreground="{StaticResource TextMuted}"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Padding="10,0"
+                                FontSize="13"
+                                Visibility="{Binding Text,
+                                             ElementName=txtBuscar,
+                                             Converter={StaticResource StrToVis}}"/>
                     </Grid>
                 </Border>
 
                 <!-- Botones -->
                 <StackPanel Grid.Row="4" Orientation="Horizontal">
-                    <Button Content="🔄 Actualizar"   Command="{Binding CargarClientesCommand}"  Style="{StaticResource BtnSecondary}"/>
-                    <Button Content="➕ Nuevo Cliente" Command="{Binding AgregarClienteCommand}"  Style="{StaticResource BtnPrimary}"/>
-                    <Button Content="✏️ Editar"        Command="{Binding EditarClienteCommand}"   Style="{StaticResource BtnGhost}"/>
-                    <Button Content="🗑️ Eliminar"      Command="{Binding EliminarClienteCommand}" Style="{StaticResource BtnDanger}"/>
+                    <Button Content="🔄 Actualizar"     Command="{Binding CargarClientesCommand}"  Style="{StaticResource BtnSecondary}"/>
+                    <Button Content="➕ Nuevo Cliente"   Command="{Binding AgregarClienteCommand}"  Style="{StaticResource BtnPrimary}"/>
+                    <Button Content="✏️ Editar"          Command="{Binding EditarClienteCommand}"   Style="{StaticResource BtnGhost}"/>
+
+                    <Border Width="1" Background="{StaticResource BorderColor}"
+                            Margin="8,4" Opacity="0.5"/>
+
+                    <Button Content="📋 Ver Historial"
+                            Command="{Binding VerHistorialCommand}"
+                            Style="{StaticResource BtnSuccess}"
+                            ToolTip="Ver vehículos y trabajos del cliente seleccionado"/>
+
+                    <Border Width="1" Background="{StaticResource BorderColor}"
+                            Margin="8,4" Opacity="0.5"/>
+
+                    <Button Content="🗑️ Eliminar"        Command="{Binding EliminarClienteCommand}" Style="{StaticResource BtnDanger}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -103,7 +133,8 @@
                       Margin="0"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
-                      AutoGenerateColumns="False">
+                      AutoGenerateColumns="False"
+                      MouseDoubleClick="DgClientes_MouseDoubleClick">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ID" Binding="{Binding ClienteID}" Width="65" IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle>

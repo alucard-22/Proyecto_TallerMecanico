@@ -1,9 +1,11 @@
 ﻿using Proyecto_taller.Data;
 using Proyecto_taller.Models;
+using Proyecto_taller.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Proyecto_taller.ViewModels
@@ -21,13 +23,20 @@ namespace Proyecto_taller.ViewModels
             {
                 _clienteSeleccionado = value;
                 OnPropertyChanged();
+                // Refrescar CanExecute de comandos que dependen de la selección
+                CommandManager.InvalidateRequerySuggested();
             }
         }
+
+        // ── Comandos ──────────────────────────────────────────────
 
         public ICommand CargarClientesCommand { get; }
         public ICommand AgregarClienteCommand { get; }
         public ICommand EditarClienteCommand { get; }
         public ICommand EliminarClienteCommand { get; }
+        public ICommand VerHistorialCommand { get; }
+
+        // ── Constructor ───────────────────────────────────────────
 
         public ClientesViewModel()
         {
@@ -35,32 +44,31 @@ namespace Proyecto_taller.ViewModels
 
             CargarClientesCommand = new RelayCommand(CargarClientes);
             AgregarClienteCommand = new RelayCommand(AgregarCliente);
-            EditarClienteCommand = new RelayCommand(EditarCliente, () => ClienteSeleccionado != null);
-            EliminarClienteCommand = new RelayCommand(EliminarCliente, () => ClienteSeleccionado != null);
+            EditarClienteCommand = new RelayCommand(EditarCliente,
+                                          () => ClienteSeleccionado != null);
+            EliminarClienteCommand = new RelayCommand(EliminarCliente,
+                                          () => ClienteSeleccionado != null);
+            VerHistorialCommand = new RelayCommand(VerHistorial,
+                                          () => ClienteSeleccionado != null);
 
             CargarClientes();
 
-            // ⭐ Suscribirse a cambios en cada cliente para auto-guardar
+            // Suscribirse a cambios en la colección para auto-guardar
             Clientes.CollectionChanged += (s, e) =>
             {
                 if (e.NewItems != null)
-                {
                     foreach (Cliente cliente in e.NewItems)
-                    {
                         cliente.PropertyChanged += Cliente_PropertyChanged;
-                    }
-                }
             };
         }
 
-        // ⭐ Auto-guardar cuando se edita una celda
+        // ── Auto-guardar al editar celda ──────────────────────────
+
         private void Cliente_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var cliente = sender as Cliente;
             if (cliente != null && cliente.ClienteID > 0)
-            {
                 GuardarCambiosCliente(cliente);
-            }
         }
 
         private void GuardarCambiosCliente(Cliente cliente)
@@ -77,19 +85,20 @@ namespace Proyecto_taller.ViewModels
                     clienteDb.Telefono = cliente.Telefono;
                     clienteDb.Correo = cliente.Correo;
                     clienteDb.Direccion = cliente.Direccion;
-
                     db.SaveChanges();
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(
+                MessageBox.Show(
                     $"Error al guardar: {ex.Message}",
                     "Error",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Error);
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
+
+        // ── Cargar clientes ───────────────────────────────────────
 
         private void CargarClientes()
         {
@@ -103,6 +112,8 @@ namespace Proyecto_taller.ViewModels
             }
         }
 
+        // ── Agregar cliente ───────────────────────────────────────
+
         private void AgregarCliente()
         {
             using var db = new TallerDbContext();
@@ -113,7 +124,7 @@ namespace Proyecto_taller.ViewModels
                 Telefono = "0000000",
                 Correo = "correo@ejemplo.com",
                 Direccion = "Dirección",
-                FechaRegistro = System.DateTime.Now
+                FechaRegistro = DateTime.Now
             };
 
             db.Clientes.Add(nuevo);
@@ -122,51 +133,80 @@ namespace Proyecto_taller.ViewModels
             nuevo.PropertyChanged += Cliente_PropertyChanged;
             Clientes.Add(nuevo);
 
-            System.Windows.MessageBox.Show(
+            MessageBox.Show(
                 "✅ Cliente agregado.\n\n💡 Haz doble clic en cualquier celda para editarla.",
                 "Cliente Agregado",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
+
+        // ── Editar cliente ────────────────────────────────────────
 
         private void EditarCliente()
         {
             if (ClienteSeleccionado == null) return;
 
-            System.Windows.MessageBox.Show(
+            MessageBox.Show(
                 $"📝 Para editar al cliente:\n\n" +
                 $"1. Haz DOBLE CLIC en la celda que quieres editar\n" +
                 $"2. Escribe el nuevo valor\n" +
                 $"3. Presiona ENTER o TAB para guardar\n\n" +
                 $"Los cambios se guardan automáticamente.",
                 "Cómo Editar",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
+
+        // ── Ver historial del cliente ─────────────────────────────
+        // Abre la ventana con vehículos y trabajos asociados al cliente.
+
+        private void VerHistorial()
+        {
+            if (ClienteSeleccionado == null) return;
+
+            var win = new HistorialClienteWindow(ClienteSeleccionado.ClienteID);
+            win.ShowDialog();
+        }
+
+        // ── Eliminar cliente ──────────────────────────────────────
 
         private void EliminarCliente()
         {
             if (ClienteSeleccionado == null) return;
 
-            var resultado = System.Windows.MessageBox.Show(
-                $"¿Eliminar a '{ClienteSeleccionado.Nombre} {ClienteSeleccionado.Apellido}'?",
+            var resultado = MessageBox.Show(
+                $"¿Eliminar a '{ClienteSeleccionado.Nombre} {ClienteSeleccionado.Apellido}'?\n\n" +
+                $"⚠️ También se eliminarán todos sus vehículos, trabajos y reservas.",
                 "Confirmar Eliminación",
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Warning);
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
 
-            if (resultado == System.Windows.MessageBoxResult.Yes)
+            if (resultado == MessageBoxResult.Yes)
             {
-                using var db = new TallerDbContext();
-                var cliente = db.Clientes.Find(ClienteSeleccionado.ClienteID);
-
-                if (cliente != null)
+                try
                 {
-                    db.Clientes.Remove(cliente);
-                    db.SaveChanges();
-                    Clientes.Remove(ClienteSeleccionado);
+                    using var db = new TallerDbContext();
+                    var cliente = db.Clientes.Find(ClienteSeleccionado.ClienteID);
+
+                    if (cliente != null)
+                    {
+                        db.Clientes.Remove(cliente);
+                        db.SaveChanges();
+                        Clientes.Remove(ClienteSeleccionado);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Error al eliminar el cliente:\n{ex.Message}",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }
             }
         }
+
+        // ── INotifyPropertyChanged ────────────────────────────────
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>
