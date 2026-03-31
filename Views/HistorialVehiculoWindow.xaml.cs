@@ -86,6 +86,18 @@ namespace Proyecto_taller.Views
             }
         }
 
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
+
         private void DgHistorial_DoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (dgHistorial.SelectedItem is not Trabajo trabajo) return;

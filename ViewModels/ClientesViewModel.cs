@@ -116,28 +116,9 @@ namespace Proyecto_taller.ViewModels
 
         private void AgregarCliente()
         {
-            using var db = new TallerDbContext();
-            var nuevo = new Cliente
-            {
-                Nombre = "Nuevo",
-                Apellido = "Cliente",
-                Telefono = "0000000",
-                Correo = "correo@ejemplo.com",
-                Direccion = "Dirección",
-                FechaRegistro = DateTime.Now
-            };
-
-            db.Clientes.Add(nuevo);
-            db.SaveChanges();
-
-            nuevo.PropertyChanged += Cliente_PropertyChanged;
-            Clientes.Add(nuevo);
-
-            MessageBox.Show(
-                "✅ Cliente agregado.\n\n💡 Haz doble clic en cualquier celda para editarla.",
-                "Cliente Agregado",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            var win = new NuevoClienteWindow();
+            if (win.ShowDialog() == true)
+                CargarClientes();
         }
 
         // ── Editar cliente ────────────────────────────────────────
@@ -146,15 +127,21 @@ namespace Proyecto_taller.ViewModels
         {
             if (ClienteSeleccionado == null) return;
 
-            MessageBox.Show(
-                $"📝 Para editar al cliente:\n\n" +
-                $"1. Haz DOBLE CLIC en la celda que quieres editar\n" +
-                $"2. Escribe el nuevo valor\n" +
-                $"3. Presiona ENTER o TAB para guardar\n\n" +
-                $"Los cambios se guardan automáticamente.",
-                "Cómo Editar",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            // Recargar desde BD para obtener datos frescos
+            using var db = new TallerDbContext();
+            var clienteFresco = db.Clientes.Find(ClienteSeleccionado.ClienteID);
+
+            if (clienteFresco == null)
+            {
+                MessageBox.Show("El cliente ya no existe en la base de datos.",
+                    "No encontrado", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CargarClientes();
+                return;
+            }
+
+            var win = new EditarClienteWindow(clienteFresco);
+            if (win.ShowDialog() == true)
+                CargarClientes();
         }
 
         // ── Ver historial del cliente ─────────────────────────────

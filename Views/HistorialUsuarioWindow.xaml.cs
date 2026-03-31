@@ -26,7 +26,7 @@ namespace Proyecto_taller.Views
             _usuarioId = usuarioId;
             Loaded += (_, __) => Cargar();
         }
-
+        
         private void Cargar()
         {
             try
@@ -96,6 +96,17 @@ namespace Proyecto_taller.Views
             }
         }
 
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
         private void Cerrar_Click(object sender, RoutedEventArgs e) => Close();
     }
 }

@@ -7,11 +7,13 @@
         WindowStartupLocation="CenterOwner"
         Background="Transparent"
         WindowStyle="None"
-        AllowsTransparency="True">
+        AllowsTransparency="True"
+        MouseDown="Window_MouseDown">
 
     <Border Background="{StaticResource BgSurface}"
-            BorderBrush="{StaticResource AccentPrimary}"
-            BorderThickness="1" CornerRadius="12">
+        BorderBrush="{StaticResource AccentPrimary}"
+        BorderThickness="1" CornerRadius="12"
+        MouseDown="Border_MouseDown">
         <Border.Effect>
             <DropShadowEffect Color="Black" Direction="270"
                               ShadowDepth="8" BlurRadius="28" Opacity="0.55"/>

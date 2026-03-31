@@ -230,6 +230,16 @@ namespace Proyecto_taller.Views
             }
         }
 
+        private void NuevoCliente_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new NuevoClienteWindow();
+            if (win.ShowDialog() == true && win.ClienteCreado != null)
+            {
+                // Seleccionar automáticamente el cliente recién creado
+                SeleccionarCliente(win.ClienteCreado);
+            }
+        }
+
         private void Cancelar_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
