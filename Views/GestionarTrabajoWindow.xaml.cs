@@ -256,10 +256,9 @@ namespace Proyecto_taller.Views
 
                 if (trabajo == null) return;
 
-                // ╔══════════════════════════════════════════╗
-                // ║  PASO 1 — Restaurar stock de repuestos   ║
-                // ║  ANTERIORES antes de eliminarlos         ║
-                // ╚══════════════════════════════════════════╝
+                //   PASO 1 — Restaurar stock de repuestos   
+                //  ANTERIORES antes de eliminarlos         
+               
                 if (trabajo.Repuestos != null)
                     foreach (var tr in trabajo.Repuestos)
                     {

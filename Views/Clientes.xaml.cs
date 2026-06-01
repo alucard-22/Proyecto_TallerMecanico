@@ -24,7 +24,7 @@ namespace Proyecto_taller.Views
             DataContext = new ClientesViewModel();
         }
 
-        // ── Búsqueda en tiempo real ───────────────────────────────
+        // Búsqueda en tiempo real 
         private void TxtBuscar_TextChanged(object sender, TextChangedEventArgs e)
         {
             var viewModel = DataContext as ClientesViewModel;
@@ -50,14 +50,14 @@ namespace Proyecto_taller.Views
             }
         }
 
-        // ── Limpiar búsqueda ──────────────────────────────────────
+        // Limpiar búsqueda 
         private void LimpiarBusqueda_Click(object sender, RoutedEventArgs e)
         {
             txtBuscar.Clear();
             txtBuscar.Focus();
         }
 
-        // ── Doble clic → abrir historial del cliente ──────────────
+        // Doble clic → abrir historial del cliente
         private void DgClientes_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var vm = DataContext as ClientesViewModel;

@@ -56,7 +56,7 @@ namespace Proyecto_taller.ViewModels
             set { _filtroFinalizados = value; OnPropertyChanged(); if (value) AplicarFiltro("Finalizado"); }
         }
 
-        // ── Comandos ──────────────────────────────────────────────
+        // Comandos 
         public ICommand CargarTrabajosCommand { get; }
         public ICommand NuevoTrabajoCommand { get; }
         public ICommand VerDetallesCommand { get; }
@@ -78,7 +78,7 @@ namespace Proyecto_taller.ViewModels
             CargarTrabajos();
         }
 
-        // ── Carga / Filtro ─────────────────────────────────────────
+        // Carga / Filtro 
 
         public void CargarTrabajos()
         {
@@ -112,7 +112,7 @@ namespace Proyecto_taller.ViewModels
                 Trabajos.Add(t);
         }
 
-        // ── Acciones ───────────────────────────────────────────────
+        // Acciones 
 
         private void NuevoTrabajo()
         {

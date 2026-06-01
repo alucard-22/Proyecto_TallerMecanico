@@ -22,13 +22,6 @@ using System.Windows.Shapes;
 namespace Proyecto_taller.Views
 {
     /// <summary>
-    /// Módulo de Reservas — corregido:
-    ///   • Ahora es Page (no UserControl), se navega correctamente
-    ///   • Sin ReservasViewModel desconectado (todo en code-behind)
-    ///   • Estado manejado con botones explícitos (sin ComboBox inline que causaba bugs)
-    ///   • Validación de transiciones de estado
-    ///   • WhatsApp integrado en Confirmar y Cancelar
-    /// </summary>
     public partial class Reservas : Page
     {
         private List<Reserva> _todas = new();
@@ -40,10 +33,8 @@ namespace Proyecto_taller.Views
             Loaded += (_, __) => { _cargado = true; Cargar(); };
         }
 
-        // ─────────────────────────────────────────────────────────
         //  CARGA Y FILTRO
-        // ─────────────────────────────────────────────────────────
-
+       
         private void Cargar()
         {
             try

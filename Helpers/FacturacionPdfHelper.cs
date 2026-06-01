@@ -25,9 +25,7 @@ namespace Proyecto_taller.Helpers
 
             try
             {
-                // ── Leer datos del taller desde configuración ─────────────────
-                // FIX: antes estaban hardcodeados; ahora reflejan lo que el
-                // usuario configuró en el módulo de Configuración.
+                // Leer datos del taller desde configuración 
                 var cfg = ConfiguracionHelper.CargarConfiguracion();
 
                 string nombreTaller = cfg.NombreTaller;
@@ -35,7 +33,7 @@ namespace Proyecto_taller.Helpers
                 string telefonoTaller = cfg.TelefonoTaller;
                 string emailTaller = cfg.EmailTaller;
 
-                // ── Preparar ruta ─────────────────────────────────────────────
+                // Preparar ruta 
                 var cliente = factura.Trabajo?.Vehiculo?.Cliente;
                 string nombreCliente = $"{cliente?.Nombre}_{cliente?.Apellido}";
 
@@ -52,14 +50,14 @@ namespace Proyecto_taller.Helpers
                 string nombreArchivo = $"Factura_{factura.NumeroFactura.Replace("/", "-")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
                 string rutaCompleta = Path.Combine(carpetaCliente, nombreArchivo);
 
-                // ── Fuentes ───────────────────────────────────────────────────
+                // Fuentes 
                 var fTitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.Black);
                 var fSubtitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 13, BaseColor.Black);
                 var fNormal = FontFactory.GetFont(FontFactory.HELVETICA, 10, BaseColor.Black);
                 var fNegrita = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.Black);
                 var fTotal = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 13, BaseColor.Black);
 
-                // ── Documento ─────────────────────────────────────────────────
+                // Documento
                 var doc = new Document(PageSize.Letter);
                 var writer = PdfWriter.GetInstance(doc, new FileStream(rutaCompleta, FileMode.Create));
                 doc.Open();
@@ -184,7 +182,7 @@ namespace Proyecto_taller.Helpers
             }
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
+        // Helpers
 
         private static void AgregarSeccion(Document doc, string titulo, Font fuente)
             => doc.Add(new Paragraph(titulo, fuente) { SpacingBefore = 8f, SpacingAfter = 8f });

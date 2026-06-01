@@ -26,7 +26,6 @@ namespace Proyecto_taller.Views
             InitializeComponent();
             _clienteId = clienteId;
 
-            // Ajustar al área de trabajo disponible para no salir de pantalla
             var workArea = SystemParameters.WorkArea;
             Width = Math.Min(Width, workArea.Width * 0.92);
             Height = Math.Min(Height, workArea.Height * 0.90);
@@ -34,10 +33,8 @@ namespace Proyecto_taller.Views
             Loaded += (_, __) => Cargar();
         }
 
-        // ─────────────────────────────────────────────────────────
         //  CARGA DE DATOS
-        // ─────────────────────────────────────────────────────────
-
+        
         private void Cargar()
         {
             try
@@ -50,14 +47,14 @@ namespace Proyecto_taller.Views
 
                 if (cliente == null) { Close(); return; }
 
-                // ── Header ────────────────────────────────────────
+                // Header 
                 txtNombreCliente.Text = $"{cliente.Nombre} {cliente.Apellido}";
                 txtInfoCliente.Text =
                     $"📞 {cliente.Telefono}" +
                     (string.IsNullOrWhiteSpace(cliente.Correo) ? "" : $"   ·   ✉️ {cliente.Correo}") +
                     $"   ·   Registrado el {cliente.FechaRegistro:dd/MM/yyyy}";
 
-                // ── Vehículos (con conteo de trabajos eager-loaded) ─
+                // Vehículos (con conteo de trabajos eager-loaded)
                 var vehiculos = db.Vehiculos
                     .Include(v => v.Trabajos)
                     .Where(v => v.ClienteID == _clienteId)
@@ -67,7 +64,7 @@ namespace Proyecto_taller.Views
                 dgVehiculos.ItemsSource = vehiculos;
                 txtTotalVehiculos.Text = vehiculos.Count.ToString();
 
-                // ── Trabajos de todos los vehículos del cliente ────
+                // Trabajos de todos los vehículos del cliente
                 var vehiculoIds = vehiculos.Select(v => v.VehiculoID).ToList();
 
                 var trabajos = db.Trabajos
@@ -79,7 +76,7 @@ namespace Proyecto_taller.Views
                 dgTrabajos.ItemsSource = trabajos;
                 txtTotalTrabajos.Text = trabajos.Count.ToString();
 
-                // ── Estadísticas ──────────────────────────────────
+                // Estadísticas
                 decimal totalFacturado = db.Facturas
                     .Where(f => f.Estado == "Pagada"
                              && trabajos.Select(t => t.TrabajoID).Contains(f.TrabajoID))
@@ -102,10 +99,8 @@ namespace Proyecto_taller.Views
             }
         }
 
-        // ─────────────────────────────────────────────────────────
         //  TABS
-        // ─────────────────────────────────────────────────────────
-
+        
         private void TabVehiculos_Click(object sender, RoutedEventArgs e)
         {
             panelVehiculos.Visibility = Visibility.Visible;
@@ -128,10 +123,8 @@ namespace Proyecto_taller.Views
             txtTipDoble.Text = "Doble clic para ver los detalles del trabajo";
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  DOBLE CLIC EN GRIDS
-        // ─────────────────────────────────────────────────────────
-
+       //  DOBLE CLIC EN GRIDS
+        
         private void DgVehiculos_DoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (dgVehiculos.SelectedItem is not Vehiculo vehiculo) return;
@@ -145,10 +138,6 @@ namespace Proyecto_taller.Views
             var win = new DetallesTrabajoWindow(trabajo.TrabajoID);
             win.ShowDialog();
         }
-
-        // ─────────────────────────────────────────────────────────
-        //  CERRAR
-        // ─────────────────────────────────────────────────────────
 
         private void Cerrar_Click(object sender, RoutedEventArgs e) => Close();
     }

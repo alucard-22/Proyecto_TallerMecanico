@@ -19,10 +19,8 @@ namespace Proyecto_taller.ViewModels
 {
     public class FacturacionViewModel : INotifyPropertyChanged
     {
-        // ─────────────────────────────────────────────────────────
         //  ESTADO
-        // ─────────────────────────────────────────────────────────
-
+       
         private Factura _facturaSeleccionada;
         private bool _filtroTodas = true;
         private bool _filtroPagadas;
@@ -56,7 +54,7 @@ namespace Proyecto_taller.ViewModels
             set { _totalFacturas = value; OnPropertyChanged(); }
         }
 
-        // ── Filtros ───────────────────────────────────────────────
+        // Filtros 
         public bool FiltroTodas
         {
             get => _filtroTodas;
@@ -78,10 +76,8 @@ namespace Proyecto_taller.ViewModels
             set { _filtroEsteMes = value; OnPropertyChanged(); if (value) Recargar("EsteMes"); }
         }
 
-        // ─────────────────────────────────────────────────────────
         //  COMANDOS
-        // ─────────────────────────────────────────────────────────
-
+       
         public ICommand CargarFacturasCommand { get; }
         public ICommand NuevaFacturaCommand { get; }
         public ICommand VerDetalleCommand { get; }
@@ -102,10 +98,8 @@ namespace Proyecto_taller.ViewModels
             Recargar();
         }
 
-        // ─────────────────────────────────────────────────────────
         //  CARGA
-        // ─────────────────────────────────────────────────────────
-
+       
         private void Recargar(string filtro = null)
         {
             Facturas.Clear();
@@ -147,10 +141,8 @@ namespace Proyecto_taller.ViewModels
                 .Sum(f => (decimal?)f.Total) ?? 0;
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  NUEVA FACTURA — con diálogo de selección
-        // ─────────────────────────────────────────────────────────
-
+       //  NUEVA FACTURA
+       
         private void NuevaFactura()
         {
             // Abrir ventana de selección de trabajo

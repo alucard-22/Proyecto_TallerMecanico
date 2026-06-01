@@ -26,7 +26,7 @@ namespace Proyecto_taller.Views
         private readonly bool _esNuevo;
         private Cliente? _clienteSeleccionado;
 
-        // ── Modo EDITAR ────────────────────────────────────────────────────────
+        // Modo EDITAR 
         public EditarVehiculoWindow(Vehiculo vehiculo)
         {
             InitializeComponent();
@@ -47,7 +47,7 @@ namespace Proyecto_taller.Views
             txtMarca.Focus();
         }
 
-        // ── Modo NUEVO ─────────────────────────────────────────────────────────
+        // Modo NUEVO 
         public EditarVehiculoWindow()
         {
             InitializeComponent();
@@ -57,8 +57,7 @@ namespace Proyecto_taller.Views
             txtBuscarCliente.Focus();
         }
 
-        // ─── Búsqueda de cliente ──────────────────────────────────────────────
-
+        // Búsqueda de cliente 
         private void TxtBuscarCliente_Changed(object sender, TextChangedEventArgs e)
         {
             var texto = txtBuscarCliente.Text.Trim();
@@ -115,8 +114,7 @@ namespace Proyecto_taller.Views
             txtBuscarCliente.Focus();
         }
 
-        // ─── Guardar ──────────────────────────────────────────────────────────
-
+        // Guardar
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
             // Validaciones

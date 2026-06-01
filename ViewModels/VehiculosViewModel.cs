@@ -17,7 +17,7 @@ namespace Proyecto_taller.ViewModels
 {
     public class VehiculosViewModel : INotifyPropertyChanged
     {
-        // ── Estado ────────────────────────────────────────────────────────────
+        // Estado 
         private Vehiculo? _vehiculoSeleccionado;
         private string _textoBusqueda = string.Empty;
         private int _totalVehiculos;
@@ -25,7 +25,7 @@ namespace Proyecto_taller.ViewModels
         private ObservableCollection<Vehiculo> _todosMaestro = new();
         public ObservableCollection<Vehiculo> Vehiculos { get; set; } = new();
 
-        // ── Propiedades ───────────────────────────────────────────────────────
+        // Propiedades
 
         public Vehiculo? VehiculoSeleccionado
         {
@@ -55,7 +55,7 @@ namespace Proyecto_taller.ViewModels
             set { _totalVehiculos = value; OnPropertyChanged(); }
         }
 
-        // ── Comandos ──────────────────────────────────────────────────────────
+        // Comandos
 
         public ICommand CargarVehiculosCommand { get; }
         public ICommand AgregarVehiculoCommand { get; }
@@ -64,7 +64,7 @@ namespace Proyecto_taller.ViewModels
         public ICommand EliminarVehiculoCommand { get; }
         public ICommand LimpiarBusquedaCommand { get; }
 
-        // ── Constructor ───────────────────────────────────────────────────────
+        // Constructor 
 
         public VehiculosViewModel()
         {
@@ -81,8 +81,7 @@ namespace Proyecto_taller.ViewModels
             CargarVehiculos();
         }
 
-        // ── Carga y búsqueda ──────────────────────────────────────────────────
-
+        // Carga y búsqueda 
         public void CargarVehiculos()
         {
             var idAnterior = VehiculoSeleccionado?.VehiculoID;
@@ -124,10 +123,8 @@ namespace Proyecto_taller.ViewModels
             foreach (var v in query) Vehiculos.Add(v);
         }
 
-        // ── Agregar vehículo ──────────────────────────────────────────────────
-        // FIX: antes asignaba siempre el primer cliente de la BD.
-        // Ahora abre EditarVehiculoWindow en modo nuevo con selector real de cliente.
-
+        // Agregar vehículo
+   
         private void AgregarVehiculo()
         {
             var win = new EditarVehiculoWindow();
@@ -135,10 +132,8 @@ namespace Proyecto_taller.ViewModels
                 CargarVehiculos();
         }
 
-        // ── Editar vehículo ───────────────────────────────────────────────────
-        // FIX: antes solo mostraba un MessageBox informativo.
-        // Ahora abre EditarVehiculoWindow con los datos precargados.
-
+        // Editar vehículo 
+        
         private void EditarVehiculo()
         {
             if (VehiculoSeleccionado == null) return;
@@ -162,7 +157,7 @@ namespace Proyecto_taller.ViewModels
                 CargarVehiculos();
         }
 
-        // ── Historial de trabajos ─────────────────────────────────────────────
+        // Historial de trabajos
 
         private void VerHistorial()
         {
@@ -171,7 +166,7 @@ namespace Proyecto_taller.ViewModels
             win.ShowDialog();
         }
 
-        // ── Eliminar vehículo ─────────────────────────────────────────────────
+        // Eliminar vehículo
 
         private void EliminarVehiculo()
         {
@@ -206,9 +201,7 @@ namespace Proyecto_taller.ViewModels
             }
         }
 
-        // ── INotifyPropertyChanged ────────────────────────────────────────────
-
-        public event PropertyChangedEventHandler? PropertyChanged;
+       public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }

@@ -17,7 +17,7 @@ namespace Proyecto_taller.Helpers
             AppDomain.CurrentDomain.BaseDirectory,
             "appsettings.json");
 
-        // ── Config del taller ─────────────────────────────────────────────────
+        // Config del taller
 
         public static void GuardarConfiguracion(ConfiguracionModel config)
         {
@@ -61,11 +61,8 @@ namespace Proyecto_taller.Helpers
 
         public static string ObtenerRutaConfiguracion() => ConfigPath;
 
-        // ── Cadena de conexión en appsettings.json ────────────────────────────
-        // FIX: antes los cambios de cadena solo se guardaban en el JSON de AppData
-        // y no afectaban appsettings.json, por lo que TallerDbContext nunca los leía.
-
-        public static void GuardarConnectionString(string connectionString)
+        // Cadena de conexión en appsettings.json 
+       public static void GuardarConnectionString(string connectionString)
         {
             try
             {

@@ -77,14 +77,10 @@ namespace Proyecto_taller
         {
             if (SessionManager.EstaAutenticado)
             {
-                // Mostrar botón de usuarios solo para administradores
                 if (SessionManager.EsAdministrador)
                 {
                     BtnUsuarios.Visibility = Visibility.Visible;
                 }
-
-                // Puedes agregar un TextBlock para mostrar el usuario actual
-                // TitleTextBlock.Text = $"Bienvenido, {SessionManager.ObtenerNombreUsuario()}";
             }
         }
         private void SetActiveButton(Button button)
