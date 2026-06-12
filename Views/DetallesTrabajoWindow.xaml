@@ -5,7 +5,9 @@
         Height="700" Width="860"
         MinHeight="520" MinWidth="700"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource BgSurface}">
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True">
 
     <Window.Resources>
         <Style x:Key="FieldLabel" TargetType="TextBlock">
@@ -32,7 +34,11 @@
 
     <Border Background="{StaticResource BgSurface}"
             BorderBrush="{StaticResource AccentPrimary}"
-            BorderThickness="1" CornerRadius="0">
+            BorderThickness="1" CornerRadius="12"
+            MouseDown="Border_MouseDown">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="8" BlurRadius="28" Opacity="0.55"/>
+        </Border.Effect>
 
         <Grid>
             <Grid.RowDefinitions>
@@ -43,7 +49,7 @@
 
             <!-- ── Header ── -->
             <Border Grid.Row="0" Background="{StaticResource BgCard}"
-                    CornerRadius="0" Padding="24,16">
+                    CornerRadius="11,11,0,0" Padding="24,16">
                 <Grid>
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
@@ -95,14 +101,12 @@
                                                FontSize="11" FontWeight="Bold"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="Nombre:" Style="{StaticResource FieldLabel}"/>
-                                <TextBlock x:Name="txtClienteNombre" Style="{StaticResource FieldValue}" FontWeight="SemiBold"/>
-
+                                <TextBlock Text="Nombre:"   Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtClienteNombre"   Style="{StaticResource FieldValue}" FontWeight="SemiBold"/>
                                 <TextBlock Text="Teléfono:" Style="{StaticResource FieldLabel}"/>
                                 <TextBlock x:Name="txtClienteTelefono" Style="{StaticResource FieldValue}" FontFamily="Consolas"/>
-
-                                <TextBlock Text="Email:" Style="{StaticResource FieldLabel}"/>
-                                <TextBlock x:Name="txtClienteEmail" Style="{StaticResource FieldValue}"
+                                <TextBlock Text="Email:"    Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtClienteEmail"    Style="{StaticResource FieldValue}"
                                            Foreground="{StaticResource TextSecondary}" Margin="0"/>
                             </StackPanel>
                         </Border>
@@ -123,13 +127,11 @@
                                 </StackPanel>
                                 <TextBlock Text="Vehículo:" Style="{StaticResource FieldLabel}"/>
                                 <TextBlock x:Name="txtVehiculoNombre" Style="{StaticResource FieldValue}" FontWeight="SemiBold"/>
-
-                                <TextBlock Text="Placa:" Style="{StaticResource FieldLabel}"/>
-                                <TextBlock x:Name="txtVehiculoPlaca" Style="{StaticResource FieldValue}"
+                                <TextBlock Text="Placa:"    Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtVehiculoPlaca"  Style="{StaticResource FieldValue}"
                                            FontFamily="Consolas" Foreground="{StaticResource AccentLight}"/>
-
-                                <TextBlock Text="Año:" Style="{StaticResource FieldLabel}"/>
-                                <TextBlock x:Name="txtVehiculoAnio" Style="{StaticResource FieldValue}"
+                                <TextBlock Text="Año:"      Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtVehiculoAnio"   Style="{StaticResource FieldValue}"
                                            Foreground="{StaticResource TextSecondary}" Margin="0"/>
                             </StackPanel>
                         </Border>
@@ -158,19 +160,19 @@
                                                FontSize="11" FontWeight="Bold"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="Tipo:" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="Tipo:"         Style="{StaticResource FieldLabel}"/>
                                 <TextBlock x:Name="txtTipoTrabajo" Style="{StaticResource FieldValue}"/>
-                                <TextBlock Text="Descripción:" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="Descripción:"  Style="{StaticResource FieldLabel}"/>
                                 <TextBlock x:Name="txtDescripcion" Style="{StaticResource FieldValue}"
                                            Foreground="{StaticResource TextSecondary}" Margin="0"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text=" " Margin="0,0,0,40"/>
-                                <TextBlock Text="Fecha Ingreso:" Style="{StaticResource FieldLabel}"/>
-                                <TextBlock x:Name="txtFechaIngreso" Style="{StaticResource FieldValue}"/>
+                                <TextBlock Text="Fecha Ingreso:"          Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtFechaIngreso"       Style="{StaticResource FieldValue}"/>
                                 <TextBlock Text="Fecha Entrega Estimada:" Style="{StaticResource FieldLabel}"/>
-                                <TextBlock x:Name="txtFechaEntrega" Style="{StaticResource FieldValue}" Margin="0"/>
+                                <TextBlock x:Name="txtFechaEntrega"       Style="{StaticResource FieldValue}" Margin="0"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="4">
@@ -179,7 +181,7 @@
                                 <TextBlock x:Name="txtPrecioEstimado"
                                            Style="{StaticResource FieldValue}"
                                            Foreground="{StaticResource TextMuted}"/>
-                                <TextBlock Text="Precio Final:" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="Precio Final:"    Style="{StaticResource FieldLabel}"/>
                                 <TextBlock x:Name="txtPrecioFinal"
                                            Style="{StaticResource FieldValue}"
                                            FontWeight="Bold" FontSize="16"
@@ -209,8 +211,7 @@
                                       IsReadOnly="True" AutoGenerateColumns="False"
                                       MaxHeight="160" Background="Transparent"
                                       BorderThickness="0" GridLinesVisibility="None"
-                                      HeadersVisibility="Column" RowHeight="38"
-                                      ColumnHeaderHeight="34">
+                                      HeadersVisibility="Column" RowHeight="38" ColumnHeaderHeight="34">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Servicio"  Binding="{Binding NombreServicio}" Width="*"/>
                                     <DataGridTextColumn Header="Cant."     Binding="{Binding Cantidad}"       Width="60">
@@ -254,8 +255,7 @@
                                       IsReadOnly="True" AutoGenerateColumns="False"
                                       MaxHeight="160" Background="Transparent"
                                       BorderThickness="0" GridLinesVisibility="None"
-                                      HeadersVisibility="Column" RowHeight="38"
-                                      ColumnHeaderHeight="34">
+                                      HeadersVisibility="Column" RowHeight="38" ColumnHeaderHeight="34">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Repuesto"  Binding="{Binding NombreRepuesto}" Width="*"/>
                                     <DataGridTextColumn Header="Cant."     Binding="{Binding Cantidad}"       Width="60">
@@ -285,7 +285,7 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Resumen financiero (visible si hay precio final) -->
+                    <!-- Resumen financiero (solo si finalizado) -->
                     <Border x:Name="panelResumenFinanciero"
                             Background="#182820"
                             BorderBrush="{StaticResource ColorSuccess}"
@@ -336,7 +336,7 @@
 
             <!-- ── Footer ── -->
             <Border Grid.Row="2" Background="{StaticResource BgCard}"
-                    CornerRadius="0" Padding="24,14">
+                    CornerRadius="0,0,11,11" Padding="24,14">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="✕  Cerrar" Click="Cerrar_Click"
                             Style="{StaticResource BtnSecondary}" Width="120"/>

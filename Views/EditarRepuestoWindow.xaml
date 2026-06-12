@@ -11,7 +11,8 @@
 
     <Border Background="{StaticResource BgSurface}"
             BorderBrush="{StaticResource AccentPrimary}"
-            BorderThickness="1" CornerRadius="12">
+            BorderThickness="1" CornerRadius="12"
+            MouseDown="Border_MouseDown">
         <Border.Effect>
             <DropShadowEffect Color="Black" Direction="270" ShadowDepth="6"
                               BlurRadius="24" Opacity="0.5"/>
@@ -67,7 +68,6 @@
                              VerticalScrollBarVisibility="Auto"
                              MaxLength="500"/>
 
-                    <!-- Precio y Stock mínimo en la misma fila -->
                     <Grid Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -90,7 +90,6 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- Stock inicial solo en modo nuevo -->
                     <StackPanel x:Name="panelStockInicial">
                         <TextBlock Text="Stock inicial (unidades):"
                                    Style="{StaticResource FormLabel}"/>
@@ -99,7 +98,6 @@
                                  MaxLength="6"/>
                     </StackPanel>
 
-                    <!-- Aviso informativo -->
                     <Border Background="{StaticResource AccentMuted}"
                             CornerRadius="6" Padding="12,9"
                             Margin="0,14,0,0">

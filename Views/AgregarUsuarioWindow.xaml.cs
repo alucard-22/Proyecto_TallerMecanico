@@ -2,24 +2,13 @@
 using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
-    /// <summary>
-    /// Lógica de interacción para AgregarUsuarioWindow.xaml
-    /// </summary>
     public partial class AgregarUsuarioWindow : Window
     {
         public AgregarUsuarioWindow()
@@ -28,9 +17,14 @@ namespace Proyecto_taller.Views
             txtNombreUsuario.Focus();
         }
 
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
+
         private void GuardarButton_Click(object sender, RoutedEventArgs e)
         {
-            // Validaciones
             if (string.IsNullOrWhiteSpace(txtNombreUsuario.Text))
             {
                 MessageBox.Show("El nombre de usuario es obligatorio.", "Validación",
@@ -75,7 +69,6 @@ namespace Proyecto_taller.Views
             {
                 using var db = new TallerDbContext();
 
-                // Verificar si el usuario ya existe
                 var usuarioExiste = db.Usuarios.Any(u =>
                     u.NombreUsuario.ToLower() == txtNombreUsuario.Text.ToLower());
 
@@ -90,7 +83,6 @@ namespace Proyecto_taller.Views
                     return;
                 }
 
-                // Crear nuevo usuario
                 var nuevoUsuario = new Usuario
                 {
                     NombreUsuario = txtNombreUsuario.Text.Trim(),

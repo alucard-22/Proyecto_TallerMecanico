@@ -5,7 +5,9 @@
         Height="620" Width="620"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Background="{StaticResource BgSurface}">
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True">
 
     <Window.Resources>
         <Style x:Key="FieldLabel" TargetType="TextBlock">
@@ -30,131 +32,143 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Border Background="{StaticResource BgSurface}"
+            CornerRadius="12"
+            BorderBrush="{StaticResource AccentPrimary}"
+            BorderThickness="1"
+            MouseDown="Border_MouseDown">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="8" BlurRadius="28" Opacity="0.5"/>
+        </Border.Effect>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="{StaticResource BgCard}" Padding="24,16">
-            <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BgCard}"
+                    CornerRadius="11,11,0,0" Padding="24,16">
+                <Grid>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="txtTitulo"
+                                       Text="📅 Detalles de Reserva"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       FontSize="18" FontWeight="Bold"/>
+                            <TextBlock x:Name="txtEstado"
+                                       Foreground="{StaticResource ColorWarning}"
+                                       FontSize="14" FontWeight="Bold"
+                                       Margin="16,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button Content="✕" Click="Cerrar_Click"
+                            Background="Transparent" Foreground="{StaticResource TextMuted}"
+                            BorderThickness="0" FontSize="18" Cursor="Hand"
+                            Padding="10,4" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                </Grid>
+            </Border>
+
+            <!-- Contenido -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="txtTitulo"
-                                   Text="📅 Detalles de Reserva"
-                                   Foreground="{StaticResource TextPrimary}"
-                                   FontSize="18" FontWeight="Bold"/>
-                        <TextBlock x:Name="txtEstado"
-                                   Foreground="{StaticResource ColorWarning}"
-                                   FontSize="14" FontWeight="Bold"
-                                   Margin="16,0,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
+
+                    <!-- Datos de la cita -->
+                    <Border Style="{StaticResource SectionCard}">
+                        <StackPanel>
+                            <TextBlock Text="📅 DATOS DE LA CITA"
+                                       Foreground="{StaticResource AccentLight}"
+                                       FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock Text="Fecha y Hora:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtFechaHoraCita" Style="{StaticResource FieldValue}" FontWeight="SemiBold"/>
+                            <TextBlock Text="Tipo de Servicio:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtTipoServicio" Style="{StaticResource FieldValue}"/>
+                            <TextBlock Text="Prioridad:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtPrioridad" Style="{StaticResource FieldValue}"/>
+                            <TextBlock Text="Precio Estimado:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtPrecioEstimado" Style="{StaticResource FieldValue}"/>
+                            <TextBlock Text="Observaciones:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtObservaciones" Style="{StaticResource FieldValue}" Margin="0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Cliente -->
+                    <Border Style="{StaticResource SectionCard}">
+                        <StackPanel>
+                            <TextBlock Text="👤 CLIENTE"
+                                       Foreground="{StaticResource ColorInfo}"
+                                       FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock Text="Nombre:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtNombreCliente" Style="{StaticResource FieldValue}" FontWeight="SemiBold"/>
+                            <TextBlock Text="Teléfono:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtTelefonoCliente" Style="{StaticResource FieldValue}" FontFamily="Consolas"/>
+                            <TextBlock Text="Email:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtEmailCliente" Style="{StaticResource FieldValue}" Margin="0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Vehículo -->
+                    <Border x:Name="panelVehiculo" Style="{StaticResource SectionCard}">
+                        <StackPanel>
+                            <TextBlock Text="🚗 VEHÍCULO"
+                                       Foreground="{StaticResource ColorWarning}"
+                                       FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock Text="Marca / Modelo:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtMarcaModelo" Style="{StaticResource FieldValue}" FontWeight="SemiBold"/>
+                            <TextBlock Text="Placa:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtPlaca" Style="{StaticResource FieldValue}"
+                                       FontFamily="Consolas" Foreground="{StaticResource AccentLight}"/>
+                            <TextBlock Text="Año:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtAnio" Style="{StaticResource FieldValue}" Margin="0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Fechas del proceso -->
+                    <Border Style="{StaticResource SectionCard}">
+                        <StackPanel>
+                            <TextBlock Text="🕐 HISTORIAL DE FECHAS"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock Text="Fecha de Creación:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtFechaCreacion" Style="{StaticResource FieldValue}"/>
+                            <TextBlock Text="Fecha de Confirmación:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtFechaConfirmacion" Style="{StaticResource FieldValue}"/>
+                            <TextBlock Text="Fecha de Completado:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtFechaCompletado" Style="{StaticResource FieldValue}" Margin="0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Cancelación -->
+                    <Border x:Name="panelCancelacion"
+                            Background="#2D1A1A"
+                            BorderBrush="{StaticResource ColorDanger}"
+                            BorderThickness="1" CornerRadius="8"
+                            Padding="16,14" Margin="0,0,0,10"
+                            Visibility="Collapsed">
+                        <StackPanel>
+                            <TextBlock Text="❌ CANCELACIÓN"
+                                       Foreground="{StaticResource ColorDanger}"
+                                       FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock Text="Fecha de Cancelación:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtFechaCancelacion" Style="{StaticResource FieldValue}"/>
+                            <TextBlock Text="Motivo:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtMotivoCancelacion" Style="{StaticResource FieldValue}"
+                                       Foreground="{StaticResource ColorDanger}" Margin="0"/>
+                        </StackPanel>
+                    </Border>
+
                 </StackPanel>
-                <Button Content="✕" Click="Cerrar_Click"
-                        Background="Transparent" Foreground="{StaticResource TextMuted}"
-                        BorderThickness="0" FontSize="18" Cursor="Hand"
-                        Padding="10,4" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-            </Grid>
-        </Border>
+            </ScrollViewer>
 
-        <!-- Contenido -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16">
-            <StackPanel>
-
-                <!-- Datos de la cita -->
-                <Border Style="{StaticResource SectionCard}">
-                    <StackPanel>
-                        <TextBlock Text="📅 DATOS DE LA CITA"
-                                   Foreground="{StaticResource AccentLight}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <TextBlock Text="Fecha y Hora:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtFechaHoraCita" Style="{StaticResource FieldValue}" FontWeight="SemiBold"/>
-                        <TextBlock Text="Tipo de Servicio:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtTipoServicio" Style="{StaticResource FieldValue}"/>
-                        <TextBlock Text="Prioridad:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtPrioridad" Style="{StaticResource FieldValue}"/>
-                        <TextBlock Text="Precio Estimado:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtPrecioEstimado" Style="{StaticResource FieldValue}"/>
-                        <TextBlock Text="Observaciones:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtObservaciones" Style="{StaticResource FieldValue}" Margin="0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Cliente -->
-                <Border Style="{StaticResource SectionCard}">
-                    <StackPanel>
-                        <TextBlock Text="👤 CLIENTE"
-                                   Foreground="{StaticResource ColorInfo}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <TextBlock Text="Nombre:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtNombreCliente" Style="{StaticResource FieldValue}" FontWeight="SemiBold"/>
-                        <TextBlock Text="Teléfono:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtTelefonoCliente" Style="{StaticResource FieldValue}" FontFamily="Consolas"/>
-                        <TextBlock Text="Email:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtEmailCliente" Style="{StaticResource FieldValue}" Margin="0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Vehículo -->
-                <Border x:Name="panelVehiculo" Style="{StaticResource SectionCard}">
-                    <StackPanel>
-                        <TextBlock Text="🚗 VEHÍCULO"
-                                   Foreground="{StaticResource ColorWarning}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <TextBlock Text="Marca / Modelo:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtMarcaModelo" Style="{StaticResource FieldValue}" FontWeight="SemiBold"/>
-                        <TextBlock Text="Placa:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtPlaca" Style="{StaticResource FieldValue}"
-                                   FontFamily="Consolas" Foreground="{StaticResource AccentLight}"/>
-                        <TextBlock Text="Año:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtAnio" Style="{StaticResource FieldValue}" Margin="0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Fechas del proceso -->
-                <Border Style="{StaticResource SectionCard}">
-                    <StackPanel>
-                        <TextBlock Text="🕐 HISTORIAL DE FECHAS"
-                                   Foreground="{StaticResource TextSecondary}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <TextBlock Text="Fecha de Creación:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtFechaCreacion" Style="{StaticResource FieldValue}"/>
-                        <TextBlock Text="Fecha de Confirmación:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtFechaConfirmacion" Style="{StaticResource FieldValue}"/>
-                        <TextBlock Text="Fecha de Completado:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtFechaCompletado" Style="{StaticResource FieldValue}" Margin="0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Cancelación (visible solo si aplica) -->
-                <Border x:Name="panelCancelacion"
-                        Background="#2D1A1A"
-                        BorderBrush="{StaticResource ColorDanger}"
-                        BorderThickness="1" CornerRadius="8"
-                        Padding="16,14" Margin="0,0,0,10"
-                        Visibility="Collapsed">
-                    <StackPanel>
-                        <TextBlock Text="❌ CANCELACIÓN"
-                                   Foreground="{StaticResource ColorDanger}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <TextBlock Text="Fecha de Cancelación:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtFechaCancelacion" Style="{StaticResource FieldValue}"/>
-                        <TextBlock Text="Motivo:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtMotivoCancelacion" Style="{StaticResource FieldValue}"
-                                   Foreground="{StaticResource ColorDanger}" Margin="0"/>
-                    </StackPanel>
-                </Border>
-
-            </StackPanel>
-        </ScrollViewer>
-
-        <!-- Footer -->
-        <Border Grid.Row="2" Background="{StaticResource BgCard}" Padding="24,14">
-            <Button Content="✕  Cerrar" Click="Cerrar_Click"
-                    Style="{StaticResource BtnSecondary}"
-                    HorizontalAlignment="Right" Width="120"/>
-        </Border>
-    </Grid>
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="{StaticResource BgCard}"
+                    CornerRadius="0,0,11,11" Padding="24,14">
+                <Button Content="✕  Cerrar" Click="Cerrar_Click"
+                        Style="{StaticResource BtnSecondary}"
+                        HorizontalAlignment="Right" Width="120"/>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

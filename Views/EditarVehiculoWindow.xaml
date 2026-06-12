@@ -11,7 +11,8 @@
 
     <Border Background="{StaticResource BgSurface}"
             BorderBrush="{StaticResource AccentPrimary}"
-            BorderThickness="1" CornerRadius="12">
+            BorderThickness="1" CornerRadius="12"
+            MouseDown="Border_MouseDown">
         <Border.Effect>
             <DropShadowEffect Color="Black" Direction="270"
                               ShadowDepth="6" BlurRadius="24" Opacity="0.5"/>
@@ -62,13 +63,10 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="Auto"/>
-                            <!-- botón Quitar -->
                             <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="Auto"/>
-                            <!-- botón Nuevo  -->
                         </Grid.ColumnDefinitions>
 
-                        <!-- Buscador de cliente -->
                         <Border Grid.Column="0"
                                 Background="{StaticResource BgInput}"
                                 BorderBrush="{StaticResource BorderColor}"
@@ -92,11 +90,11 @@
                         </Border>
 
                         <Button Grid.Column="2"
-                            Content="➕ Nuevo"
-                            Click="NuevoCliente_Click"
-                            Style="{StaticResource BtnGhost}"
-                            Padding="10,8"
-                            ToolTip="Registrar un cliente nuevo"/>
+                                Content="➕ Nuevo"
+                                Click="NuevoCliente_Click"
+                                Style="{StaticResource BtnGhost}"
+                                Padding="10,8"
+                                ToolTip="Registrar un cliente nuevo"/>
 
                         <Button Grid.Column="2"
                                 Content="✕ Quitar"

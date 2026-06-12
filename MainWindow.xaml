@@ -158,18 +158,23 @@
                     Margin="10,10,10,0"
                     CornerRadius="10">
                 <StackPanel>
-                    <Border Width="52" Height="52" CornerRadius="12"
-                            HorizontalAlignment="Center" Margin="0,0,0,10">
+                    <!-- Logo: imagen con fallback al emoji si no carga -->
+                    <Border Width="100" Height="100"
+                            CornerRadius="18"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,10"
+                            ClipToBounds="True">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                 <GradientStop Color="#6366F1" Offset="0"/>
                                 <GradientStop Color="#8B5CF6" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <TextBlock Text="🔧" FontSize="28"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
+                        <Image Source="pack://application:,,,/Assets/logo.png"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Border>
+
                     <TextBlock Text="TALLER EL CHOCO"
                                Foreground="{StaticResource TextPrimary}"
                                FontSize="14" FontWeight="Bold"
@@ -190,14 +195,14 @@
             <!-- Menú Items -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,14,0,0">
                 <StackPanel Margin="6,0">
-                    <Button x:Name="BtnInicio"     Content="🏠  Inicio"       Style="{StaticResource MenuButton}" Click="Inicio_Click"/>
-                    <Button x:Name="BtnClientes"   Content="👥  Clientes"     Style="{StaticResource MenuButton}" Click="Clientes_Click"/>
-                    <Button x:Name="BtnVehiculos"  Content="🚗  Vehículos"    Style="{StaticResource MenuButton}" Click="Vehiculos_Click"/>
-                    <Button x:Name="BtnServicios"  Content="🛠️  Trabajos"     Style="{StaticResource MenuButton}" Click="Servicios_Click"/>
-                    <Button x:Name="BtnReservas"   Content="📅  Reservas"     Style="{StaticResource MenuButton}" Click="Reservas_Click"/>
-                    <Button x:Name="BtnInventario" Content="📦  Inventario"   Style="{StaticResource MenuButton}" Click="Inventario_Click"/>
-                    <Button x:Name="BtnFacturacion" Content="💰  Facturación" Style="{StaticResource MenuButton}" Click="Facturacion_Click"/>
-                    <Button x:Name="BtnReportes"   Content="📊  Reportes"     Style="{StaticResource MenuButton}" Click="Reportes_Click"/>
+                    <Button x:Name="BtnInicio"      Content="🏠  Inicio"       Style="{StaticResource MenuButton}" Click="Inicio_Click"/>
+                    <Button x:Name="BtnClientes"    Content="👥  Clientes"     Style="{StaticResource MenuButton}" Click="Clientes_Click"/>
+                    <Button x:Name="BtnVehiculos"   Content="🚗  Vehículos"    Style="{StaticResource MenuButton}" Click="Vehiculos_Click"/>
+                    <Button x:Name="BtnServicios"   Content="🛠️  Trabajos"     Style="{StaticResource MenuButton}" Click="Servicios_Click"/>
+                    <Button x:Name="BtnReservas"    Content="📅  Reservas"     Style="{StaticResource MenuButton}" Click="Reservas_Click"/>
+                    <Button x:Name="BtnInventario"  Content="📦  Inventario"   Style="{StaticResource MenuButton}" Click="Inventario_Click"/>
+                    <Button x:Name="BtnFacturacion" Content="💰  Facturación"  Style="{StaticResource MenuButton}" Click="Facturacion_Click"/>
+                    <Button x:Name="BtnReportes"    Content="📊  Reportes"     Style="{StaticResource MenuButton}" Click="Reportes_Click"/>
 
                     <Border Height="1" Background="{StaticResource BorderColor}"
                             Margin="12,10" Opacity="0.3"/>

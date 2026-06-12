@@ -11,7 +11,8 @@
 
     <Border Background="{StaticResource BgSurface}"
             BorderBrush="{StaticResource ColorSuccess}"
-            BorderThickness="1" CornerRadius="12">
+            BorderThickness="1" CornerRadius="12"
+            MouseDown="Border_MouseDown">
         <Border.Effect>
             <DropShadowEffect Color="Black" Direction="270" ShadowDepth="8" BlurRadius="32" Opacity="0.55"/>
         </Border.Effect>
@@ -103,7 +104,6 @@
                                        Foreground="{StaticResource TextMuted}"
                                        FontSize="10" FontWeight="Bold" Margin="0,0,0,12"/>
 
-                            <!-- Servicios -->
                             <TextBlock Text="⚙️  Servicios"
                                        Foreground="{StaticResource AccentLight}"
                                        FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6"/>
@@ -133,7 +133,6 @@
                                 </DataGrid.Columns>
                             </DataGrid>
 
-                            <!-- Repuestos -->
                             <TextBlock Text="📦  Repuestos"
                                        Foreground="{StaticResource ColorSuccess}"
                                        FontSize="12" FontWeight="SemiBold" Margin="0,4,0,6"/>
@@ -188,7 +187,6 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Precio base calculado -->
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Subtotal calculado"
                                                Foreground="{StaticResource TextMuted}" FontSize="11"
@@ -207,7 +205,6 @@
                                              TextChanged="RecalcularTotal"/>
                                 </StackPanel>
 
-                                <!-- Descuento -->
                                 <StackPanel Grid.Column="2">
                                     <CheckBox x:Name="chkDescuento"
                                               Content="Aplicar descuento"
@@ -281,7 +278,7 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Advertencia de confirmación -->
+                    <!-- Advertencia -->
                     <Border Background="#2D1A1A"
                             BorderBrush="{StaticResource ColorWarning}"
                             BorderThickness="1" CornerRadius="8" Padding="14,12">

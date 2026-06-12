@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.EntityFrameworkCore;
 
 namespace Proyecto_taller.Views
@@ -14,20 +15,15 @@ namespace Proyecto_taller.Views
         private readonly int _trabajoId;
         private Trabajo _trabajo;
 
-        // Listas en memoria que el usuario edita
         private List<Servicio> _todosLosServicios = new();
         private List<Repuesto> _todosLosRepuestos = new();
         private List<ServicioItem> _serviciosTrabajo = new();
         private List<RepuestoItem> _repuestosTrabajo = new();
 
-        // ── Subtotales calculados ─────────────────────────────
         private decimal TotalServicios => _serviciosTrabajo.Sum(s => s.Subtotal);
         private decimal TotalRepuestos => _repuestosTrabajo.Sum(r => r.Subtotal);
         private decimal Subtotal => TotalServicios + TotalRepuestos;
 
-        /// <summary>
-        /// Precio que se guardará: el manual si lo ingresó el usuario, o el subtotal calculado.
-        /// </summary>
         private decimal PrecioAGuardar
         {
             get
@@ -45,9 +41,11 @@ namespace Proyecto_taller.Views
             Loaded += (_, __) => CargarDatos();
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  CARGA INICIAL
-        // ─────────────────────────────────────────────────────────
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
 
         private void CargarDatos()
         {
@@ -63,20 +61,15 @@ namespace Proyecto_taller.Views
 
                 if (_trabajo == null) { Close(); return; }
 
-                // Header
                 txtTitulo.Text = $"🔧  Gestionar Trabajo #{_trabajo.TrabajoID}";
                 txtSubtitulo.Text = $"{_trabajo.Vehiculo?.Marca} {_trabajo.Vehiculo?.Modelo} · {_trabajo.Vehiculo?.Placa}  —  {_trabajo.Vehiculo?.Cliente?.Nombre} {_trabajo.Vehiculo?.Cliente?.Apellido}";
 
-                // Catalogo disponible
                 _todosLosServicios = db.Servicios.OrderBy(s => s.Nombre).ToList();
-                // Repuestos disponibles = todos, incluyendo los ya asignados
-                // (para que al reeditar se muestre el stock real devuelto)
                 _todosLosRepuestos = db.Repuestos.OrderBy(r => r.Nombre).ToList();
 
                 dgServiciosDisponibles.ItemsSource = _todosLosServicios;
                 dgRepuestosDisponibles.ItemsSource = _todosLosRepuestos;
 
-                // Servicios ya asignados
                 if (_trabajo.Servicios != null)
                     foreach (var ts in _trabajo.Servicios)
                         _serviciosTrabajo.Add(new ServicioItem
@@ -88,7 +81,6 @@ namespace Proyecto_taller.Views
                             Subtotal = ts.Subtotal
                         });
 
-                // Repuestos ya asignados
                 if (_trabajo.Repuestos != null)
                     foreach (var tr in _trabajo.Repuestos)
                         _repuestosTrabajo.Add(new RepuestoItem
@@ -100,13 +92,9 @@ namespace Proyecto_taller.Views
                             Subtotal = tr.Subtotal
                         });
 
-                // Estado
                 SetComboEstado(_trabajo.Estado);
                 dpFechaEntrega.SelectedDate = _trabajo.FechaEntrega ?? DateTime.Now.AddDays(3);
                 txtNotas.Text = _trabajo.Descripcion ?? "";
-
-                // Precio manual solo si había uno guardado (no por defecto)
-                // Lo dejamos vacío para no confundir con el subtotal calculado
                 txtPrecioManual.Text = "";
 
                 ActualizarTotales();
@@ -118,10 +106,6 @@ namespace Proyecto_taller.Views
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        // ─────────────────────────────────────────────────────────
-        //  AGREGAR / ELIMINAR SERVICIOS
-        // ─────────────────────────────────────────────────────────
 
         private void AgregarServicio_Click(object sender, RoutedEventArgs e)
         {
@@ -170,10 +154,6 @@ namespace Proyecto_taller.Views
             ActualizarTotales();
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  AGREGAR / ELIMINAR REPUESTOS
-        // ─────────────────────────────────────────────────────────
-
         private void AgregarRepuesto_Click(object sender, RoutedEventArgs e)
         {
             var rep = dgRepuestosDisponibles.SelectedItem as Repuesto;
@@ -189,12 +169,11 @@ namespace Proyecto_taller.Views
                     MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
 
-            // Stock real disponible = StockActual en BD + lo que ya estaba asignado a este trabajo
             int yaAsignado = _repuestosTrabajo.Where(r => r.RepuestoID == rep.RepuestoID).Sum(r => r.Cantidad);
             int stockOrigen = _trabajo.Repuestos?
                 .Where(r => r.RepuestoID == rep.RepuestoID)
                 .Sum(r => r.Cantidad) ?? 0;
-            int stockDisp = rep.StockActual + stockOrigen;  // stock real disponible para este trabajo
+            int stockDisp = rep.StockActual + stockOrigen;
 
             if (yaAsignado + cant > stockDisp)
             {
@@ -239,10 +218,6 @@ namespace Proyecto_taller.Views
             ActualizarTotales();
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  GUARDAR  (sin finalizar)  ← bug de stock CORREGIDO
-        // ─────────────────────────────────────────────────────────
-
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -256,9 +231,7 @@ namespace Proyecto_taller.Views
 
                 if (trabajo == null) return;
 
-                //   PASO 1 — Restaurar stock de repuestos   
-                //  ANTERIORES antes de eliminarlos         
-               
+                // Paso 1 — Restaurar stock anterior
                 if (trabajo.Repuestos != null)
                     foreach (var tr in trabajo.Repuestos)
                     {
@@ -266,12 +239,12 @@ namespace Proyecto_taller.Views
                         if (rep != null) rep.StockActual += tr.Cantidad;
                     }
 
-                // PASO 2 — Eliminar relaciones anteriores
+                // Paso 2 — Eliminar relaciones anteriores
                 db.Trabajos_Servicios.RemoveRange(trabajo.Servicios ?? Enumerable.Empty<Trabajos_Servicios>());
                 db.Trabajos_Repuestos.RemoveRange(trabajo.Repuestos ?? Enumerable.Empty<Trabajos_Repuestos>());
                 db.SaveChanges();
 
-                // PASO 3 — Insertar servicios nuevos
+                // Paso 3 — Insertar servicios nuevos
                 foreach (var s in _serviciosTrabajo)
                     db.Trabajos_Servicios.Add(new Trabajos_Servicios
                     {
@@ -281,7 +254,7 @@ namespace Proyecto_taller.Views
                         Subtotal = s.Subtotal
                     });
 
-                // PASO 4 — Insertar repuestos nuevos y descontar stock
+                // Paso 4 — Insertar repuestos nuevos y descontar stock
                 foreach (var r in _repuestosTrabajo)
                 {
                     db.Trabajos_Repuestos.Add(new Trabajos_Repuestos
@@ -296,23 +269,18 @@ namespace Proyecto_taller.Views
                     if (rep != null) rep.StockActual -= r.Cantidad;
                 }
 
-                // PASO 5 — Actualizar datos del trabajo
-                // Estado
+                // Paso 5 — Actualizar trabajo
                 var comboItem = cmbEstado.SelectedItem as ComboBoxItem;
                 if (comboItem != null)
                     trabajo.Estado = comboItem.Tag?.ToString() ?? trabajo.Estado;
 
-                // Descripción / notas
                 if (!string.IsNullOrWhiteSpace(txtNotas.Text))
                     trabajo.Descripcion = txtNotas.Text.Trim();
 
-                // Fecha de entrega
                 if (dpFechaEntrega.SelectedDate.HasValue)
                     trabajo.FechaEntrega = dpFechaEntrega.SelectedDate.Value;
 
-                // PrecioFinal: solo guardamos el precio calculado/manual como referencia
-                // (NO se marca como finalizado aquí — eso lo hace FinalizarTrabajoWindow)
-                trabajo.PrecioFinal = null;  // se limpia para que no aparezca antes de finalizar
+                trabajo.PrecioFinal = null;
 
                 db.SaveChanges();
 
@@ -333,10 +301,6 @@ namespace Proyecto_taller.Views
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        // ─────────────────────────────────────────────────────────
-        //  HELPERS UI
-        // ─────────────────────────────────────────────────────────
 
         private void RefrescarGrids()
         {
@@ -384,10 +348,7 @@ namespace Proyecto_taller.Views
         private void TxtPrecioManual_TextChanged(object sender, TextChangedEventArgs e)
             => ActualizarTotales();
 
-        private void CmbEstado_Changed(object sender, SelectionChangedEventArgs e)
-        {
-            // no acción adicional necesaria; se lee al guardar
-        }
+        private void CmbEstado_Changed(object sender, SelectionChangedEventArgs e) { }
 
         private void Cancelar_Click(object sender, RoutedEventArgs e)
         {
@@ -399,7 +360,6 @@ namespace Proyecto_taller.Views
         }
     }
 
-    // ── DTOs para binding ─────────────────────────────────────────
     public class ServicioItem
     {
         public int ServicioID { get; set; }

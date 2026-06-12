@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Proyecto_taller.ViewModels;
 using Proyecto_taller.Models;
 using Proyecto_taller.Data;
-using Proyecto_taller.Views;
 using Microsoft.EntityFrameworkCore;
 
 namespace Proyecto_taller.Views
@@ -26,7 +15,7 @@ namespace Proyecto_taller.Views
         private readonly bool _esNuevo;
         private Cliente? _clienteSeleccionado;
 
-        // Modo EDITAR 
+        // Modo EDITAR
         public EditarVehiculoWindow(Vehiculo vehiculo)
         {
             InitializeComponent();
@@ -39,7 +28,6 @@ namespace Proyecto_taller.Views
             txtPlaca.Text = vehiculo.Placa;
             txtAnio.Text = vehiculo.Anio?.ToString() ?? string.Empty;
 
-            // Precargar el cliente actual
             using var db = new TallerDbContext();
             var cliente = db.Clientes.Find(vehiculo.ClienteID);
             if (cliente != null) SeleccionarCliente(cliente);
@@ -47,7 +35,7 @@ namespace Proyecto_taller.Views
             txtMarca.Focus();
         }
 
-        // Modo NUEVO 
+        // Modo NUEVO
         public EditarVehiculoWindow()
         {
             InitializeComponent();
@@ -57,7 +45,12 @@ namespace Proyecto_taller.Views
             txtBuscarCliente.Focus();
         }
 
-        // Búsqueda de cliente 
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
+
         private void TxtBuscarCliente_Changed(object sender, TextChangedEventArgs e)
         {
             var texto = txtBuscarCliente.Text.Trim();
@@ -114,10 +107,8 @@ namespace Proyecto_taller.Views
             txtBuscarCliente.Focus();
         }
 
-        // Guardar
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
-            // Validaciones
             if (_clienteSeleccionado == null)
             {
                 Msg("Selecciona un cliente propietario.");
@@ -162,7 +153,6 @@ namespace Proyecto_taller.Views
             {
                 using var db = new TallerDbContext();
 
-                // Verificar placa única (excluyendo el vehículo actual en modo edición)
                 int? idActual = _esNuevo ? null : _vehiculo!.VehiculoID;
                 bool placaDuplicada = db.Vehiculos.Any(v =>
                     v.Placa.ToUpper() == placa &&
@@ -232,10 +222,7 @@ namespace Proyecto_taller.Views
         {
             var win = new NuevoClienteWindow();
             if (win.ShowDialog() == true && win.ClienteCreado != null)
-            {
-                // Seleccionar automáticamente el cliente recién creado
                 SeleccionarCliente(win.ClienteCreado);
-            }
         }
 
         private void Cancelar_Click(object sender, RoutedEventArgs e)

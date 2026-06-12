@@ -11,7 +11,8 @@
 
     <Border Background="{StaticResource BgSurface}"
             BorderBrush="{StaticResource AccentPrimary}"
-            BorderThickness="1" CornerRadius="12">
+            BorderThickness="1" CornerRadius="12"
+            MouseDown="Border_MouseDown">
         <Border.Effect>
             <DropShadowEffect Color="Black" Direction="270" ShadowDepth="8" BlurRadius="32" Opacity="0.55"/>
         </Border.Effect>
@@ -233,7 +234,6 @@
                         <TextBlock Text="💰  RESUMEN"
                                    Style="{StaticResource SectionTitle}"/>
 
-                        <!-- Totales en vivo -->
                         <Border Background="{StaticResource BgInput}" CornerRadius="6"
                                 Padding="12,10" Margin="0,4,0,14">
                             <StackPanel>
@@ -262,7 +262,6 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Precio manual override -->
                         <TextBlock Text="💵  PRECIO FINAL MANUAL"
                                    Style="{StaticResource SectionTitle}" Margin="0,0,0,6"/>
                         <TextBlock Text="Deja vacío para usar el subtotal calculado arriba."
@@ -283,7 +282,6 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Estado del trabajo -->
                         <TextBlock Text="📌  ESTADO"
                                    Style="{StaticResource SectionTitle}" Margin="0,16,0,6"/>
                         <ComboBox x:Name="cmbEstado" SelectionChanged="CmbEstado_Changed">
@@ -291,12 +289,10 @@
                             <ComboBoxItem Content="🔄  En Progreso" Tag="En Progreso"/>
                         </ComboBox>
 
-                        <!-- Fecha estimada de entrega -->
                         <TextBlock Text="📅  ENTREGA ESTIMADA"
                                    Style="{StaticResource SectionTitle}" Margin="0,14,0,6"/>
                         <DatePicker x:Name="dpFechaEntrega"/>
 
-                        <!-- Notas adicionales al trabajo -->
                         <TextBlock Text="📝  NOTAS ADICIONALES"
                                    Style="{StaticResource SectionTitle}" Margin="0,14,0,6"/>
                         <TextBox x:Name="txtNotas"
@@ -321,7 +317,7 @@
             <Border Grid.Row="2" Background="{StaticResource BgCard}"
                     CornerRadius="0,0,11,11" Padding="20,14">
                 <Grid>
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="💵 TOTAL ESTIMADO: "
                                    Foreground="{StaticResource TextMuted}"
                                    FontSize="13" VerticalAlignment="Center"/>

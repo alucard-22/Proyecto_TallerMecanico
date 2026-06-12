@@ -11,7 +11,8 @@
 
     <Border x:Name="rootBorder"
             Background="{StaticResource BgSurface}"
-            BorderThickness="1" CornerRadius="12">
+            BorderThickness="1" CornerRadius="12"
+            MouseDown="Border_MouseDown">
         <Border.Effect>
             <DropShadowEffect Color="Black" Direction="270" ShadowDepth="6"
                               BlurRadius="24" Opacity="0.5"/>

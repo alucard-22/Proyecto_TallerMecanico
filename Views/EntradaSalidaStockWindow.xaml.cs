@@ -1,17 +1,8 @@
 ﻿using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
@@ -22,7 +13,6 @@ namespace Proyecto_taller.Views
         private readonly Repuesto _repuesto;
         private readonly TipoMovimiento _tipo;
 
-        // Resultado que lee el ViewModel tras ShowDialog() == true
         public int CantidadMovida { get; private set; }
         public string Motivo { get; private set; } = string.Empty;
 
@@ -36,13 +26,16 @@ namespace Proyecto_taller.Views
             txtCantidad.SelectAll();
         }
 
-        // ─── Configuración visual según tipo ───────────────────────────────────
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
 
         private void ConfigurarUI()
         {
             if (_tipo == TipoMovimiento.Entrada)
             {
-                // Verde para entradas
                 rootBorder.BorderBrush = (Brush)FindResource("ColorSuccess");
                 headerBorder.Background = new SolidColorBrush(Color.FromRgb(24, 40, 32));
                 txtTitulo.Text = "📥  Entrada de Stock";
@@ -56,7 +49,6 @@ namespace Proyecto_taller.Views
             }
             else
             {
-                // Naranja/warning para salidas
                 rootBorder.BorderBrush = (Brush)FindResource("ColorWarning");
                 headerBorder.Background = new SolidColorBrush(Color.FromRgb(45, 32, 10));
                 txtTitulo.Text = "📤  Salida de Stock";
@@ -69,7 +61,6 @@ namespace Proyecto_taller.Views
                 btnMas.Style = (Style)FindResource("BtnWarning");
             }
 
-            // Datos del repuesto
             txtRepuestoNombre.Text = _repuesto.Nombre;
             txtStockActual.Text = _repuesto.StockActual.ToString();
             txtStockMinimo.Text = _repuesto.StockMinimo.ToString();
@@ -77,8 +68,6 @@ namespace Proyecto_taller.Views
 
             ActualizarResultado();
         }
-
-        // ─── Controles de cantidad ─────────────────────────────────────────────
 
         private void BtnMas_Click(object sender, RoutedEventArgs e)
         {
@@ -94,8 +83,6 @@ namespace Proyecto_taller.Views
 
         private void TxtCantidad_Changed(object sender, System.Windows.Controls.TextChangedEventArgs e)
             => ActualizarResultado();
-
-        // ─── Proyección de stock resultante ───────────────────────────────────
 
         private void ActualizarResultado()
         {
@@ -114,7 +101,6 @@ namespace Proyecto_taller.Views
 
             txtStockResultante.Text = resultado.ToString();
 
-            // Colorear según si queda bien, bajo o negativo
             if (resultado < 0)
                 txtStockResultante.Foreground = (Brush)FindResource("ColorDanger");
             else if (resultado <= _repuesto.StockMinimo)
@@ -123,11 +109,8 @@ namespace Proyecto_taller.Views
                 txtStockResultante.Foreground = (Brush)FindResource("ColorSuccess");
         }
 
-        // ─── Confirmar ────────────────────────────────────────────────────────
-
         private void Confirmar_Click(object sender, RoutedEventArgs e)
         {
-            // Validar que sea un número entero positivo
             if (!int.TryParse(txtCantidad.Text.Trim(), out int cant) || cant <= 0)
             {
                 MessageBox.Show("Ingresa una cantidad válida mayor a 0.",
@@ -136,7 +119,6 @@ namespace Proyecto_taller.Views
                 return;
             }
 
-            // Para salida: validar que no supere el stock disponible
             if (_tipo == TipoMovimiento.Salida && cant > _repuesto.StockActual)
             {
                 MessageBox.Show(

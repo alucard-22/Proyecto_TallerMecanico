@@ -2,14 +2,17 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Cancelar Reserva"
-        Height="290" Width="420"
+        Height="311" Width="420"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Background="{StaticResource BgPrimary}">
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True">
 
     <Border Background="{StaticResource BgSurface}"
             BorderBrush="{StaticResource ColorDanger}"
-            BorderThickness="1" CornerRadius="10">
+            BorderThickness="1" CornerRadius="10"
+            MouseDown="Border_MouseDown">
         <Border.Effect>
             <DropShadowEffect Color="Black" Direction="270" ShadowDepth="4" BlurRadius="18" Opacity="0.45"/>
         </Border.Effect>

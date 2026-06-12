@@ -1,18 +1,8 @@
 ﻿using Proyecto_taller.Data;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
@@ -21,7 +11,7 @@ namespace Proyecto_taller.Views
         private readonly Repuesto? _repuesto;
         private readonly bool _esNuevo;
 
-        // ── Modo EDITAR ────────────────────────────────────────────────────────
+        // Modo EDITAR
         public EditarRepuestoWindow(Repuesto repuesto)
         {
             InitializeComponent();
@@ -34,13 +24,12 @@ namespace Proyecto_taller.Views
             txtPrecio.Text = repuesto.PrecioUnitario.ToString("N2");
             txtStockMinimo.Text = repuesto.StockMinimo.ToString();
 
-            // En modo edición el stock inicial no aplica
             panelStockInicial.Visibility = Visibility.Collapsed;
 
             txtNombre.Focus();
         }
 
-        // ── Modo NUEVO ─────────────────────────────────────────────────────────
+        // Modo NUEVO
         public EditarRepuestoWindow()
         {
             InitializeComponent();
@@ -57,11 +46,14 @@ namespace Proyecto_taller.Views
             txtNombre.Focus();
         }
 
-        // ─── Guardar ──────────────────────────────────────────────────────────
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
 
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
-            // ── Validaciones ──────────────────────────────────────────────────
             if (string.IsNullOrWhiteSpace(txtNombre.Text))
             {
                 Msg("El nombre del repuesto es obligatorio.");
@@ -104,7 +96,6 @@ namespace Proyecto_taller.Views
 
                 if (_esNuevo)
                 {
-                    // Verificar nombre duplicado
                     if (db.Repuestos.Any(r =>
                             r.Nombre.ToLower() == txtNombre.Text.Trim().ToLower()))
                     {
@@ -144,7 +135,6 @@ namespace Proyecto_taller.Views
                         return;
                     }
 
-                    // Verificar nombre duplicado excluyendo el repuesto actual
                     if (db.Repuestos.Any(r =>
                             r.Nombre.ToLower() == txtNombre.Text.Trim().ToLower() &&
                             r.RepuestoID != rep.RepuestoID))

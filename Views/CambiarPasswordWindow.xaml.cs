@@ -1,18 +1,8 @@
 ﻿using Proyecto_taller.Data;
 using Proyecto_taller.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
@@ -32,6 +22,12 @@ namespace Proyecto_taller.Views
                     $"{usuario.NombreUsuario}   ·   {usuario.NombreCompleto}";
 
             txtNuevaPassword.Focus();
+        }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
         }
 
         private void GuardarButton_Click(object sender, RoutedEventArgs e)
@@ -63,7 +59,6 @@ namespace Proyecto_taller.Views
                 if (usuario != null)
                 {
                     usuario.PasswordHash = PasswordHelper.HashPassword(txtNuevaPassword.Password);
-                    // FIX: registrar la fecha del cambio para auditoría en el historial
                     usuario.FechaUltimoCambioPassword = DateTime.Now;
                     db.SaveChanges();
 

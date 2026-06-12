@@ -3,18 +3,9 @@ using Proyecto_taller.Data;
 using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
@@ -28,6 +19,12 @@ namespace Proyecto_taller.Views
             InitializeComponent();
             _facturaId = facturaId;
             Loaded += (_, __) => Cargar();
+        }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
         }
 
         private void Cargar()
@@ -47,12 +44,10 @@ namespace Proyecto_taller.Views
                 var v = _factura.Trabajo?.Vehiculo;
                 var t = _factura.Trabajo;
 
-                // Header
                 txtNumeroFactura.Text = $"Factura  {_factura.NumeroFactura}";
                 txtEstado.Text = _factura.Estado;
                 txtFechaEmision.Text = _factura.FechaEmision.ToString("dd/MM/yyyy  HH:mm");
 
-                // Color del header según estado
                 headerBorder.Background = _factura.Estado switch
                 {
                     "Pagada" => new SolidColorBrush(Color.FromRgb(5, 88, 57)),
@@ -61,28 +56,23 @@ namespace Proyecto_taller.Views
                     _ => new SolidColorBrush(Color.FromRgb(50, 50, 80))
                 };
 
-                // Cliente
                 txtCliente.Text = $"{c?.Nombre} {c?.Apellido}";
                 txtTelefono.Text = c?.Telefono ?? "—";
                 txtCorreo.Text = string.IsNullOrWhiteSpace(c?.Correo) ? "—" : c.Correo;
 
-                // Vehículo
                 txtVehiculo.Text = $"{v?.Marca} {v?.Modelo}";
                 txtPlaca.Text = v?.Placa ?? "—";
                 txtTrabajoId.Text = $"#{t?.TrabajoID}";
 
-                // Descripción
                 txtDescripcion.Text = string.IsNullOrWhiteSpace(t?.Descripcion)
                     ? "Sin descripción" : t.Descripcion;
 
-                // Razón social
                 if (!string.IsNullOrWhiteSpace(_factura.RazonSocial))
                 {
                     txtRazonSocial.Text = _factura.RazonSocial;
                     panelRazonSocial.Visibility = Visibility.Visible;
                 }
 
-                // Financiero
                 txtSubtotal.Text = $"Bs. {_factura.Subtotal:N2}";
                 txtDescuento.Text = _factura.Descuento > 0
                     ? $"- Bs. {_factura.Descuento:N2}" : "—";

@@ -1,5 +1,4 @@
-﻿<!-- AGREGAR_USUARIO_WINDOW.XAML -->
-<Window x:Class="Proyecto_taller.Views.AgregarUsuarioWindow"
+﻿<Window x:Class="Proyecto_taller.Views.AgregarUsuarioWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Agregar Nuevo Usuario"
@@ -12,7 +11,8 @@
 
     <Border Background="{StaticResource BgSurface}"
             BorderBrush="{StaticResource AccentPrimary}"
-            BorderThickness="1" CornerRadius="12">
+            BorderThickness="1" CornerRadius="12"
+            MouseDown="Border_MouseDown">
         <Border.Effect>
             <DropShadowEffect Color="Black" Direction="270" ShadowDepth="6" BlurRadius="24" Opacity="0.5"/>
         </Border.Effect>

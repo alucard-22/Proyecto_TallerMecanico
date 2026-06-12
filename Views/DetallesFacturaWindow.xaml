@@ -5,7 +5,9 @@
         Height="680" Width="620"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Background="{StaticResource BgPrimary}">
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True">
 
     <Window.Resources>
         <Style x:Key="FieldLabel" TargetType="TextBlock">
@@ -30,182 +32,194 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Border Background="{StaticResource BgPrimary}"
+            CornerRadius="12"
+            BorderBrush="{StaticResource AccentPrimary}"
+            BorderThickness="1"
+            MouseDown="Border_MouseDown">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="8" BlurRadius="28" Opacity="0.5"/>
+        </Border.Effect>
 
-        <!-- Header con color según estado -->
-        <Border Grid.Row="0" x:Name="headerBorder"
-                Background="{StaticResource AccentPrimary}"
-                Padding="24,20">
-            <Grid>
-                <StackPanel>
-                    <TextBlock x:Name="txtNumeroFactura"
-                               Foreground="White"
-                               FontSize="22" FontWeight="Bold"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <Border x:Name="badgeEstado"
-                                Background="#FFFFFF22"
-                                CornerRadius="10" Padding="10,3">
-                            <TextBlock x:Name="txtEstado"
-                                       Foreground="White"
-                                       FontSize="12" FontWeight="SemiBold"/>
-                        </Border>
-                        <TextBlock x:Name="txtFechaEmision"
-                                   Foreground="#FFFFFFAA"
-                                   FontSize="12" Margin="14,0,0,0"
-                                   VerticalAlignment="Center"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header con color según estado -->
+            <Border Grid.Row="0" x:Name="headerBorder"
+                    Background="{StaticResource AccentPrimary}"
+                    CornerRadius="11,11,0,0"
+                    Padding="24,20">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock x:Name="txtNumeroFactura"
+                                   Foreground="White"
+                                   FontSize="22" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Border x:Name="badgeEstado"
+                                    Background="#FFFFFF22"
+                                    CornerRadius="10" Padding="10,3">
+                                <TextBlock x:Name="txtEstado"
+                                           Foreground="White"
+                                           FontSize="12" FontWeight="SemiBold"/>
+                            </Border>
+                            <TextBlock x:Name="txtFechaEmision"
+                                       Foreground="#FFFFFFAA"
+                                       FontSize="12" Margin="14,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
-                <Button Content="✕" Click="Cerrar_Click"
-                        Background="Transparent" Foreground="White"
-                        BorderThickness="0" FontSize="20" FontWeight="Bold"
-                        Cursor="Hand" Padding="12,6"
-                        HorizontalAlignment="Right" VerticalAlignment="Top"/>
-            </Grid>
-        </Border>
+                    <Button Content="✕" Click="Cerrar_Click"
+                            Background="Transparent" Foreground="White"
+                            BorderThickness="0" FontSize="20" FontWeight="Bold"
+                            Cursor="Hand" Padding="12,6"
+                            HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                </Grid>
+            </Border>
 
-        <!-- Contenido -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                      Background="{StaticResource BgPrimary}" Padding="24,16">
-            <StackPanel>
+            <!-- Contenido -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          Background="{StaticResource BgPrimary}" Padding="24,16">
+                <StackPanel>
 
-                <!-- Cliente y Vehículo -->
-                <Border Style="{StaticResource DetailCard}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="👤 CLIENTE"
+                    <!-- Cliente y Vehículo -->
+                    <Border Style="{StaticResource DetailCard}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="👤 CLIENTE"
+                                           Foreground="{StaticResource AccentLight}"
+                                           FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBlock Text="Nombre:" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtCliente"
+                                           Style="{StaticResource FieldValue}"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock Text="Teléfono:" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtTelefono"
+                                           Style="{StaticResource FieldValue}"
+                                           FontFamily="Consolas"/>
+                                <TextBlock Text="Correo:" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtCorreo"
+                                           Style="{StaticResource FieldValue}"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="🚗 VEHÍCULO"
+                                           Foreground="{StaticResource ColorInfo}"
+                                           FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBlock Text="Vehículo:" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtVehiculo"
+                                           Style="{StaticResource FieldValue}"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock Text="Placa:" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtPlaca"
+                                           Style="{StaticResource FieldValue}"
+                                           FontFamily="Consolas"
+                                           Foreground="{StaticResource AccentLight}"/>
+                                <TextBlock Text="Trabajo #:" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock x:Name="txtTrabajoId"
+                                           Style="{StaticResource FieldValue}"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Descripción del trabajo -->
+                    <Border Style="{StaticResource DetailCard}">
+                        <StackPanel>
+                            <TextBlock Text="🔧 DESCRIPCIÓN DEL TRABAJO"
+                                       Foreground="{StaticResource ColorWarning}"
+                                       FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="txtDescripcion"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Razón social (si aplica) -->
+                    <Border x:Name="panelRazonSocial"
+                            Style="{StaticResource DetailCard}"
+                            Visibility="Collapsed">
+                        <StackPanel>
+                            <TextBlock Text="🏢 DATOS DE FACTURACIÓN"
                                        Foreground="{StaticResource AccentLight}"
                                        FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                            <TextBlock Text="Nombre:" Style="{StaticResource FieldLabel}"/>
-                            <TextBlock x:Name="txtCliente"
-                                       Style="{StaticResource FieldValue}"
-                                       FontWeight="SemiBold"/>
-                            <TextBlock Text="Teléfono:" Style="{StaticResource FieldLabel}"/>
-                            <TextBlock x:Name="txtTelefono"
-                                       Style="{StaticResource FieldValue}"
-                                       FontFamily="Consolas"/>
-                            <TextBlock Text="Correo:" Style="{StaticResource FieldLabel}"/>
-                            <TextBlock x:Name="txtCorreo"
-                                       Style="{StaticResource FieldValue}"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       Margin="0"/>
+                            <TextBlock Text="Razón Social:" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock x:Name="txtRazonSocial"
+                                       Style="{StaticResource FieldValue}" Margin="0"/>
                         </StackPanel>
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="🚗 VEHÍCULO"
-                                       Foreground="{StaticResource ColorInfo}"
-                                       FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                            <TextBlock Text="Vehículo:" Style="{StaticResource FieldLabel}"/>
-                            <TextBlock x:Name="txtVehiculo"
-                                       Style="{StaticResource FieldValue}"
-                                       FontWeight="SemiBold"/>
-                            <TextBlock Text="Placa:" Style="{StaticResource FieldLabel}"/>
-                            <TextBlock x:Name="txtPlaca"
-                                       Style="{StaticResource FieldValue}"
-                                       FontFamily="Consolas"
-                                       Foreground="{StaticResource AccentLight}"/>
-                            <TextBlock Text="Trabajo #:" Style="{StaticResource FieldLabel}"/>
-                            <TextBlock x:Name="txtTrabajoId"
-                                       Style="{StaticResource FieldValue}"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       Margin="0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                    </Border>
 
-                <!-- Descripción del trabajo -->
-                <Border Style="{StaticResource DetailCard}">
-                    <StackPanel>
-                        <TextBlock Text="🔧 DESCRIPCIÓN DEL TRABAJO"
-                                   Foreground="{StaticResource ColorWarning}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <TextBlock x:Name="txtDescripcion"
-                                   Foreground="{StaticResource TextSecondary}"
-                                   FontSize="13" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Razón social (si aplica) -->
-                <Border x:Name="panelRazonSocial"
-                        Style="{StaticResource DetailCard}"
-                        Visibility="Collapsed">
-                    <StackPanel>
-                        <TextBlock Text="🏢 DATOS DE FACTURACIÓN"
-                                   Foreground="{StaticResource AccentLight}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <TextBlock Text="Razón Social:" Style="{StaticResource FieldLabel}"/>
-                        <TextBlock x:Name="txtRazonSocial"
-                                   Style="{StaticResource FieldValue}" Margin="0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Resumen financiero -->
-                <Border Background="#182820"
-                        BorderBrush="{StaticResource ColorSuccess}"
-                        BorderThickness="1" CornerRadius="8"
-                        Padding="18,16" Margin="0,0,0,10">
-                    <StackPanel>
-                        <TextBlock Text="💰 RESUMEN FINANCIERO"
-                                   Foreground="{StaticResource ColorSuccess}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,0,0,12"/>
-
-                        <Grid Margin="0,0,0,6">
-                            <TextBlock Text="Subtotal:"
-                                       Foreground="{StaticResource TextMuted}" FontSize="13"/>
-                            <TextBlock x:Name="txtSubtotal"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       FontFamily="Consolas" FontSize="13"
-                                       HorizontalAlignment="Right"/>
-                        </Grid>
-                        <Grid Margin="0,0,0,8">
-                            <TextBlock Text="Descuento:"
-                                       Foreground="{StaticResource TextMuted}" FontSize="13"/>
-                            <TextBlock x:Name="txtDescuento"
-                                       Foreground="{StaticResource ColorDanger}"
-                                       FontFamily="Consolas" FontSize="13"
-                                       HorizontalAlignment="Right"/>
-                        </Grid>
-
-                        <Border Height="1" Background="{StaticResource BorderColor}"
-                                Margin="0,0,0,8" Opacity="0.5"/>
-
-                        <Grid>
-                            <TextBlock Text="TOTAL:"
+                    <!-- Resumen financiero -->
+                    <Border Background="#182820"
+                            BorderBrush="{StaticResource ColorSuccess}"
+                            BorderThickness="1" CornerRadius="8"
+                            Padding="18,16" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="💰 RESUMEN FINANCIERO"
                                        Foreground="{StaticResource ColorSuccess}"
-                                       FontSize="15" FontWeight="Bold"/>
-                            <TextBlock x:Name="txtTotal"
-                                       Foreground="#6EE7B7"
-                                       FontFamily="Consolas" FontSize="22" FontWeight="Bold"
-                                       HorizontalAlignment="Right"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                                       FontSize="10" FontWeight="Bold" Margin="0,0,0,12"/>
 
-            </StackPanel>
-        </ScrollViewer>
+                            <Grid Margin="0,0,0,6">
+                                <TextBlock Text="Subtotal:"
+                                           Foreground="{StaticResource TextMuted}" FontSize="13"/>
+                                <TextBlock x:Name="txtSubtotal"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontFamily="Consolas" FontSize="13"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,8">
+                                <TextBlock Text="Descuento:"
+                                           Foreground="{StaticResource TextMuted}" FontSize="13"/>
+                                <TextBlock x:Name="txtDescuento"
+                                           Foreground="{StaticResource ColorDanger}"
+                                           FontFamily="Consolas" FontSize="13"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
 
-        <!-- Footer -->
-        <Border Grid.Row="2"
-                Background="{StaticResource BgSurface}"
-                BorderBrush="{StaticResource BorderColor}"
-                BorderThickness="0,1,0,0"
-                Padding="24,14">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="🖨️  Generar PDF"
-                        Click="GenerarPdf_Click"
-                        Style="{StaticResource BtnPrimary}"/>
-                <Button Content="✕  Cerrar"
-                        Click="Cerrar_Click"
-                        Style="{StaticResource BtnSecondary}"
-                        Width="110"/>
-            </StackPanel>
-        </Border>
-    </Grid>
+                            <Border Height="1" Background="{StaticResource BorderColor}"
+                                    Margin="0,0,0,8" Opacity="0.5"/>
+
+                            <Grid>
+                                <TextBlock Text="TOTAL:"
+                                           Foreground="{StaticResource ColorSuccess}"
+                                           FontSize="15" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtTotal"
+                                           Foreground="#6EE7B7"
+                                           FontFamily="Consolas" FontSize="22" FontWeight="Bold"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Footer -->
+            <Border Grid.Row="2"
+                    Background="{StaticResource BgSurface}"
+                    BorderBrush="{StaticResource BorderColor}"
+                    BorderThickness="0,1,0,0"
+                    CornerRadius="0,0,11,11"
+                    Padding="24,14">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="🖨️  Generar PDF"
+                            Click="GenerarPdf_Click"
+                            Style="{StaticResource BtnPrimary}"/>
+                    <Button Content="✕  Cerrar"
+                            Click="Cerrar_Click"
+                            Style="{StaticResource BtnSecondary}"
+                            Width="110"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

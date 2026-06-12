@@ -1,18 +1,9 @@
 ﻿using Proyecto_taller.Data;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Proyecto_taller.Views
@@ -29,6 +20,12 @@ namespace Proyecto_taller.Views
             CargarDetalles();
         }
 
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
+
         private void CargarDetalles()
         {
             try
@@ -36,7 +33,7 @@ namespace Proyecto_taller.Views
                 using var db = new TallerDbContext();
                 _reserva = db.Reservas
                     .Include(r => r.Vehiculo)
-                        .ThenInclude(v => v.Cliente) // ⭐ Cliente a través del vehículo
+                        .ThenInclude(v => v.Cliente)
                     .FirstOrDefault(r => r.ReservaID == _reservaId);
 
                 if (_reserva == null)
@@ -47,21 +44,19 @@ namespace Proyecto_taller.Views
                     return;
                 }
 
-                // Header
                 txtTitulo.Text = $"Reserva #{_reserva.ReservaID}";
                 txtEstado.Text = _reserva.Estado;
                 txtEstado.Foreground = _reserva.Estado switch
                 {
-                    "Pendiente" => new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(245, 124, 0)),
-                    "Confirmada" => new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(56, 142, 60)),
-                    "En Curso" => new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(2, 136, 209)),
-                    "Completada" => new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(46, 125, 50)),
-                    "Cancelada" => new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(211, 47, 47)),
-                    "No Asistió" => new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(194, 24, 91)),
-                    _ => new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(108, 117, 125))
+                    "Pendiente" => new SolidColorBrush(Color.FromRgb(245, 124, 0)),
+                    "Confirmada" => new SolidColorBrush(Color.FromRgb(56, 142, 60)),
+                    "En Curso" => new SolidColorBrush(Color.FromRgb(2, 136, 209)),
+                    "Completada" => new SolidColorBrush(Color.FromRgb(46, 125, 50)),
+                    "Cancelada" => new SolidColorBrush(Color.FromRgb(211, 47, 47)),
+                    "No Asistió" => new SolidColorBrush(Color.FromRgb(194, 24, 91)),
+                    _ => new SolidColorBrush(Color.FromRgb(108, 117, 125))
                 };
 
-                // Información de la Reserva
                 txtFechaHoraCita.Text = _reserva.FechaHoraCita.ToString("dddd, dd/MM/yyyy HH:mm");
                 txtTipoServicio.Text = _reserva.TipoServicio;
                 txtPrioridad.Text = _reserva.Prioridad;
@@ -70,7 +65,6 @@ namespace Proyecto_taller.Views
                 txtPrecioEstimado.Text = _reserva.PrecioEstimado.HasValue
                     ? $"Bs. {_reserva.PrecioEstimado:N2}" : "No especificado";
 
-                // Cliente (a través del vehículo)
                 if (_reserva.Vehiculo?.Cliente != null)
                 {
                     var cliente = _reserva.Vehiculo.Cliente;
@@ -80,12 +74,12 @@ namespace Proyecto_taller.Views
                         ? "N/A" : cliente.Correo;
                 }
 
-                // Vehículo
                 if (_reserva.Vehiculo != null)
                 {
                     txtMarcaModelo.Text = $"{_reserva.Vehiculo.Marca} {_reserva.Vehiculo.Modelo}";
                     txtPlaca.Text = _reserva.Vehiculo.Placa;
-                    txtAnio.Text = _reserva.Vehiculo.Anio.HasValue ? _reserva.Vehiculo.Anio.ToString() : "N/A";
+                    txtAnio.Text = _reserva.Vehiculo.Anio.HasValue
+                        ? _reserva.Vehiculo.Anio.ToString() : "N/A";
                     panelVehiculo.Visibility = Visibility.Visible;
                 }
                 else
@@ -93,14 +87,12 @@ namespace Proyecto_taller.Views
                     panelVehiculo.Visibility = Visibility.Collapsed;
                 }
 
-                // Fechas
                 txtFechaCreacion.Text = _reserva.FechaReserva.ToString("dd/MM/yyyy HH:mm");
                 txtFechaConfirmacion.Text = _reserva.FechaConfirmacion.HasValue
                     ? _reserva.FechaConfirmacion.Value.ToString("dd/MM/yyyy HH:mm") : "No confirmada";
                 txtFechaCompletado.Text = _reserva.FechaCompletado.HasValue
                     ? _reserva.FechaCompletado.Value.ToString("dd/MM/yyyy HH:mm") : "No completada";
 
-                // Cancelación
                 if (!string.IsNullOrWhiteSpace(_reserva.MotivoCancelacion))
                 {
                     txtMotivoCancelacion.Text = _reserva.MotivoCancelacion;
@@ -120,9 +112,6 @@ namespace Proyecto_taller.Views
             }
         }
 
-        private void Cerrar_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+        private void Cerrar_Click(object sender, RoutedEventArgs e) => Close();
     }
 }

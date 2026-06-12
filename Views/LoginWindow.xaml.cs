@@ -1,5 +1,7 @@
 ﻿using Proyecto_taller.Data;
 using Proyecto_taller.Helpers;
+using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
@@ -15,9 +17,11 @@ namespace Proyecto_taller.Views
             txtUsuario.Focus();
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  USUARIOS POR DEFECTO
-        // ─────────────────────────────────────────────────────────
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
 
         private void InicializarUsuariosPorDefecto()
         {
@@ -55,10 +59,6 @@ namespace Proyecto_taller.Views
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  EVENTOS
-        // ─────────────────────────────────────────────────────────
-
         private void LoginButton_Click(object sender, RoutedEventArgs e)
             => IntentarIniciarSesion();
 
@@ -71,10 +71,6 @@ namespace Proyecto_taller.Views
         {
             if (e.Key == Key.Enter) IntentarIniciarSesion();
         }
-
-        // ─────────────────────────────────────────────────────────
-        //  LÓGICA DE LOGIN
-        // ─────────────────────────────────────────────────────────
 
         private void IntentarIniciarSesion()
         {
@@ -101,7 +97,6 @@ namespace Proyecto_taller.Views
                 var usuario = db.Usuarios.FirstOrDefault(u =>
                     u.NombreUsuario.ToLower() == txtUsuario.Text.Trim().ToLower());
 
-                // Usuario no existe
                 if (usuario == null)
                 {
                     MostrarError(
@@ -112,7 +107,6 @@ namespace Proyecto_taller.Views
                     return;
                 }
 
-                // Usuario inactivo
                 if (!usuario.Activo)
                 {
                     MostrarError(
@@ -121,7 +115,6 @@ namespace Proyecto_taller.Views
                     return;
                 }
 
-                // Contraseña incorrecta
                 if (!PasswordHelper.VerifyPassword(txtPassword.Password, usuario.PasswordHash))
                 {
                     MostrarError(
@@ -132,7 +125,7 @@ namespace Proyecto_taller.Views
                     return;
                 }
 
-                // ✅ Login exitoso
+                // Login exitoso
                 usuario.UltimoAcceso = DateTime.Now;
                 db.SaveChanges();
 
@@ -151,7 +144,6 @@ namespace Proyecto_taller.Views
             }
             catch (Exception ex)
             {
-                // Detectar error de conexión
                 bool esConexion =
                     ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase) ||
                     ex.Message.Contains("server", StringComparison.OrdinalIgnoreCase) ||
@@ -164,16 +156,11 @@ namespace Proyecto_taller.Views
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  PANEL DE ERROR
-        // ─────────────────────────────────────────────────────────
-
         private void MostrarError(string mensaje)
         {
             txtError.Text = mensaje;
             errorPanel.Visibility = Visibility.Visible;
 
-            // Animación de aparición suave
             var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(250));
             errorPanel.BeginAnimation(OpacityProperty, fade);
 
@@ -184,10 +171,6 @@ namespace Proyecto_taller.Views
         {
             errorPanel.Visibility = Visibility.Collapsed;
         }
-
-        // ─────────────────────────────────────────────────────────
-        //  CERRAR
-        // ─────────────────────────────────────────────────────────
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
             => Application.Current.Shutdown();

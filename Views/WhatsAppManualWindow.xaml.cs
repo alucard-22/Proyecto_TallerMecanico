@@ -1,18 +1,7 @@
 ﻿using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
@@ -28,6 +17,12 @@ namespace Proyecto_taller.Views
             var cliente = reserva.Vehiculo?.Cliente;
             txtClienteInfo.Text =
                 $"{cliente?.Nombre} {cliente?.Apellido}  ·  {cliente?.Telefono}  ·  {reserva.FechaHoraCita:dd/MM/yyyy HH:mm}";
+        }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
         }
 
         private void EnviarConfirmacion_Click(object sender, RoutedEventArgs e)
