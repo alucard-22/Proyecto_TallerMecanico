@@ -1,18 +1,10 @@
 ﻿using Proyecto_taller.Data;
+using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
@@ -25,10 +17,38 @@ namespace Proyecto_taller.Views
         {
             InitializeComponent();
             txtNombre.Focus();
+
+            // Aplicar capitalización automática al perder el foco
+            txtNombre.LostFocus += (s, e) => AplicarTitleCase(txtNombre);
+            txtApellido.LostFocus += (s, e) => AplicarTitleCase(txtApellido);
+            txtDireccion.LostFocus += (s, e) => AplicarPrimeraLetra(txtDireccion);
         }
+
+        // ── Helpers de capitalización ─────────────────────────────────────────
+
+        private static void AplicarTitleCase(TextBox tb)
+        {
+            if (!string.IsNullOrWhiteSpace(tb.Text))
+                tb.Text = ValidationHelper.AplicarTitleCase(tb.Text);
+        }
+
+        private static void AplicarPrimeraLetra(TextBox tb)
+        {
+            if (!string.IsNullOrWhiteSpace(tb.Text))
+                tb.Text = ValidationHelper.AplicarPrimeraLetraMayuscula(tb.Text);
+        }
+
+        // ── Guardar ───────────────────────────────────────────────────────────
 
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
+            // Aplicar capitalización antes de validar
+            txtNombre.Text = ValidationHelper.AplicarTitleCase(txtNombre.Text);
+            txtApellido.Text = ValidationHelper.AplicarTitleCase(txtApellido.Text);
+            txtDireccion.Text = string.IsNullOrWhiteSpace(txtDireccion.Text)
+                ? "Sin dirección"
+                : ValidationHelper.AplicarPrimeraLetraMayuscula(txtDireccion.Text);
+
             // Validaciones
             if (string.IsNullOrWhiteSpace(txtNombre.Text))
             {
@@ -46,6 +66,21 @@ namespace Proyecto_taller.Views
             {
                 Msg("El teléfono es obligatorio.");
                 txtTelefono.Focus();
+                return;
+            }
+            if (!ValidationHelper.EsTelefonoValido(txtTelefono.Text))
+            {
+                Msg(ValidationHelper.MsgTelefonoInvalido);
+                txtTelefono.Focus();
+                return;
+            }
+
+            // Validar correo solo si se ingresó algo
+            if (!string.IsNullOrWhiteSpace(txtCorreo.Text) &&
+                !ValidationHelper.EsCorreoValido(txtCorreo.Text))
+            {
+                Msg(ValidationHelper.MsgCorreoInvalido);
+                txtCorreo.Focus();
                 return;
             }
 
@@ -67,9 +102,7 @@ namespace Proyecto_taller.Views
                     Apellido = txtApellido.Text.Trim(),
                     Telefono = txtTelefono.Text.Trim(),
                     Correo = txtCorreo.Text.Trim(),
-                    Direccion = string.IsNullOrWhiteSpace(txtDireccion.Text)
-                                        ? "Sin dirección"
-                                        : txtDireccion.Text.Trim(),
+                    Direccion = txtDireccion.Text.Trim(),
                     FechaRegistro = DateTime.Now
                 };
 

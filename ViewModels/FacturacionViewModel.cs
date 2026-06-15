@@ -160,8 +160,8 @@ namespace Proyecto_taller.ViewModels
                 // (podría haberse creado mientras el diálogo estaba abierto)
                 if (db.Facturas.Any(f => f.TrabajoID == trabajo.TrabajoID))
                 {
-                    MessageBox.Show("Este trabajo ya tiene una factura asociada.\nActualiza la lista e intenta de nuevo.",
-                        "Factura existente", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Este trabajo ya tiene un recibo asociado.\nActualiza la lista e intenta de nuevo.",
+                        "Recibo existente", MessageBoxButton.OK, MessageBoxImage.Warning);
                     Recargar();
                     return;
                 }
@@ -208,7 +208,7 @@ namespace Proyecto_taller.ViewModels
                 ActualizarEstadisticas();
 
                 MessageBox.Show(
-                    $"✅  FACTURA CREADA EXITOSAMENTE\n\n" +
+                    $"✅  RECIBO CREADO EXITOSAMENTE\n\n" +
                     $"📄  {numeroFactura}\n" +
                     $"👤  {trabajo.Vehiculo?.Cliente?.Nombre} {trabajo.Vehiculo?.Cliente?.Apellido}\n" +
                     $"🚗  {trabajo.Vehiculo?.Marca} {trabajo.Vehiculo?.Modelo}\n\n" +
@@ -216,11 +216,11 @@ namespace Proyecto_taller.ViewModels
                     $"Descuento: Bs. 0.00\n" +
                     $"━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                     $"TOTAL:     Bs. {subtotal:N2}",
-                    "Factura Creada", MessageBoxButton.OK, MessageBoxImage.Information);
+                    "Recibo Creado", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al crear la factura:\n{ex.Message}",
+                MessageBox.Show($"Error al crear el recibo:\n{ex.Message}",
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -265,8 +265,8 @@ namespace Proyecto_taller.ViewModels
             if (FacturaSeleccionada == null || FacturaSeleccionada.Estado == "Anulada") return;
 
             var r = MessageBox.Show(
-                $"¿Anular la factura {FacturaSeleccionada.NumeroFactura}?\n\nEsta acción no se puede deshacer.",
-                "Anular Factura", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                $"¿Anular Recibo {FacturaSeleccionada.NumeroFactura}?\n\nEsta acción no se puede deshacer.",
+                "Anular Recibo", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (r != MessageBoxResult.Yes) return;
 
@@ -298,7 +298,7 @@ namespace Proyecto_taller.ViewModels
                 ActualizarEstadisticas();
                 CommandManager.InvalidateRequerySuggested();
 
-                MessageBox.Show("Factura anulada correctamente.",
+                MessageBox.Show("Recibo anulado correctamente.",
                     "Anulada", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -317,7 +317,7 @@ namespace Proyecto_taller.ViewModels
             if (FacturaSeleccionada == null) return;
 
             var r = MessageBox.Show(
-                $"¿Eliminar la factura {FacturaSeleccionada.NumeroFactura}?\n\n" +
+                $"¿Eliminar el recibo {FacturaSeleccionada.NumeroFactura}?\n\n" +
                 $"⚠️ Esta acción es permanente y no se puede deshacer.",
                 "Confirmar Eliminación", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 

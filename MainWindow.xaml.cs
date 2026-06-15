@@ -120,7 +120,7 @@ namespace Proyecto_taller
                 case "inventario":
                     MainFrame.Navigate(new Inventario());
                     break;
-                case "facturación":
+                case "recibos":
                     MainFrame.Navigate(new Facturacion());
                     break;
                 case "reportes":
@@ -214,7 +214,7 @@ namespace Proyecto_taller
         private void Facturacion_Click(object sender, RoutedEventArgs e)
         {
             SetActiveButton(BtnFacturacion);
-            NavigateToPage("Facturación");
+            NavigateToPage("Recibos");
         }
 
         private void Reportes_Click(object sender, RoutedEventArgs e)

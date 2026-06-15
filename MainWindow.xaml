@@ -201,7 +201,7 @@
                     <Button x:Name="BtnServicios"   Content="🛠️  Trabajos"     Style="{StaticResource MenuButton}" Click="Servicios_Click"/>
                     <Button x:Name="BtnReservas"    Content="📅  Reservas"     Style="{StaticResource MenuButton}" Click="Reservas_Click"/>
                     <Button x:Name="BtnInventario"  Content="📦  Inventario"   Style="{StaticResource MenuButton}" Click="Inventario_Click"/>
-                    <Button x:Name="BtnFacturacion" Content="💰  Facturación"  Style="{StaticResource MenuButton}" Click="Facturacion_Click"/>
+                    <Button x:Name="BtnFacturacion" Content="💰  Recibos"  Style="{StaticResource MenuButton}" Click="Facturacion_Click"/>
                     <Button x:Name="BtnReportes"    Content="📊  Reportes"     Style="{StaticResource MenuButton}" Click="Reportes_Click"/>
 
                     <Border Height="1" Background="{StaticResource BorderColor}"

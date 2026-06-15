@@ -40,8 +40,8 @@
                             <TextBlock Text="💰" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Gestión de Facturación" Style="{StaticResource PageTitle}"/>
-                            <TextBlock Text="Historial y control de facturas emitidas"
+                            <TextBlock Text="Gestión de Recibos" Style="{StaticResource PageTitle}"/>
+                            <TextBlock Text="Historial y control de Recibos emitidos"
                                        Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,2,0,0"/>
                         </StackPanel>
                     </StackPanel>
@@ -49,14 +49,14 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Border Background="#182820" CornerRadius="8" Padding="14,8" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="💰 Facturado: " Foreground="#6EE7B7" FontWeight="SemiBold" FontSize="12"/>
+                                <TextBlock Text="💰 Total: " Foreground="#6EE7B7" FontWeight="SemiBold" FontSize="12"/>
                                 <TextBlock Text="{Binding TotalFacturado, StringFormat=Bs. {0:N2}}"
                                            Foreground="#6EE7B7" FontWeight="Bold" FontSize="12"/>
                             </StackPanel>
                         </Border>
                         <Border Background="{StaticResource AccentMuted}" CornerRadius="8" Padding="14,8">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="📄 Facturas: " Foreground="{StaticResource AccentLight}"
+                                <TextBlock Text="📄 Recibos: " Foreground="{StaticResource AccentLight}"
                                            FontWeight="SemiBold" FontSize="12"/>
                                 <TextBlock Text="{Binding TotalFacturas}"
                                            Foreground="{StaticResource AccentLight}" FontWeight="Bold" FontSize="12"/>
@@ -68,7 +68,7 @@
                 <!-- Botones -->
                 <StackPanel Grid.Row="2" Orientation="Horizontal">
                     <Button Content="🔄 Actualizar"   Command="{Binding CargarFacturasCommand}"   Style="{StaticResource BtnSecondary}"/>
-                    <Button Content="➕ Nueva Factura" Command="{Binding NuevaFacturaCommand}"     Style="{StaticResource BtnPrimary}"/>
+                    <Button Content="➕ Nuevo Recibo" Command="{Binding NuevaFacturaCommand}"     Style="{StaticResource BtnPrimary}"/>
                     <Button Content="👁️ Ver Detalle"   Command="{Binding VerDetalleCommand}"      Style="{StaticResource BtnGhost}"/>
                     <Button Content="🖨️ Imprimir"      Command="{Binding ImprimirFacturaCommand}" Style="{StaticResource BtnGhost}"/>
                     <Button Content="❌ Anular"         Command="{Binding AnularFacturaCommand}"   Style="{StaticResource BtnWarning}"/>
@@ -121,7 +121,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Nº Factura" Binding="{Binding NumeroFactura}" Width="130">
+                    <DataGridTextColumn Header="Nº Recibo" Binding="{Binding NumeroFactura}" Width="130">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontWeight" Value="Bold"/>

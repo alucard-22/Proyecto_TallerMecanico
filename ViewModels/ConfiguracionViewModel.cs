@@ -221,7 +221,7 @@ namespace Proyecto_taller.ViewModels
                     $"Teléfono:  {TelefonoTaller}\n" +
                     $"Email:     {EmailTaller}\n" +
                     $"NIT:       {NITTaller}\n\n" +
-                    $"Los PDFs de facturas generados a partir de ahora\n" +
+                    $"Los PDFs de Recibos generados a partir de ahora\n" +
                     $"usarán estos datos actualizados.",
                     "Guardado", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -251,7 +251,7 @@ namespace Proyecto_taller.ViewModels
                 ConfiguracionHelper.GuardarConfiguracion(config);
 
                 MessageBox.Show(
-                    $"✅  CONFIGURACIÓN DE FACTURACIÓN GUARDADA\n\n" +
+                    $"✅  CONFIGURACIÓN DE RECIBOS GUARDADA\n\n" +
                     $"Descuento máximo: {DescuentoMaximo}%\n" +
                     $"Solicitar NIT:    {(SolicitarNIT ? "Sí" : "No")}",
                     "Guardado", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -524,8 +524,8 @@ namespace Proyecto_taller.ViewModels
                     $"    ✅ Finalizados:     {db.Trabajos.Count(t => t.Estado == "Finalizado")}\n\n" +
                     $"📅  Reservas:           {db.Reservas.Count()}\n" +
                     $"    ⏳ Pendientes:      {db.Reservas.Count(r => r.Estado == "Pendiente")}\n\n" +
-                    $"📄  Facturas:           {db.Facturas.Count()}\n" +
-                    $"    💰 Total facturado: Bs. {totalFacturado:N2}\n\n" +
+                    $"📄  Recibos:           {db.Facturas.Count()}\n" +
+                    $"    💰 Total emitido: Bs. {totalFacturado:N2}\n\n" +
                     $"⚙️   Servicios:          {db.Servicios.Count()}\n" +
                     $"📦  Repuestos:          {db.Repuestos.Count()}\n" +
                     $"    ⚠️ Stock bajo:      {db.Repuestos.Count(r => r.StockActual <= r.StockMinimo)}\n\n" +
@@ -607,7 +607,7 @@ namespace Proyecto_taller.ViewModels
                 MessageBox.Show(
                     $"✅  BASE DE DATOS REINICIADA\n\n" +
                     $"Clientes, vehículos, trabajos,\n" +
-                    $"reservas y facturas eliminados.\n" +
+                    $"reservas y recibos eliminados.\n" +
                     $"{mensajeUsuarios}",
                     "Reinicio Completado", MessageBoxButton.OK, MessageBoxImage.Information);
             }

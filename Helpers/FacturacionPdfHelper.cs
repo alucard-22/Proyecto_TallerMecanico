@@ -80,7 +80,7 @@ namespace Proyecto_taller.Helpers
                 tablaInfo.SetWidths(new float[] { 50f, 50f });
 
                 var celdaIzq = new PdfPCell { Border = Rectangle.NO_BORDER };
-                celdaIzq.AddElement(new Phrase($"Factura: {factura.NumeroFactura}\n", fNegrita));
+                celdaIzq.AddElement(new Phrase($"Recibo: {factura.NumeroFactura}\n", fNegrita));
                 celdaIzq.AddElement(new Phrase($"Fecha: {factura.FechaEmision:dd/MM/yyyy HH:mm}\n", fNormal));
                 celdaIzq.AddElement(new Phrase($"Estado: {factura.Estado}\n", fNormal));
                 tablaInfo.AddCell(celdaIzq);

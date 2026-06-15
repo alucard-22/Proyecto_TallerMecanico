@@ -1,18 +1,10 @@
 ﻿using Proyecto_taller.Data;
+using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
@@ -34,11 +26,35 @@ namespace Proyecto_taller.Views
             txtDireccion.Text = cliente.Direccion ?? string.Empty;
             txtFechaRegistro.Text = cliente.FechaRegistro.ToString("dd/MM/yyyy HH:mm");
 
+            // Capitalización automática al perder el foco
+            txtNombre.LostFocus += (s, e) => AplicarTitleCase(txtNombre);
+            txtApellido.LostFocus += (s, e) => AplicarTitleCase(txtApellido);
+            txtDireccion.LostFocus += (s, e) => AplicarPrimeraLetra(txtDireccion);
+
             txtNombre.Focus();
+        }
+
+        private static void AplicarTitleCase(TextBox tb)
+        {
+            if (!string.IsNullOrWhiteSpace(tb.Text))
+                tb.Text = ValidationHelper.AplicarTitleCase(tb.Text);
+        }
+
+        private static void AplicarPrimeraLetra(TextBox tb)
+        {
+            if (!string.IsNullOrWhiteSpace(tb.Text))
+                tb.Text = ValidationHelper.AplicarPrimeraLetraMayuscula(tb.Text);
         }
 
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
+            // Aplicar capitalización
+            txtNombre.Text = ValidationHelper.AplicarTitleCase(txtNombre.Text);
+            txtApellido.Text = ValidationHelper.AplicarTitleCase(txtApellido.Text);
+            txtDireccion.Text = string.IsNullOrWhiteSpace(txtDireccion.Text)
+                ? "Sin dirección"
+                : ValidationHelper.AplicarPrimeraLetraMayuscula(txtDireccion.Text);
+
             // Validaciones
             if (string.IsNullOrWhiteSpace(txtNombre.Text))
             {
@@ -58,12 +74,24 @@ namespace Proyecto_taller.Views
                 txtTelefono.Focus();
                 return;
             }
+            if (!ValidationHelper.EsTelefonoValido(txtTelefono.Text))
+            {
+                Msg(ValidationHelper.MsgTelefonoInvalido);
+                txtTelefono.Focus();
+                return;
+            }
+            if (!string.IsNullOrWhiteSpace(txtCorreo.Text) &&
+                !ValidationHelper.EsCorreoValido(txtCorreo.Text))
+            {
+                Msg(ValidationHelper.MsgCorreoInvalido);
+                txtCorreo.Focus();
+                return;
+            }
 
             try
             {
                 using var db = new TallerDbContext();
 
-                // Verificar teléfono duplicado excluyendo el cliente actual
                 bool telefonoDuplicado = db.Clientes.Any(c =>
                     c.Telefono == txtTelefono.Text.Trim() &&
                     c.ClienteID != _clienteId);
@@ -76,7 +104,6 @@ namespace Proyecto_taller.Views
                 }
 
                 var cliente = db.Clientes.Find(_clienteId);
-
                 if (cliente == null)
                 {
                     MessageBox.Show("El cliente ya no existe en la base de datos.",
@@ -88,9 +115,7 @@ namespace Proyecto_taller.Views
                 cliente.Apellido = txtApellido.Text.Trim();
                 cliente.Telefono = txtTelefono.Text.Trim();
                 cliente.Correo = txtCorreo.Text.Trim();
-                cliente.Direccion = string.IsNullOrWhiteSpace(txtDireccion.Text)
-                                        ? "Sin dirección"
-                                        : txtDireccion.Text.Trim();
+                cliente.Direccion = txtDireccion.Text.Trim();
 
                 db.SaveChanges();
 

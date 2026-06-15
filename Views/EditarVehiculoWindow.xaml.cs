@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Proyecto_taller.Models;
 using Proyecto_taller.Data;
+using Proyecto_taller.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Proyecto_taller.Views
@@ -15,7 +16,7 @@ namespace Proyecto_taller.Views
         private readonly bool _esNuevo;
         private Cliente? _clienteSeleccionado;
 
-        // Modo EDITAR
+        // ── Modo EDITAR ───────────────────────────────────────────────────────
         public EditarVehiculoWindow(Vehiculo vehiculo)
         {
             InitializeComponent();
@@ -32,18 +33,49 @@ namespace Proyecto_taller.Views
             var cliente = db.Clientes.Find(vehiculo.ClienteID);
             if (cliente != null) SeleccionarCliente(cliente);
 
+            SuscribirEventos();
             txtMarca.Focus();
         }
 
-        // Modo NUEVO
+        // ── Modo NUEVO ────────────────────────────────────────────────────────
         public EditarVehiculoWindow()
         {
             InitializeComponent();
             _vehiculo = null;
             _esNuevo = true;
             txtTitulo.Text = "🚗  Nuevo Vehículo";
+            SuscribirEventos();
             txtBuscarCliente.Focus();
         }
+
+        // ── Capitalización automática ─────────────────────────────────────────
+
+        private void SuscribirEventos()
+        {
+            // Placa → siempre mayúsculas mientras se escribe
+            txtPlaca.TextChanged += (s, e) =>
+            {
+                var upper = txtPlaca.Text.ToUpper();
+                if (txtPlaca.Text != upper)
+                {
+                    int caret = txtPlaca.CaretIndex;
+                    txtPlaca.Text = upper;
+                    txtPlaca.CaretIndex = Math.Min(caret, upper.Length);
+                }
+            };
+
+            // Marca y Modelo → Title Case al perder foco
+            txtMarca.LostFocus += (s, e) => AplicarTitleCase(txtMarca);
+            txtModelo.LostFocus += (s, e) => AplicarTitleCase(txtModelo);
+        }
+
+        private static void AplicarTitleCase(TextBox tb)
+        {
+            if (!string.IsNullOrWhiteSpace(tb.Text))
+                tb.Text = ValidationHelper.AplicarTitleCase(tb.Text);
+        }
+
+        // ── Búsqueda de cliente ───────────────────────────────────────────────
 
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -107,8 +139,15 @@ namespace Proyecto_taller.Views
             txtBuscarCliente.Focus();
         }
 
+        // ── Guardar ───────────────────────────────────────────────────────────
+
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
+            // Aplicar capitalización antes de validar
+            txtMarca.Text = ValidationHelper.AplicarTitleCase(txtMarca.Text);
+            txtModelo.Text = ValidationHelper.AplicarTitleCase(txtModelo.Text);
+            txtPlaca.Text = txtPlaca.Text.ToUpper().Trim();
+
             if (_clienteSeleccionado == null)
             {
                 Msg("Selecciona un cliente propietario.");
@@ -180,8 +219,8 @@ namespace Proyecto_taller.Views
 
                     MessageBox.Show(
                         $"✅  Vehículo registrado correctamente.\n\n" +
-                        $"Placa:      {nuevo.Placa}\n" +
-                        $"Vehículo:   {nuevo.Marca} {nuevo.Modelo}\n" +
+                        $"Placa:       {nuevo.Placa}\n" +
+                        $"Vehículo:    {nuevo.Marca} {nuevo.Modelo}\n" +
                         $"Propietario: {_clienteSeleccionado.Nombre} {_clienteSeleccionado.Apellido}",
                         "Vehículo Creado",
                         MessageBoxButton.OK, MessageBoxImage.Information);

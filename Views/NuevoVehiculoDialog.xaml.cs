@@ -1,18 +1,10 @@
 ﻿using Proyecto_taller.Data;
+using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
@@ -25,11 +17,39 @@ namespace Proyecto_taller.Views
             InitializeComponent();
             _cliente = cliente;
             txtClienteInfo.Text = $"Para: {cliente?.Nombre} {cliente?.Apellido}";
+
+            // Placa → siempre mayúsculas mientras se escribe
+            txtPlaca.TextChanged += (s, e) =>
+            {
+                var upper = txtPlaca.Text.ToUpper();
+                if (txtPlaca.Text != upper)
+                {
+                    int caret = txtPlaca.CaretIndex;
+                    txtPlaca.Text = upper;
+                    txtPlaca.CaretIndex = Math.Min(caret, upper.Length);
+                }
+            };
+
+            // Marca y Modelo → Title Case al perder foco
+            txtMarca.LostFocus += (s, e) => AplicarTitleCase(txtMarca);
+            txtModelo.LostFocus += (s, e) => AplicarTitleCase(txtModelo);
+
             txtMarca.Focus();
+        }
+
+        private static void AplicarTitleCase(TextBox tb)
+        {
+            if (!string.IsNullOrWhiteSpace(tb.Text))
+                tb.Text = ValidationHelper.AplicarTitleCase(tb.Text);
         }
 
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
+            // Aplicar capitalización
+            txtMarca.Text = ValidationHelper.AplicarTitleCase(txtMarca.Text);
+            txtModelo.Text = ValidationHelper.AplicarTitleCase(txtModelo.Text);
+            txtPlaca.Text = txtPlaca.Text.ToUpper().Trim();
+
             if (string.IsNullOrWhiteSpace(txtMarca.Text))
             { Msg("La marca es obligatoria."); return; }
             if (string.IsNullOrWhiteSpace(txtModelo.Text))

@@ -18,7 +18,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{StaticResource BgCard}" Padding="24,16">
             <StackPanel>
-                <TextBlock Text="💰  Nueva Factura — Seleccionar Trabajo"
+                <TextBlock Text="💰  Nuevo Recibo — Seleccionar Trabajo"
                            Foreground="{StaticResource TextPrimary}"
                            FontSize="17" FontWeight="Bold"/>
                 <TextBlock Text="Solo se muestran trabajos finalizados que aún no tienen factura."
@@ -145,7 +145,7 @@
                     <Button Content="✕  Cancelar"
                             Click="Cancelar_Click"
                             Style="{StaticResource BtnSecondary}"/>
-                    <Button Content="💾  Facturar Trabajo Seleccionado"
+                    <Button Content="💾  Emitir Recibo para Trabajo Seleccionado"
                             Click="Facturar_Click"
                             Style="{StaticResource BtnSuccess}"
                             Padding="20,9"/>
