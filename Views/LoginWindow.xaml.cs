@@ -1,6 +1,8 @@
 ﻿using Proyecto_taller.Data;
 using Proyecto_taller.Helpers;
+using Proyecto_taller.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -28,34 +30,69 @@ namespace Proyecto_taller.Views
             try
             {
                 using var db = new TallerDbContext();
-                if (db.Usuarios.Any()) return;
 
+                if (db.Usuarios.Any())
+                {
+                    // Migrar usuarios existentes sin permisos asignados
+                    var sinPermisos = db.Usuarios
+                        .Where(u => u.PermisosJson == null || u.PermisosJson == "")
+                        .ToList();
+
+                    foreach (var u in sinPermisos)
+                    {
+                        u.Permisos = u.Rol == "Administrador"
+                            ? SessionManager.ModulosDisponibles
+                            : new List<string>
+                            {
+                                "Inicio", "Clientes", "Vehiculos",
+                                "Trabajos", "Reservas", "Inventario",
+                                "Recibos", "Reportes"
+                            };
+                    }
+
+                    if (sinPermisos.Count > 0)
+                        db.SaveChanges();
+
+                    return;
+                }
+
+                // Primera ejecución: crear usuarios por defecto
                 db.Usuarios.AddRange(
-                    new Models.Usuario
+                    new Usuario
                     {
                         NombreUsuario = "admin",
                         PasswordHash = PasswordHelper.HashPassword("admin123"),
                         NombreCompleto = "Administrador del Sistema",
                         Rol = "Administrador",
                         Activo = true,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        Permisos = SessionManager.ModulosDisponibles
                     },
-                    new Models.Usuario
+                    new Usuario
                     {
                         NombreUsuario = "empleado",
                         PasswordHash = PasswordHelper.HashPassword("empleado123"),
                         NombreCompleto = "Empleado del Taller",
                         Rol = "Empleado",
                         Activo = true,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        Permisos = new List<string>
+                        {
+                            "Inicio", "Clientes", "Vehiculos",
+                            "Trabajos", "Reservas", "Inventario",
+                            "Recibos", "Reportes"
+                        }
                     });
 
                 db.SaveChanges();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al inicializar usuarios:\n{ex.Message}",
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Error al inicializar usuarios:\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 

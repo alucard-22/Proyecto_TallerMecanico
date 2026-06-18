@@ -129,15 +129,66 @@ namespace Proyecto_taller
                 case "configuración":
                     MainFrame.Navigate(new Configuracion());
                     break;
-                    
                 case "usuarios":
                     MainFrame.Navigate(new Usuarios());
                     break;
-
                 default:
                     MainFrame.Navigate(new Inicio());
                     break;
             }
+        }
+
+        // Método helper para verificar permiso antes de navegar
+        private bool VerificarYNavegar(string modulo, Button boton, string pageName)
+        {
+            if (!SessionManager.TienePermiso(modulo))
+            {
+                MessageBox.Show(
+                    $"No tienes permiso para acceder al módulo '{modulo}'.\n\n" +
+                    $"Contacta al administrador para solicitar acceso.",
+                    "Acceso Denegado",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return false;
+            }
+            SetActiveButton(boton);
+            NavigateToPage(pageName);
+            return true;
+        }
+
+        // Actualizar los event handlers:
+        private void Clientes_Click(object sender, RoutedEventArgs e)
+            => VerificarYNavegar("Clientes", BtnClientes, "Clientes");
+
+        private void Vehiculos_Click(object sender, RoutedEventArgs e)
+            => VerificarYNavegar("Vehiculos", BtnVehiculos, "Vehículos");
+
+        private void Servicios_Click(object sender, RoutedEventArgs e)
+            => VerificarYNavegar("Trabajos", BtnServicios, "Trabajos");
+
+        private void Reservas_Click(object sender, RoutedEventArgs e)
+            => VerificarYNavegar("Reservas", BtnReservas, "Reservas");
+
+        private void Inventario_Click(object sender, RoutedEventArgs e)
+            => VerificarYNavegar("Inventario", BtnInventario, "Inventario");
+
+        private void Facturacion_Click(object sender, RoutedEventArgs e)
+            => VerificarYNavegar("Recibos", BtnFacturacion, "Recibos");
+
+        private void Reportes_Click(object sender, RoutedEventArgs e)
+            => VerificarYNavegar("Reportes", BtnReportes, "Reportes");
+
+        // Inicio y Configuración siempre accesibles:
+        private void Inicio_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveButton(BtnInicio);
+            NavigateToPage("Inicio");
+        }
+
+        private void Configuracion_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveButton(BtnConfiguracion);
+            NavigateToPage("Configuración");
         }
         private void Usuarios_Click(object sender, RoutedEventArgs e)
         {
@@ -174,65 +225,65 @@ namespace Proyecto_taller
             }
         }
 
-        #region Event Handlers
-        private void Inicio_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(BtnInicio);
-            NavigateToPage("Inicio");
-        }
+        //#region Event Handlers
+        //private void Inicio_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetActiveButton(BtnInicio);
+        //    NavigateToPage("Inicio");
+        //}
 
-        private void Clientes_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(BtnClientes);
-            NavigateToPage("Clientes");
-        }
+        //private void Clientes_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetActiveButton(BtnClientes);
+        //    NavigateToPage("Clientes");
+        //}
 
-        private void Vehiculos_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(BtnVehiculos);
-            NavigateToPage("Vehículos");
-        }
+        //private void Vehiculos_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetActiveButton(BtnVehiculos);
+        //    NavigateToPage("Vehículos");
+        //}
 
-        private void Servicios_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(BtnServicios);
-            NavigateToPage("Trabajos");
-        }
+        //private void Servicios_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetActiveButton(BtnServicios);
+        //    NavigateToPage("Trabajos");
+        //}
 
-        private void Reservas_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(BtnReservas);
-            NavigateToPage("Reservas");
-        }
+        //private void Reservas_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetActiveButton(BtnReservas);
+        //    NavigateToPage("Reservas");
+        //}
 
-        private void Inventario_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(BtnInventario);
-            NavigateToPage("Inventario");
-        }
+        //private void Inventario_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetActiveButton(BtnInventario);
+        //    NavigateToPage("Inventario");
+        //}
 
-        private void Facturacion_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(BtnFacturacion);
-            NavigateToPage("Recibos");
-        }
+        //private void Facturacion_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetActiveButton(BtnFacturacion);
+        //    NavigateToPage("Recibos");
+        //}
 
-        private void Reportes_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(BtnReportes);
-            NavigateToPage("Reportes");
-        }
+        //private void Reportes_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetActiveButton(BtnReportes);
+        //    NavigateToPage("Reportes");
+        //}
 
-        private void Configuracion_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(BtnConfiguracion);
-            NavigateToPage("Configuración");
-        }
         //private void Configuracion_Click(object sender, RoutedEventArgs e)
         //{
-        //    SetActiveButton(BtnUsuarios);
-        //    NavigateToPage("Usuarios");
+        //    SetActiveButton(BtnConfiguracion);
+        //    NavigateToPage("Configuración");
         //}
-        #endregion
+        ////private void Configuracion_Click(object sender, RoutedEventArgs e)
+        ////{
+        ////    SetActiveButton(BtnUsuarios);
+        ////    NavigateToPage("Usuarios");
+        ////}
+        //#endregion
     }
 }

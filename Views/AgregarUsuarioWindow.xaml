@@ -53,22 +53,121 @@
                     <PasswordBox x:Name="txtConfirmarPassword"/>
 
                     <TextBlock Text="Rol *" Style="{StaticResource FormLabel}"/>
-                    <ComboBox x:Name="cmbRol" SelectedIndex="1">
+                    <ComboBox x:Name="cmbRol" SelectedIndex="1"
+                  SelectionChanged="CmbRol_SelectionChanged">
                         <ComboBoxItem Content="Administrador"/>
                         <ComboBoxItem Content="Empleado"/>
                     </ComboBox>
 
                     <CheckBox x:Name="chkActivo"
-                              Content="Usuario activo"
+                  Content="Usuario activo"
+                  IsChecked="True"
+                  Margin="0,12,0,0"/>
+
+                    <!-- Panel de permisos (visible solo para Empleado) -->
+                    <Border x:Name="panelPermisos"
+                Background="{StaticResource BgCard}"
+                CornerRadius="8" Padding="16,14"
+                BorderBrush="{StaticResource BorderColor}"
+                BorderThickness="1"
+                Margin="0,14,0,0">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <TextBlock Text="🔐  PERMISOS DE MÓDULOS"
+                               Foreground="{StaticResource AccentLight}"
+                               FontSize="11" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Selecciona los módulos a los que tendrá acceso este empleado:"
+                           Foreground="{StaticResource TextMuted}"
+                           FontSize="11" TextWrapping="Wrap"
+                           Margin="0,0,0,12"/>
+
+                            <!-- Botones rápidos -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Button Content="✅ Todos"
+                            Click="SeleccionarTodos_Click"
+                            Style="{StaticResource BtnGhost}"
+                            Padding="10,5" Margin="0,0,6,0" FontSize="11"/>
+                                <Button Content="☐ Ninguno"
+                            Click="SeleccionarNinguno_Click"
+                            Style="{StaticResource BtnGhost}"
+                            Padding="10,5" FontSize="11"/>
+                            </StackPanel>
+
+                            <!-- Grid de checkboxes 2 columnas -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <CheckBox x:Name="chkInicio"
+                              Grid.Row="0" Grid.Column="0"
+                              Content="🏠  Inicio"
                               IsChecked="True"
-                              Margin="0,12,0,0"/>
+                              IsEnabled="False"
+                              Foreground="{StaticResource TextSecondary}"
+                              Margin="0,5"/>
+
+                                <CheckBox x:Name="chkClientes"
+                              Grid.Row="0" Grid.Column="1"
+                              Content="👥  Clientes"
+                              Foreground="{StaticResource TextSecondary}"
+                              Margin="0,5"/>
+
+                                <CheckBox x:Name="chkVehiculos"
+                              Grid.Row="1" Grid.Column="0"
+                              Content="🚗  Vehículos"
+                              Foreground="{StaticResource TextSecondary}"
+                              Margin="0,5"/>
+
+                                <CheckBox x:Name="chkTrabajos"
+                              Grid.Row="1" Grid.Column="1"
+                              Content="🛠️  Trabajos"
+                              Foreground="{StaticResource TextSecondary}"
+                              Margin="0,5"/>
+
+                                <CheckBox x:Name="chkReservas"
+                              Grid.Row="2" Grid.Column="0"
+                              Content="📅  Reservas"
+                              Foreground="{StaticResource TextSecondary}"
+                              Margin="0,5"/>
+
+                                <CheckBox x:Name="chkInventario"
+                              Grid.Row="2" Grid.Column="1"
+                              Content="📦  Inventario"
+                              Foreground="{StaticResource TextSecondary}"
+                              Margin="0,5"/>
+
+                                <CheckBox x:Name="chkRecibos"
+                              Grid.Row="3" Grid.Column="0"
+                              Content="💰  Recibos"
+                              Foreground="{StaticResource TextSecondary}"
+                              Margin="0,5"/>
+
+                                <CheckBox x:Name="chkReportes"
+                              Grid.Row="3" Grid.Column="1"
+                              Content="📊  Reportes"
+                              Foreground="{StaticResource TextSecondary}"
+                              Margin="0,5"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
 
                     <Border Background="{StaticResource AccentMuted}"
-                            CornerRadius="6" Padding="12,10" Margin="0,14,0,0">
+                CornerRadius="6" Padding="12,10" Margin="0,14,0,0">
                         <TextBlock Foreground="{StaticResource AccentLight}"
-                                   FontSize="11" TextWrapping="Wrap">
-                            <Run Text="ℹ️ "/>
-                            <Run Text="Todos los campos (*) son obligatorios. La contraseña debe tener al menos 6 caracteres."/>
+                       FontSize="11" TextWrapping="Wrap">
+                <Run Text="ℹ️ "/>
+                <Run Text="Los Administradores tienen acceso completo a todos los módulos automáticamente."/>
                         </TextBlock>
                     </Border>
                 </StackPanel>

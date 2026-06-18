@@ -12,7 +12,7 @@
     <AssemblyName>TallerElChoco</AssemblyName>
     <AssemblyVersion>1.0.0.1</AssemblyVersion>
     <FileVersion>1.0.0.1</FileVersion>
-    <PackageIcon>Logo-128x128.png</PackageIcon>
+    <PackageIcon>Logo.png</PackageIcon>
     <Title>TallerElChoco</Title>
   </PropertyGroup>
 
@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <None Remove="appsettings.json" />
-    <None Remove="assets\Logo.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,21 +36,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\Downloads\Logo-128x128.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="iTextSharp.LGPLv2.Core" Version="3.7.7" />
+    <PackageReference Include="iTextSharp.LGPLv2.Core" Version="3.8.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.9">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,6 +69,10 @@
 
   <ItemGroup>
     <None Update="assets\Logo.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="assets\Logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
