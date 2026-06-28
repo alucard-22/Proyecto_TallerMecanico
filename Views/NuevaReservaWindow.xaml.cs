@@ -3,37 +3,66 @@ using Proyecto_taller.Data;
 using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
     public partial class NuevaReservaWindow : Window
     {
-        // Cliente y vehículo resueltos (buscado o nuevo)
         private Cliente _clienteResuelto = null;
         private Vehiculo _vehiculoResuelto = null;
+
+        // Ventana de tolerancia para considerar dos reservas "en conflicto"
+        // de horario. Una reserva exactamente a la misma hora, o muy cerca,
+        // probablemente significa que el taller no puede atender a ambos
+        // clientes simultáneamente con los mismos recursos.
+        private static readonly TimeSpan VentanaConflicto = TimeSpan.FromMinutes(30);
 
         public NuevaReservaWindow()
         {
             InitializeComponent();
             dpFecha.DisplayDateStart = DateTime.Today;
             dpFecha.SelectedDate = DateTime.Today.AddDays(1);
+            SuscribirEventosValidacion();
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  BÚSQUEDA DE CLIENTE EXISTENTE
-        // ─────────────────────────────────────────────────────────
+        private void SuscribirEventosValidacion()
+        {
+            txtNombre.LostFocus += (s, e) => AplicarTitleCase(txtNombre);
+            txtApellido.LostFocus += (s, e) => AplicarTitleCase(txtApellido);
+            txtEmail.LostFocus += (s, e) => AplicarMinusculas(txtEmail);
+            txtPlaca.TextChanged += (s, e) => AplicarMayusculasInline(txtPlaca);
+            txtMarca.LostFocus += (s, e) => AplicarTitleCase(txtMarca);
+            txtModelo.LostFocus += (s, e) => AplicarTitleCase(txtModelo);
+        }
+
+        private static void AplicarTitleCase(TextBox tb)
+        {
+            if (!string.IsNullOrWhiteSpace(tb.Text))
+                tb.Text = ValidationHelper.AplicarTitleCase(tb.Text);
+        }
+
+        private static void AplicarMinusculas(TextBox tb)
+        {
+            if (!string.IsNullOrWhiteSpace(tb.Text))
+                tb.Text = tb.Text.Trim().ToLower();
+        }
+
+        private static void AplicarMayusculasInline(TextBox tb)
+        {
+            var upper = tb.Text.ToUpper();
+            if (tb.Text != upper)
+            {
+                int caret = tb.CaretIndex;
+                tb.Text = upper;
+                tb.CaretIndex = Math.Min(caret, upper.Length);
+            }
+        }
+
+        // ── Búsqueda de cliente existente ─────────────────────────────────────
 
         private void TxtBuscarCliente_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -80,7 +109,6 @@ namespace Proyecto_taller.Views
         private void LstResultados_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (lstResultadosBusqueda.SelectedItem is not Cliente cliente) return;
-
             SeleccionarCliente(cliente);
             panelResultadosBusqueda.Visibility = Visibility.Collapsed;
         }
@@ -89,17 +117,15 @@ namespace Proyecto_taller.Views
         {
             _clienteResuelto = cliente;
 
-            // Mostrar badge de cliente seleccionado
             txtClienteSeleccionadoNombre.Text = $"{cliente.Nombre} {cliente.Apellido}";
             txtClienteSeleccionadoTel.Text = cliente.Telefono;
-            txtClienteSeleccionadoCorreo.Text = string.IsNullOrWhiteSpace(cliente.Correo) ? "Sin correo" : cliente.Correo;
+            txtClienteSeleccionadoCorreo.Text = string.IsNullOrWhiteSpace(cliente.Correo)
+                ? "Sin correo" : cliente.Correo;
             panelClienteSeleccionado.Visibility = Visibility.Visible;
 
-            // Desactivar el formulario de nuevo cliente
             chkNuevoCliente.IsChecked = false;
             panelNuevoCliente.Visibility = Visibility.Collapsed;
 
-            // Cargar vehículos del cliente
             using var db = new TallerDbContext();
             var vehiculos = db.Vehiculos
                 .Where(v => v.ClienteID == cliente.ClienteID)
@@ -123,7 +149,6 @@ namespace Proyecto_taller.Views
         {
             _clienteResuelto = null;
             _vehiculoResuelto = null;
-
             panelClienteSeleccionado.Visibility = Visibility.Collapsed;
             panelVehiculoExistente.Visibility = Visibility.Collapsed;
             txtBuscarCliente.Clear();
@@ -135,16 +160,11 @@ namespace Proyecto_taller.Views
             _vehiculoResuelto = cmbVehiculosCliente.SelectedItem as Vehiculo;
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  TOGGLE: NUEVO CLIENTE
-        // ─────────────────────────────────────────────────────────
-
         private void ChkNuevoCliente_Changed(object sender, RoutedEventArgs e)
         {
             bool esNuevo = chkNuevoCliente.IsChecked == true;
             panelNuevoCliente.Visibility = esNuevo ? Visibility.Visible : Visibility.Collapsed;
 
-            // Si cambia a nuevo cliente, limpiar el cliente seleccionado
             if (esNuevo)
             {
                 _clienteResuelto = null;
@@ -154,18 +174,11 @@ namespace Proyecto_taller.Views
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  NUEVO VEHÍCULO (para cliente existente sin vehículos)
-        // ─────────────────────────────────────────────────────────
-
         private void NuevoVehiculo_Click(object sender, RoutedEventArgs e)
         {
-            // Mostrar inline el formulario de vehículo del bloque "nuevo cliente"
-            // La forma más simple: pedir los datos en un cuadro de diálogo pequeño
             var dlg = new NuevoVehiculoDialog(_clienteResuelto);
             if (dlg.ShowDialog() == true)
             {
-                // Recargar vehículos del cliente
                 using var db = new TallerDbContext();
                 var vehiculos = db.Vehiculos
                     .Where(v => v.ClienteID == _clienteResuelto.ClienteID)
@@ -177,13 +190,8 @@ namespace Proyecto_taller.Views
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  FECHA MÍNIMA
-        // ─────────────────────────────────────────────────────────
-
         private void DpFecha_Changed(object sender, SelectionChangedEventArgs e)
         {
-            // No se permite seleccionar una fecha en el pasado
             if (dpFecha.SelectedDate.HasValue && dpFecha.SelectedDate.Value.Date < DateTime.Today)
             {
                 dpFecha.SelectedDate = DateTime.Today;
@@ -192,13 +200,28 @@ namespace Proyecto_taller.Views
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        //  GUARDAR
-        // ─────────────────────────────────────────────────────────
+        // ── NUEVO: validar reservas duplicadas en la misma fecha/hora ─────────
+        // Devuelve la reserva en conflicto si existe alguna otra reserva activa
+        // (no cancelada) dentro de la ventana de tolerancia configurada.
+        private Reserva BuscarConflictoHorario(DateTime fechaHora)
+        {
+            using var db = new TallerDbContext();
+
+            var inicio = fechaHora - VentanaConflicto;
+            var fin = fechaHora + VentanaConflicto;
+
+            return db.Reservas
+                .Include(r => r.Vehiculo).ThenInclude(v => v.Cliente)
+                .Where(r => r.Estado != "Cancelada" && r.Estado != "No Asistió")
+                .Where(r => r.FechaHoraCita >= inicio && r.FechaHoraCita <= fin)
+                .OrderBy(r => r.FechaHoraCita)
+                .FirstOrDefault();
+        }
+
+        // ── Guardar ───────────────────────────────────────────────────────────
 
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
-            // ── Validaciones básicas ─────────────────────────────
             if (!dpFecha.SelectedDate.HasValue)
             { Error("Selecciona una fecha para la cita."); return; }
 
@@ -208,12 +231,29 @@ namespace Proyecto_taller.Views
             if (cmbTipoServicio.SelectedItem == null)
             { Error("Selecciona el tipo de servicio."); return; }
 
-            // ── Construir fecha+hora ─────────────────────────────
             string horaStr = (cmbHora.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "09:00";
             DateTime fechaHora = dpFecha.SelectedDate.Value.Date + TimeSpan.Parse(horaStr);
 
             if (fechaHora < DateTime.Now)
             { Error("La fecha y hora de la cita no pueden estar en el pasado."); return; }
+
+            // ── NUEVO: verificar conflicto de horario antes de continuar ───────
+            var conflicto = BuscarConflictoHorario(fechaHora);
+            if (conflicto != null)
+            {
+                var nombreConflicto = $"{conflicto.Vehiculo?.Cliente?.Nombre} {conflicto.Vehiculo?.Cliente?.Apellido}";
+                var r = MessageBox.Show(
+                    $"Ya existe una reserva muy cercana a este horario:\n\n" +
+                    $"👤  {nombreConflicto}\n" +
+                    $"📅  {conflicto.FechaHoraCita:dd/MM/yyyy HH:mm}\n" +
+                    $"🔧  {conflicto.TipoServicio}\n\n" +
+                    $"El taller podría no tener capacidad para atender ambas citas " +
+                    $"al mismo tiempo.\n\n¿Deseas continuar y registrar esta reserva de todas formas?",
+                    "Posible conflicto de horario",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (r != MessageBoxResult.Yes) return;
+            }
 
             string tipoServicio = (cmbTipoServicio.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
             string prioridad = (cmbPrioridad.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Normal";
@@ -222,47 +262,62 @@ namespace Proyecto_taller.Views
             if (decimal.TryParse(txtPrecioEstimado.Text.Trim(), out decimal pe) && pe > 0)
                 precioEstimado = pe;
 
-            // ── Resolver cliente y vehículo ──────────────────────
             try
             {
                 using var db = new TallerDbContext();
-
                 bool esNuevo = chkNuevoCliente.IsChecked == true;
 
                 if (esNuevo)
                 {
-                    // Validar campos obligatorios del nuevo cliente
-                    if (string.IsNullOrWhiteSpace(txtNombre.Text)) { Error("El nombre es obligatorio."); return; }
-                    if (string.IsNullOrWhiteSpace(txtApellido.Text)) { Error("El apellido es obligatorio."); return; }
-                    if (string.IsNullOrWhiteSpace(txtTelefono.Text)) { Error("El teléfono es obligatorio."); return; }
-                    if (string.IsNullOrWhiteSpace(txtMarca.Text)) { Error("La marca del vehículo es obligatoria."); return; }
-                    if (string.IsNullOrWhiteSpace(txtModelo.Text)) { Error("El modelo del vehículo es obligatorio."); return; }
-                    if (string.IsNullOrWhiteSpace(txtPlaca.Text)) { Error("La placa del vehículo es obligatoria."); return; }
+                    txtNombre.Text = ValidationHelper.AplicarTitleCase(txtNombre.Text);
+                    txtApellido.Text = ValidationHelper.AplicarTitleCase(txtApellido.Text);
+                    txtEmail.Text = txtEmail.Text.Trim().ToLower();
+                    txtPlaca.Text = ValidationHelper.AplicarMayusculas(txtPlaca.Text);
+                    txtMarca.Text = ValidationHelper.AplicarTitleCase(txtMarca.Text);
+                    txtModelo.Text = ValidationHelper.AplicarTitleCase(txtModelo.Text);
 
-                    // Buscar por teléfono por si ya existe
+                    if (string.IsNullOrWhiteSpace(txtNombre.Text))
+                    { Error("El nombre es obligatorio."); return; }
+                    if (string.IsNullOrWhiteSpace(txtApellido.Text))
+                    { Error("El apellido es obligatorio."); return; }
+                    if (string.IsNullOrWhiteSpace(txtTelefono.Text))
+                    { Error("El teléfono es obligatorio."); return; }
+                    if (!ValidationHelper.EsTelefonoValido(txtTelefono.Text))
+                    { Error(ValidationHelper.MsgTelefonoInvalido); return; }
+                    if (!string.IsNullOrWhiteSpace(txtEmail.Text) &&
+                        !ValidationHelper.EsCorreoValido(txtEmail.Text))
+                    { Error(ValidationHelper.MsgCorreoInvalido); return; }
+                    if (string.IsNullOrWhiteSpace(txtMarca.Text))
+                    { Error("La marca del vehículo es obligatoria."); return; }
+                    if (string.IsNullOrWhiteSpace(txtModelo.Text))
+                    { Error("El modelo del vehículo es obligatorio."); return; }
+                    if (string.IsNullOrWhiteSpace(txtPlaca.Text))
+                    { Error("La placa del vehículo es obligatoria."); return; }
+                    if (!ValidationHelper.EsPlacaValida(txtPlaca.Text))
+                    { Error(ValidationHelper.MsgPlacaInvalida); return; }
+
+                    txtPlaca.Text = ValidationHelper.FormatearPlaca(txtPlaca.Text);
+
                     var clienteExistente = db.Clientes
                         .FirstOrDefault(c => c.Telefono == txtTelefono.Text.Trim());
 
                     if (clienteExistente != null)
                     {
-                        var r = MessageBox.Show(
+                        var r2 = MessageBox.Show(
                             $"Ya existe un cliente con el teléfono '{txtTelefono.Text.Trim()}':\n\n" +
                             $"  {clienteExistente.Nombre} {clienteExistente.Apellido}\n\n" +
                             $"¿Usar ese cliente en lugar de crear uno nuevo?",
-                            "Cliente duplicado",
-                            MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            "Cliente duplicado", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-                        if (r == MessageBoxResult.Yes)
+                        if (r2 == MessageBoxResult.Yes)
                         {
                             SeleccionarCliente(clienteExistente);
-                            // Ahora _clienteResuelto está asignado, continuar
                             esNuevo = false;
                         }
                     }
 
                     if (esNuevo)
                     {
-                        // Crear cliente
                         var nuevoCliente = new Cliente
                         {
                             Nombre = txtNombre.Text.Trim(),
@@ -276,26 +331,25 @@ namespace Proyecto_taller.Views
                         db.SaveChanges();
                         _clienteResuelto = nuevoCliente;
 
-                        // Crear vehículo
                         int.TryParse(txtAnio.Text.Trim(), out int anio);
+                        string placa = txtPlaca.Text;
+
                         var nuevoVehiculo = new Vehiculo
                         {
                             ClienteID = nuevoCliente.ClienteID,
                             Marca = txtMarca.Text.Trim(),
                             Modelo = txtModelo.Text.Trim(),
-                            Placa = txtPlaca.Text.Trim().ToUpper(),
+                            Placa = placa,
                             Anio = anio > 1900 && anio <= DateTime.Now.Year + 1 ? anio : null
                         };
 
-                        // Verificar placa duplicada
-                        var placaDup = db.Vehiculos
-                            .FirstOrDefault(v => v.Placa.ToUpper() == nuevoVehiculo.Placa);
+                        var placaDup = db.Vehiculos.FirstOrDefault(v => v.Placa.ToUpper() == placa);
                         if (placaDup != null)
                         {
-                            var r2 = MessageBox.Show(
-                                $"La placa '{nuevoVehiculo.Placa}' ya está registrada a nombre de otro cliente.\n\n¿Usar ese vehículo de todas formas?",
+                            var r3 = MessageBox.Show(
+                                $"La placa '{placa}' ya está registrada a nombre de otro cliente.\n\n¿Usar ese vehículo de todas formas?",
                                 "Placa duplicada", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                            if (r2 == MessageBoxResult.Yes)
+                            if (r3 == MessageBoxResult.Yes)
                                 _vehiculoResuelto = placaDup;
                             else
                                 return;
@@ -309,14 +363,12 @@ namespace Proyecto_taller.Views
                     }
                 }
 
-                // Verificar que tenemos cliente y vehículo
                 if (_clienteResuelto == null)
                 { Error("Busca o registra un cliente antes de guardar."); return; }
 
                 if (_vehiculoResuelto == null)
                 { Error("Selecciona o registra un vehículo para la reserva."); return; }
 
-                // ── Crear la reserva ─────────────────────────────
                 var reserva = new Reserva
                 {
                     VehiculoID = _vehiculoResuelto.VehiculoID,
@@ -332,7 +384,6 @@ namespace Proyecto_taller.Views
                 db.Reservas.Add(reserva);
                 db.SaveChanges();
 
-                // ── Mensaje de éxito ─────────────────────────────
                 MessageBox.Show(
                     $"✅  RESERVA CREADA EXITOSAMENTE\n\n" +
                     $"👤  {_clienteResuelto.Nombre} {_clienteResuelto.Apellido}\n" +
@@ -343,7 +394,6 @@ namespace Proyecto_taller.Views
                     (precioEstimado.HasValue ? $"💵  Estimado: Bs. {precioEstimado:N2}\n" : ""),
                     "Reserva Creada", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // ── WhatsApp de confirmación ──────────────────────
                 if (chkEnviarWhatsApp.IsChecked == true &&
                     !string.IsNullOrWhiteSpace(_clienteResuelto.Telefono))
                 {
@@ -364,10 +414,6 @@ namespace Proyecto_taller.Views
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        // ─────────────────────────────────────────────────────────
-        //  HELPERS
-        // ─────────────────────────────────────────────────────────
 
         private void Error(string msg)
             => MessageBox.Show(msg, "Campo requerido",

@@ -58,7 +58,8 @@ namespace Proyecto_taller.Helpers
 
     /// <summary>
     /// Convierte bool en Visible (true) o Collapsed (false).
-    /// Usado para el indicador de carga en Reportes.
+    /// Usado para el indicador de carga en Reportes y para ocultar botones
+    /// de módulos según permisos (ej. filtro de empleado en Trabajos).
     /// </summary>
     public class BoolToVisibilityConverter : IValueConverter
     {
@@ -75,6 +76,26 @@ namespace Proyecto_taller.Helpers
                 return visibility == Visibility.Visible;
             return false;
         }
+    }
+
+    /// <summary>
+    /// NUEVO: convierte un conteo (int) en Visible cuando es 0 y Collapsed
+    /// cuando es mayor a 0. Es el inverso de "mostrar la lista si hay
+    /// elementos" — se usa para mostrar un mensaje de "no hay nada que
+    /// mostrar" únicamente cuando la colección está vacía, como en el
+    /// panel de "Citas de Mañana" del dashboard.
+    /// </summary>
+    public class CountToVisibilityInverseConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int count)
+                return count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
     }
 
     /// <summary>

@@ -578,6 +578,13 @@ namespace Proyecto_taller.ViewModels
             {
                 using var db = new TallerDbContext();
 
+                // Capturar conteos antes de borrar, para que el detalle de
+                // auditoría sea informativo (no solo "se reinició la BD").
+                int totalClientes = db.Clientes.Count();
+                int totalTrabajos = db.Trabajos.Count();
+                int totalReservas = db.Reservas.Count();
+                int totalFacturas = db.Facturas.Count();
+
                 // Borrar en orden para respetar las FK
                 db.Pagos.RemoveRange(db.Pagos);
                 db.Trabajos_Repuestos.RemoveRange(db.Trabajos_Repuestos);
@@ -590,7 +597,6 @@ namespace Proyecto_taller.ViewModels
 
                 if (reiniciarUsuarios)
                 {
-                    // Preservar al admin para no dejar el sistema sin acceso
                     var usuariosABorrar = db.Usuarios
                         .Where(u => u.NombreUsuario.ToLower() != "admin")
                         .ToList();
@@ -599,6 +605,15 @@ namespace Proyecto_taller.ViewModels
 
                 db.SaveChanges();
                 CargarEstadisticas();
+
+                // NUEVO: registrar en auditoría — la operación más destructiva
+                // del sistema queda registrada de forma explícita, incluyendo
+                // cuántos registros se eliminaron.
+                AuditoriaHelper.Registrar(
+                    "Reiniciar BD", "BaseDeDatos", null,
+                    $"Reinicio completo: {totalClientes} clientes, {totalTrabajos} trabajos, " +
+                    $"{totalReservas} reservas, {totalFacturas} facturas eliminados." +
+                    (reiniciarUsuarios ? " Usuarios también reiniciados (se conservó 'admin')." : " Usuarios conservados."));
 
                 string mensajeUsuarios = reiniciarUsuarios
                     ? "Usuarios:   reiniciados (se conservó 'admin')"
@@ -616,6 +631,7 @@ namespace Proyecto_taller.ViewModels
                 MessageBox.Show($"Error al reiniciar:\n{ex.Message}",
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
         }
 
         // ── INotifyPropertyChanged ────────────────────────────────────────────

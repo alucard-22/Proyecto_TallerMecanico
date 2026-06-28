@@ -10,6 +10,9 @@ namespace Proyecto_taller.Views
     {
         private readonly int _usuarioId;
 
+        private bool _nuevaPasswordVisible = false;
+        private bool _confirmarPasswordVisible = false;
+
         public CambiarPasswordWindow(int usuarioId)
         {
             InitializeComponent();
@@ -30,21 +33,80 @@ namespace Proyecto_taller.Views
                 DragMove();
         }
 
+        // ── NUEVO: mostrar/ocultar contraseña ─────────────────────────────────
+
+        private void ToggleMostrarNuevaPassword_Click(object sender, RoutedEventArgs e)
+        {
+            _nuevaPasswordVisible = !_nuevaPasswordVisible;
+
+            if (_nuevaPasswordVisible)
+            {
+                txtNuevaPasswordVisible.Text = txtNuevaPassword.Password;
+                txtNuevaPassword.Visibility = Visibility.Collapsed;
+                txtNuevaPasswordVisible.Visibility = Visibility.Visible;
+                txtNuevaPasswordVisible.Focus();
+                txtNuevaPasswordVisible.CaretIndex = txtNuevaPasswordVisible.Text.Length;
+                btnToggleNuevaPassword.Content = "🙈";
+            }
+            else
+            {
+                txtNuevaPassword.Password = txtNuevaPasswordVisible.Text;
+                txtNuevaPasswordVisible.Visibility = Visibility.Collapsed;
+                txtNuevaPassword.Visibility = Visibility.Visible;
+                txtNuevaPassword.Focus();
+                btnToggleNuevaPassword.Content = "👁️";
+            }
+        }
+
+        private void ToggleMostrarConfirmarPassword_Click(object sender, RoutedEventArgs e)
+        {
+            _confirmarPasswordVisible = !_confirmarPasswordVisible;
+
+            if (_confirmarPasswordVisible)
+            {
+                txtConfirmarPasswordVisible.Text = txtConfirmarPassword.Password;
+                txtConfirmarPassword.Visibility = Visibility.Collapsed;
+                txtConfirmarPasswordVisible.Visibility = Visibility.Visible;
+                txtConfirmarPasswordVisible.Focus();
+                txtConfirmarPasswordVisible.CaretIndex = txtConfirmarPasswordVisible.Text.Length;
+                btnToggleConfirmarPassword.Content = "🙈";
+            }
+            else
+            {
+                txtConfirmarPassword.Password = txtConfirmarPasswordVisible.Text;
+                txtConfirmarPasswordVisible.Visibility = Visibility.Collapsed;
+                txtConfirmarPassword.Visibility = Visibility.Visible;
+                txtConfirmarPassword.Focus();
+                btnToggleConfirmarPassword.Content = "👁️";
+            }
+        }
+
+        private string ObtenerNuevaPassword()
+            => _nuevaPasswordVisible ? txtNuevaPasswordVisible.Text : txtNuevaPassword.Password;
+
+        private string ObtenerConfirmarPassword()
+            => _confirmarPasswordVisible ? txtConfirmarPasswordVisible.Text : txtConfirmarPassword.Password;
+
+        // ── Guardar ───────────────────────────────────────────────────────────
+
         private void GuardarButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtNuevaPassword.Password))
+            string nueva = ObtenerNuevaPassword();
+            string confirmar = ObtenerConfirmarPassword();
+
+            if (string.IsNullOrWhiteSpace(nueva))
             {
                 MessageBox.Show("Ingresa la nueva contraseña.",
                     "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (txtNuevaPassword.Password.Length < 6)
+            if (nueva.Length < 6)
             {
                 MessageBox.Show("La contraseña debe tener al menos 6 caracteres.",
                     "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (txtNuevaPassword.Password != txtConfirmarPassword.Password)
+            if (nueva != confirmar)
             {
                 MessageBox.Show("Las contraseñas no coinciden.",
                     "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -58,7 +120,7 @@ namespace Proyecto_taller.Views
 
                 if (usuario != null)
                 {
-                    usuario.PasswordHash = PasswordHelper.HashPassword(txtNuevaPassword.Password);
+                    usuario.PasswordHash = PasswordHelper.HashPassword(nueva);
                     usuario.FechaUltimoCambioPassword = DateTime.Now;
                     db.SaveChanges();
 

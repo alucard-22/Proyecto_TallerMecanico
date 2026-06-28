@@ -64,6 +64,16 @@ namespace Proyecto_taller.Views
                 }
             };
 
+            // Placa → formatear con guion correcto al perder el foco
+            txtPlaca.LostFocus += (s, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(txtPlaca.Text) &&
+                    ValidationHelper.EsPlacaValida(txtPlaca.Text))
+                {
+                    txtPlaca.Text = ValidationHelper.FormatearPlaca(txtPlaca.Text);
+                }
+            };
+
             // Marca y Modelo → Title Case al perder foco
             txtMarca.LostFocus += (s, e) => AplicarTitleCase(txtMarca);
             txtModelo.LostFocus += (s, e) => AplicarTitleCase(txtModelo);
@@ -173,6 +183,14 @@ namespace Proyecto_taller.Views
                 return;
             }
 
+            // ── NUEVO: validar formato de placa boliviana ──────────────────
+            if (!ValidationHelper.EsPlacaValida(txtPlaca.Text))
+            {
+                Msg(ValidationHelper.MsgPlacaInvalida);
+                txtPlaca.Focus();
+                return;
+            }
+
             int? anio = null;
             if (!string.IsNullOrWhiteSpace(txtAnio.Text))
             {
@@ -186,7 +204,9 @@ namespace Proyecto_taller.Views
                 anio = a;
             }
 
-            string placa = txtPlaca.Text.Trim().ToUpper();
+            // Formatear la placa al estándar visual antes de guardar
+            string placa = ValidationHelper.FormatearPlaca(txtPlaca.Text);
+            txtPlaca.Text = placa;
 
             try
             {

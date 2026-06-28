@@ -1,8 +1,13 @@
 ﻿<Page x:Class="Proyecto_taller.Views.Inicio"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:helpers="clr-namespace:Proyecto_taller.Helpers"
       Title="Inicio"
       Background="{StaticResource BgPrimary}">
+
+    <Page.Resources>
+        <helpers:CountToVisibilityInverseConverter x:Key="CountToVisibilityInverse"/>
+    </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Margin="24">
@@ -133,7 +138,7 @@
                 <!-- Registro rápido -->
                 <Border Grid.Column="0" Style="{StaticResource Card}">
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock Text="⚡ Registro Rápido"
+                        <TextBlock Text="⚡ Registro de Trabajo"
                                    Foreground="{StaticResource AccentLight}"
                                    FontSize="18" FontWeight="Bold"
                                    HorizontalAlignment="Center" Margin="0,0,0,10"/>
@@ -149,7 +154,7 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Actividad + Pendientes + Stock Bajo -->
+                <!-- Actividad + Pendientes + Stock Bajo + Citas de mañana -->
                 <StackPanel Grid.Column="2">
                     <!-- Actividad reciente -->
                     <Border Style="{StaticResource Card}" Margin="0,0,0,14">
@@ -195,7 +200,7 @@
                     </Border>
 
                     <!-- Stock bajo -->
-                    <Border Style="{StaticResource Card}">
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,14">
                         <StackPanel>
                             <TextBlock Text="⚠️ Repuestos con Stock Bajo"
                                        Style="{StaticResource SectionTitle}"
@@ -222,6 +227,77 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ════════════════════════════════════════════
+                         NUEVO: Reservas de mañana + recordatorio rápido
+                    ════════════════════════════════════════════ -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,4">
+                                <TextBlock Text="📅 Citas de Mañana"
+                                           Style="{StaticResource SectionTitle}"
+                                           FontSize="15"/>
+                                <Border Background="{StaticResource AccentMuted}"
+                                        CornerRadius="10" Padding="10,3"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding ReservasManana.Count}"
+                                               Foreground="{StaticResource AccentLight}"
+                                               FontWeight="Bold" FontSize="11"/>
+                                </Border>
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{Binding ReservasManana}"
+                                          MaxHeight="220">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource BgCard}"
+                                                CornerRadius="6" Padding="10,8"
+                                                Margin="0,3">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding FechaHoraCita, StringFormat='HH:mm'}"
+                                                                   Foreground="{StaticResource AccentLight}"
+                                                                   FontWeight="Bold" FontSize="13"
+                                                                   FontFamily="Consolas"/>
+                                                        <TextBlock Text="  ·  " Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                                                        <TextBlock Foreground="{StaticResource TextPrimary}"
+                                                                   FontSize="12" FontWeight="SemiBold">
+                                                            <Run Text="{Binding Vehiculo.Cliente.Nombre}"/>
+                                                            <Run Text=" "/>
+                                                            <Run Text="{Binding Vehiculo.Cliente.Apellido}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding TipoServicio}"
+                                                               Foreground="{StaticResource TextMuted}"
+                                                               FontSize="11" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                                <Button Grid.Column="1"
+                                                        Content="💬 Recordar"
+                                                        Command="{Binding DataContext.EnviarRecordatorioCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=Page}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource BtnGhost}"
+                                                        Padding="10,5" FontSize="11"
+                                                        VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Text="No hay citas pendientes para mañana."
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="12" Margin="4,8,0,0"
+                                       Visibility="{Binding ReservasManana.Count,
+                                                    Converter={StaticResource CountToVisibilityInverse}}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

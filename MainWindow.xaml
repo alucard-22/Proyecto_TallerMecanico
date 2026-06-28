@@ -7,10 +7,12 @@
         WindowState="Maximized"
         MinHeight="600"
         MinWidth="1000"
-        Background="{StaticResource BgPrimary}">
+        Background="{StaticResource BgPrimary}"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        ResizeMode="CanResize">
 
     <Window.Resources>
-        <!-- Botón de menú lateral -->
         <Style x:Key="MenuButton" TargetType="Button">
             <Setter Property="Foreground"             Value="{StaticResource TextSecondary}"/>
             <Setter Property="Background"             Value="Transparent"/>
@@ -72,7 +74,6 @@
             </Setter>
         </Style>
 
-        <!-- Botón de menú activo -->
         <Style x:Key="ActiveMenuButton" TargetType="Button" BasedOn="{StaticResource MenuButton}">
             <Setter Property="Background">
                 <Setter.Value>
@@ -104,7 +105,6 @@
             </Setter>
         </Style>
 
-        <!-- Botón top bar -->
         <Style x:Key="TopBarButton" TargetType="Button">
             <Setter Property="Background"      Value="Transparent"/>
             <Setter Property="Foreground"      Value="{StaticResource TextSecondary}"/>
@@ -132,159 +132,250 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="TitleBarButton" TargetType="Button">
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="Foreground"      Value="{StaticResource TextSecondary}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="Width"           Value="44"/>
+            <Setter Property="Height"          Value="32"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BgSurfaceHover}"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TitleBarCloseButton" TargetType="Button" BasedOn="{StaticResource TitleBarButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource ColorDanger}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <Grid Background="{StaticResource BgPrimary}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <!-- SIDEBAR -->
-        <Grid Grid.Column="0" Background="{StaticResource BgSurface}">
-            <Grid.Effect>
-                <DropShadowEffect Color="Black" Direction="0" ShadowDepth="0" BlurRadius="24" Opacity="0.4"/>
-            </Grid.Effect>
+    <Border Background="{StaticResource BgPrimary}"
+            BorderBrush="{StaticResource BorderColor}"
+            BorderThickness="1">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!-- Logo / Header -->
-            <Border Grid.Row="0"
-                    Background="{StaticResource BgCard}"
-                    Padding="16"
-                    Margin="10,10,10,0"
-                    CornerRadius="10">
-                <StackPanel>
-                    <!-- Logo: imagen con fallback al emoji si no carga -->
-                    <Border Width="100" Height="100"
-                            CornerRadius="18"
-                            HorizontalAlignment="Center"
-                            Margin="0,0,0,10"
-                            ClipToBounds="True">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#6366F1" Offset="0"/>
-                                <GradientStop Color="#8B5CF6" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Image Source="pack://application:,,,/Assets/logo.png"
-                               Stretch="Uniform"
-                               RenderOptions.BitmapScalingMode="HighQuality"/>
-                    </Border>
-
-                    <TextBlock Text="TALLER EL CHOCO"
-                               Foreground="{StaticResource TextPrimary}"
-                               FontSize="14" FontWeight="Bold"
-                               HorizontalAlignment="Center"/>
-                    <TextBlock Text="Sistema de Gestión"
-                               Foreground="{StaticResource TextMuted}"
-                               FontSize="10" HorizontalAlignment="Center"
-                               Margin="0,3,0,0"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Separador -->
-            <Border Grid.Row="0" Height="1"
-                    Background="{StaticResource BorderColor}"
-                    VerticalAlignment="Bottom"
-                    Margin="10,0" Opacity="0.4"/>
-
-            <!-- Menú Items -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,14,0,0">
-                <StackPanel Margin="6,0">
-                    <Button x:Name="BtnInicio"      Content="🏠  Inicio"       Style="{StaticResource MenuButton}" Click="Inicio_Click"/>
-                    <Button x:Name="BtnClientes"    Content="👥  Clientes"     Style="{StaticResource MenuButton}" Click="Clientes_Click"/>
-                    <Button x:Name="BtnVehiculos"   Content="🚗  Vehículos"    Style="{StaticResource MenuButton}" Click="Vehiculos_Click"/>
-                    <Button x:Name="BtnServicios"   Content="🛠️  Trabajos"     Style="{StaticResource MenuButton}" Click="Servicios_Click"/>
-                    <Button x:Name="BtnReservas"    Content="📅  Reservas"     Style="{StaticResource MenuButton}" Click="Reservas_Click"/>
-                    <Button x:Name="BtnInventario"  Content="📦  Inventario"   Style="{StaticResource MenuButton}" Click="Inventario_Click"/>
-                    <Button x:Name="BtnFacturacion" Content="💰  Recibos"  Style="{StaticResource MenuButton}" Click="Facturacion_Click"/>
-                    <Button x:Name="BtnReportes"    Content="📊  Reportes"     Style="{StaticResource MenuButton}" Click="Reportes_Click"/>
-
-                    <Border Height="1" Background="{StaticResource BorderColor}"
-                            Margin="12,10" Opacity="0.3"/>
-
-                    <Button x:Name="BtnUsuarios" Content="👤  Usuarios"
-                            Style="{StaticResource MenuButton}"
-                            Click="Usuarios_Click"
-                            Visibility="Collapsed"/>
-
-                    <Button x:Name="BtnCerrarSesion" Content="🚪  Cerrar Sesión"
-                            Style="{StaticResource MenuButton}"
-                            Click="CerrarSesion_Click"/>
-
-                    <Border Height="1" Background="{StaticResource BorderColor}"
-                            Margin="12,10" Opacity="0.3"/>
-
-                    <Button x:Name="BtnConfiguracion" Content="⚙️  Configuración"
-                            Style="{StaticResource MenuButton}" Click="Configuracion_Click"/>
-                </StackPanel>
-            </ScrollViewer>
-
-            <!-- Footer -->
-            <Border Grid.Row="2"
-                    Background="{StaticResource BgCard}"
-                    Padding="14,10" Margin="10,0,10,10" CornerRadius="10">
-                <StackPanel>
-                    <Border Height="1" Background="{StaticResource BorderColor}"
-                            Margin="0,0,0,10" Opacity="0.3"/>
-                    <TextBlock Text="v1.0.0"
-                               Foreground="{StaticResource TextMuted}"
-                               FontSize="10" HorizontalAlignment="Center" Margin="0,0,0,3"/>
-                    <TextBlock Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat='dd/MM/yyyy'}"
-                               Foreground="{StaticResource TextMuted}"
-                               FontSize="10" HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- CONTENIDO PRINCIPAL -->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="64"/>
+                <RowDefinition Height="36"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Top Bar -->
+            <!-- BARRA DE TÍTULO PERSONALIZADA -->
             <Border Grid.Row="0"
-                    Background="{StaticResource BgSurface}"
-                    BorderBrush="{StaticResource BorderColor}"
-                    BorderThickness="0,0,0,1"
-                    Padding="24,0">
+                    Background="{StaticResource BgCard}"
+                    MouseDown="TitleBar_MouseDown">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock x:Name="TitleTextBlock"
-                                   Text="Bienvenido al Sistema"
-                                   Foreground="{StaticResource TextPrimary}"
-                                   FontSize="18" FontWeight="SemiBold"/>
-                        <TextBlock x:Name="SubtitleTextBlock"
-                                   Text="Panel de Control Principal"
-                                   Foreground="{StaticResource TextMuted}"
-                                   FontSize="11" Margin="0,2,0,0"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal"
+                                Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="🔧" FontSize="13" Margin="0,0,8,0"/>
+                        <TextBlock Text="Sistema Taller El Choco"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontSize="12" FontWeight="SemiBold"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Content="👤"
-                                Style="{StaticResource TopBarButton}"
-                                Margin="4,0"
-                                ToolTip="Perfil de Usuario"/>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Button Content="—"
+                                Click="Minimizar_Click"
+                                Style="{StaticResource TitleBarButton}"/>
+                        <Button x:Name="btnMaximizar"
+                                Content="☐"
+                                Click="MaximizarRestaurar_Click"
+                                Style="{StaticResource TitleBarButton}"/>
+                        <Button Content="✕"
+                                Click="Cerrar_Click"
+                                Style="{StaticResource TitleBarCloseButton}"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- Frame de contenido -->
-            <Frame x:Name="MainFrame"
-                   Grid.Row="1"
-                   NavigationUIVisibility="Hidden"
-                   Background="{StaticResource BgPrimary}"/>
+            <!-- CONTENIDO PRINCIPAL -->
+            <Grid Grid.Row="1" Background="{StaticResource BgPrimary}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- SIDEBAR -->
+                <Grid Grid.Column="0" Background="{StaticResource BgSurface}">
+                    <Grid.Effect>
+                        <DropShadowEffect Color="Black" Direction="0" ShadowDepth="0" BlurRadius="24" Opacity="0.4"/>
+                    </Grid.Effect>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{StaticResource BgCard}"
+                            Padding="16"
+                            Margin="10,10,10,0"
+                            CornerRadius="10">
+                        <StackPanel>
+                            <Border Width="100" Height="100"
+                                    CornerRadius="18"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,10"
+                                    ClipToBounds="True">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#6366F1" Offset="0"/>
+                                        <GradientStop Color="#8B5CF6" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Image Source="pack://application:,,,/Assets/logo.png"
+                                       Stretch="Uniform"
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Border>
+
+                            <TextBlock Text="TALLER EL CHOCO"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       FontSize="14" FontWeight="Bold"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Sistema de Gestión"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="10" HorizontalAlignment="Center"
+                                       Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="0" Height="1"
+                            Background="{StaticResource BorderColor}"
+                            VerticalAlignment="Bottom"
+                            Margin="10,0" Opacity="0.4"/>
+
+                    <!-- Menú Items -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,14,0,0">
+                        <StackPanel Margin="6,0">
+                            <Button x:Name="BtnInicio"      Content="🏠  Inicio"       Style="{StaticResource MenuButton}" Click="Inicio_Click"/>
+                            <Button x:Name="BtnClientes"    Content="👥  Clientes"     Style="{StaticResource MenuButton}" Click="Clientes_Click"/>
+                            <Button x:Name="BtnVehiculos"   Content="🚗  Vehículos"    Style="{StaticResource MenuButton}" Click="Vehiculos_Click"/>
+                            <Button x:Name="BtnServicios"   Content="🛠️  Trabajos"     Style="{StaticResource MenuButton}" Click="Servicios_Click"/>
+                            <Button x:Name="BtnReservas"    Content="📅  Reservas"     Style="{StaticResource MenuButton}" Click="Reservas_Click"/>
+                            <Button x:Name="BtnInventario"  Content="📦  Inventario"   Style="{StaticResource MenuButton}" Click="Inventario_Click"/>
+                            <Button x:Name="BtnFacturacion" Content="💰  Recibos"  Style="{StaticResource MenuButton}" Click="Facturacion_Click"/>
+                            <Button x:Name="BtnReportes"    Content="📊  Reportes"     Style="{StaticResource MenuButton}" Click="Reportes_Click"/>
+
+                            <Border Height="1" Background="{StaticResource BorderColor}"
+                                    Margin="12,10" Opacity="0.3"/>
+
+                            <Button x:Name="BtnUsuarios" Content="👤  Usuarios"
+                                    Style="{StaticResource MenuButton}"
+                                    Click="Usuarios_Click"
+                                    Visibility="Collapsed"/>
+
+                            <!-- NUEVO: Auditoría, exclusivo de Administrador -->
+                            <Button x:Name="BtnAuditoria" Content="🛡️  Auditoría"
+                                    Style="{StaticResource MenuButton}"
+                                    Click="Auditoria_Click"
+                                    Visibility="Collapsed"/>
+
+                            <Button x:Name="BtnCerrarSesion" Content="🚪  Cerrar Sesión"
+                                    Style="{StaticResource MenuButton}"
+                                    Click="CerrarSesion_Click"/>
+
+                            <Border Height="1" Background="{StaticResource BorderColor}"
+                                    Margin="12,10" Opacity="0.3"/>
+
+                            <Button x:Name="BtnConfiguracion" Content="⚙️  Configuración"
+                                    Style="{StaticResource MenuButton}" Click="Configuracion_Click"
+                                    Visibility="Collapsed"/>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <Border Grid.Row="2"
+                            Background="{StaticResource BgCard}"
+                            Padding="14,10" Margin="10,0,10,10" CornerRadius="10">
+                        <StackPanel>
+                            <Border Height="1" Background="{StaticResource BorderColor}"
+                                    Margin="0,0,0,10" Opacity="0.3"/>
+                            <TextBlock Text="v1.0.0"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="10" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                            <TextBlock Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat='dd/MM/yyyy'}"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- CONTENIDO PRINCIPAL -->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="64"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{StaticResource BgSurface}"
+                            BorderBrush="{StaticResource BorderColor}"
+                            BorderThickness="0,0,0,1"
+                            Padding="24,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock x:Name="TitleTextBlock"
+                                           Text="Bienvenido al Sistema"
+                                           Foreground="{StaticResource TextPrimary}"
+                                           FontSize="18" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="SubtitleTextBlock"
+                                           Text="Panel de Control Principal"
+                                           Foreground="{StaticResource TextMuted}"
+                                           FontSize="11" Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Content="👤"
+                                        Style="{StaticResource TopBarButton}"
+                                        Margin="4,0"
+                                        ToolTip="Perfil de Usuario"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Frame x:Name="MainFrame"
+                           Grid.Row="1"
+                           NavigationUIVisibility="Hidden"
+                           Background="{StaticResource BgPrimary}"/>
+                </Grid>
+            </Grid>
         </Grid>
-    </Grid>
+    </Border>
 </Window>

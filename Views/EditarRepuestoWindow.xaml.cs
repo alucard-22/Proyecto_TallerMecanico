@@ -3,6 +3,7 @@ using Proyecto_taller.Models;
 using System;
 using System.Windows;
 using System.Windows.Input;
+using Proyecto_taller.Helpers;
 
 namespace Proyecto_taller.Views
 {
@@ -11,7 +12,7 @@ namespace Proyecto_taller.Views
         private readonly Repuesto? _repuesto;
         private readonly bool _esNuevo;
 
-        // Modo EDITAR
+        // ── Modo EDITAR ───────────────────────────────────────────────────────
         public EditarRepuestoWindow(Repuesto repuesto)
         {
             InitializeComponent();
@@ -24,12 +25,13 @@ namespace Proyecto_taller.Views
             txtPrecio.Text = repuesto.PrecioUnitario.ToString("N2");
             txtStockMinimo.Text = repuesto.StockMinimo.ToString();
 
-            panelStockInicial.Visibility = Visibility.Collapsed;
+            panelStockInicial.Visibility = System.Windows.Visibility.Collapsed;
 
+            SuscribirEventosValidacion();
             txtNombre.Focus();
         }
 
-        // Modo NUEVO
+        // ── Modo NUEVO ────────────────────────────────────────────────────────
         public EditarRepuestoWindow()
         {
             InitializeComponent();
@@ -37,13 +39,29 @@ namespace Proyecto_taller.Views
             _esNuevo = true;
 
             txtTitulo.Text = "➕  Nuevo Repuesto";
-            txtPrecio.Text = "0.00";
+            txtPrecio.Text = "";
             txtStockMinimo.Text = "5";
             txtStockInicial.Text = "0";
 
-            panelStockInicial.Visibility = Visibility.Visible;
+            panelStockInicial.Visibility = System.Windows.Visibility.Visible;
 
+            SuscribirEventosValidacion();
             txtNombre.Focus();
+        }
+
+        private void SuscribirEventosValidacion()
+        {
+            txtNombre.LostFocus += (s, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(txtNombre.Text))
+                    txtNombre.Text = ValidationHelper.AplicarTitleCase(txtNombre.Text);
+            };
+
+            txtDescripcion.LostFocus += (s, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(txtDescripcion.Text))
+                    txtDescripcion.Text = ValidationHelper.AplicarPrimeraLetraMayuscula(txtDescripcion.Text);
+            };
         }
 
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
@@ -52,8 +70,14 @@ namespace Proyecto_taller.Views
                 DragMove();
         }
 
+        // ── Guardar ───────────────────────────────────────────────────────────
+
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
+            txtNombre.Text = ValidationHelper.AplicarTitleCase(txtNombre.Text);
+            if (!string.IsNullOrWhiteSpace(txtDescripcion.Text))
+                txtDescripcion.Text = ValidationHelper.AplicarPrimeraLetraMayuscula(txtDescripcion.Text);
+
             if (string.IsNullOrWhiteSpace(txtNombre.Text))
             {
                 Msg("El nombre del repuesto es obligatorio.");
@@ -61,13 +85,18 @@ namespace Proyecto_taller.Views
                 return;
             }
 
-            if (!decimal.TryParse(
-                    txtPrecio.Text.Trim().Replace(",", "."),
+            string precioStr = txtPrecio.Text.Trim().Replace(",", ".");
+
+            // FIX: antes se aceptaba precio = 0, lo cual no tiene sentido para
+            // un repuesto real en inventario (genera un "valor total" de 0 en
+            // los reportes y distorsiona el cálculo de inventario). Ahora > 0.
+            if (!decimal.TryParse(precioStr,
                     System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture,
-                    out decimal precio) || precio < 0)
+                    out decimal precio) || precio <= 0)
             {
-                Msg("El precio unitario debe ser un número válido mayor o igual a 0.");
+                Msg("El precio unitario debe ser un número válido mayor a 0.\n\n" +
+                    "Un repuesto no puede registrarse sin un precio asociado.");
                 txtPrecio.Focus();
                 return;
             }

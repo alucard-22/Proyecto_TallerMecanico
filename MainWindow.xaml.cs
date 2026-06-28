@@ -13,49 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-//namespace Proyecto_taller
-//{
-//    /// <summary>
-//    /// Interaction logic for MainWindow.xaml
-//    /// </summary>
-//    public partial class MainWindow : Window
-//    {
-//        public MainWindow()
-//        {
-//            InitializeComponent();
-//            MainFrame.Navigate(new Inicio());
-//        }
-//        private void Inicio_Click(object sender, RoutedEventArgs e)
-//        {
-//            MainFrame.Navigate(new Inicio());
-//        }
-
-//        private void Clientes_Click(object sender, RoutedEventArgs e)
-//        {
-//            MainFrame.Navigate(new Clientes());
-//        }
-
-//        private void Servicios_Click(object sender, RoutedEventArgs e)
-//        {
-//            MainFrame.Navigate(new Servicios());
-//        }
-
-//        private void Reservas_Click(object sender, RoutedEventArgs e)
-//        {
-//            MainFrame.Navigate(new Reservas());
-//        }
-
-//        private void Facturacion_Click(object sender, RoutedEventArgs e)
-//        {
-//            MainFrame.Navigate(new Facturacion());
-//        }
-
-//        private void Configuracion_Click(object sender, RoutedEventArgs e)
-//        {
-//            MainFrame.Navigate(new Configuracion());
-//        }
-//    }
-//}
 namespace Proyecto_taller
 {
     public partial class MainWindow : Window
@@ -66,32 +23,82 @@ namespace Proyecto_taller
         {
             InitializeComponent();
 
-            // Mostrar información del usuario
             ActualizarInfoUsuario();
 
             SetActiveButton(BtnInicio);
             NavigateToPage("Inicio");
+
+            ActualizarIconoMaximizar();
+            StateChanged += (s, e) => ActualizarIconoMaximizar();
         }
+
+        // ── Barra de título personalizada ───────────────────────────────────
+
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton != MouseButtonState.Pressed) return;
+
+            if (e.ClickCount == 2)
+            {
+                MaximizarRestaurar_Click(sender, e);
+                return;
+            }
+
+            DragMove();
+        }
+
+        private void Minimizar_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void MaximizarRestaurar_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized
+                ? WindowState.Normal
+                : WindowState.Maximized;
+        }
+
+        private void Cerrar_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void ActualizarIconoMaximizar()
+        {
+            if (btnMaximizar == null) return;
+            btnMaximizar.Content = WindowState == WindowState.Maximized ? "❐" : "☐";
+        }
+
+        // ── Visibilidad de módulos según rol y permisos ──────────────────────
 
         private void ActualizarInfoUsuario()
         {
-            if (SessionManager.EstaAutenticado)
-            {
-                if (SessionManager.EsAdministrador)
-                {
-                    BtnUsuarios.Visibility = Visibility.Visible;
-                }
-            }
+            if (!SessionManager.EstaAutenticado) return;
+
+            bool esAdmin = SessionManager.EsAdministrador;
+
+            BtnClientes.Visibility = SessionManager.TienePermiso("Clientes") ? Visibility.Visible : Visibility.Collapsed;
+            BtnVehiculos.Visibility = SessionManager.TienePermiso("Vehiculos") ? Visibility.Visible : Visibility.Collapsed;
+            BtnServicios.Visibility = SessionManager.TienePermiso("Trabajos") ? Visibility.Visible : Visibility.Collapsed;
+            BtnReservas.Visibility = SessionManager.TienePermiso("Reservas") ? Visibility.Visible : Visibility.Collapsed;
+            BtnInventario.Visibility = SessionManager.TienePermiso("Inventario") ? Visibility.Visible : Visibility.Collapsed;
+            BtnFacturacion.Visibility = SessionManager.TienePermiso("Recibos") ? Visibility.Visible : Visibility.Collapsed;
+            BtnReportes.Visibility = SessionManager.TienePermiso("Reportes") ? Visibility.Visible : Visibility.Collapsed;
+
+            // Usuarios, Configuración y Auditoría: exclusivos de Administrador.
+            BtnUsuarios.Visibility = esAdmin ? Visibility.Visible : Visibility.Collapsed;
+            BtnConfiguracion.Visibility = esAdmin ? Visibility.Visible : Visibility.Collapsed;
+            BtnAuditoria.Visibility = esAdmin ? Visibility.Visible : Visibility.Collapsed;
         }
+
         private void SetActiveButton(Button button)
         {
-            // Resetear el estilo del botón activo anterior
             if (_activeButton != null)
             {
                 _activeButton.Style = (Style)FindResource("MenuButton");
             }
 
-            // Establecer el nuevo botón activo
             _activeButton = button;
             _activeButton.Style = (Style)FindResource("ActiveMenuButton");
         }
@@ -132,13 +139,15 @@ namespace Proyecto_taller
                 case "usuarios":
                     MainFrame.Navigate(new Usuarios());
                     break;
+                case "auditoría":
+                    MainFrame.Navigate(new Auditoria());
+                    break;
                 default:
                     MainFrame.Navigate(new Inicio());
                     break;
             }
         }
 
-        // Método helper para verificar permiso antes de navegar
         private bool VerificarYNavegar(string modulo, Button boton, string pageName)
         {
             if (!SessionManager.TienePermiso(modulo))
@@ -156,7 +165,6 @@ namespace Proyecto_taller
             return true;
         }
 
-        // Actualizar los event handlers:
         private void Clientes_Click(object sender, RoutedEventArgs e)
             => VerificarYNavegar("Clientes", BtnClientes, "Clientes");
 
@@ -178,7 +186,6 @@ namespace Proyecto_taller
         private void Reportes_Click(object sender, RoutedEventArgs e)
             => VerificarYNavegar("Reportes", BtnReportes, "Reportes");
 
-        // Inicio y Configuración siempre accesibles:
         private void Inicio_Click(object sender, RoutedEventArgs e)
         {
             SetActiveButton(BtnInicio);
@@ -187,9 +194,21 @@ namespace Proyecto_taller
 
         private void Configuracion_Click(object sender, RoutedEventArgs e)
         {
+            if (!SessionManager.EsAdministrador)
+            {
+                MessageBox.Show(
+                    "Solo los administradores pueden acceder a la configuración del sistema.\n\n" +
+                    "Contacta al administrador si necesitas realizar algún cambio aquí.",
+                    "Acceso Denegado",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
             SetActiveButton(BtnConfiguracion);
             NavigateToPage("Configuración");
         }
+
         private void Usuarios_Click(object sender, RoutedEventArgs e)
         {
             if (!SessionManager.EsAdministrador)
@@ -204,6 +223,23 @@ namespace Proyecto_taller
 
             SetActiveButton(BtnUsuarios);
             NavigateToPage("Usuarios");
+        }
+
+        // ── NUEVO: navegación a Auditoría, exclusiva de Administrador ────────
+        private void Auditoria_Click(object sender, RoutedEventArgs e)
+        {
+            if (!SessionManager.EsAdministrador)
+            {
+                MessageBox.Show(
+                    "Solo los administradores pueden ver el registro de auditoría.",
+                    "Acceso Denegado",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            SetActiveButton(BtnAuditoria);
+            NavigateToPage("Auditoría");
         }
 
         private void CerrarSesion_Click(object sender, RoutedEventArgs e)
@@ -224,66 +260,5 @@ namespace Proyecto_taller
                 this.Close();
             }
         }
-
-        //#region Event Handlers
-        //private void Inicio_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SetActiveButton(BtnInicio);
-        //    NavigateToPage("Inicio");
-        //}
-
-        //private void Clientes_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SetActiveButton(BtnClientes);
-        //    NavigateToPage("Clientes");
-        //}
-
-        //private void Vehiculos_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SetActiveButton(BtnVehiculos);
-        //    NavigateToPage("Vehículos");
-        //}
-
-        //private void Servicios_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SetActiveButton(BtnServicios);
-        //    NavigateToPage("Trabajos");
-        //}
-
-        //private void Reservas_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SetActiveButton(BtnReservas);
-        //    NavigateToPage("Reservas");
-        //}
-
-        //private void Inventario_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SetActiveButton(BtnInventario);
-        //    NavigateToPage("Inventario");
-        //}
-
-        //private void Facturacion_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SetActiveButton(BtnFacturacion);
-        //    NavigateToPage("Recibos");
-        //}
-
-        //private void Reportes_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SetActiveButton(BtnReportes);
-        //    NavigateToPage("Reportes");
-        //}
-
-        //private void Configuracion_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SetActiveButton(BtnConfiguracion);
-        //    NavigateToPage("Configuración");
-        //}
-        ////private void Configuracion_Click(object sender, RoutedEventArgs e)
-        ////{
-        ////    SetActiveButton(BtnUsuarios);
-        ////    NavigateToPage("Usuarios");
-        ////}
-        //#endregion
     }
 }

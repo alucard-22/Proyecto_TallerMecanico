@@ -30,6 +30,16 @@ namespace Proyecto_taller.Views
                 }
             };
 
+            // Placa → formatear con guion correcto al perder el foco
+            txtPlaca.LostFocus += (s, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(txtPlaca.Text) &&
+                    ValidationHelper.EsPlacaValida(txtPlaca.Text))
+                {
+                    txtPlaca.Text = ValidationHelper.FormatearPlaca(txtPlaca.Text);
+                }
+            };
+
             // Marca y Modelo → Title Case al perder foco
             txtMarca.LostFocus += (s, e) => AplicarTitleCase(txtMarca);
             txtModelo.LostFocus += (s, e) => AplicarTitleCase(txtModelo);
@@ -57,11 +67,15 @@ namespace Proyecto_taller.Views
             if (string.IsNullOrWhiteSpace(txtPlaca.Text))
             { Msg("La placa es obligatoria."); return; }
 
+            // ── NUEVO: validar formato de placa boliviana ──────────────────
+            if (!ValidationHelper.EsPlacaValida(txtPlaca.Text))
+            { Msg(ValidationHelper.MsgPlacaInvalida); txtPlaca.Focus(); return; }
+
             try
             {
                 using var db = new TallerDbContext();
 
-                var placaNorm = txtPlaca.Text.Trim().ToUpper();
+                var placaNorm = ValidationHelper.FormatearPlaca(txtPlaca.Text);
                 if (db.Vehiculos.Any(v => v.Placa.ToUpper() == placaNorm))
                 {
                     Msg($"La placa '{placaNorm}' ya está registrada en el sistema.");

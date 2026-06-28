@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Proyecto_taller.Data;
+using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using Proyecto_taller.Views;
 using System;
@@ -193,6 +194,11 @@ namespace Proyecto_taller.ViewModels
                 }
 
                 CargarVehiculos();
+                AuditoriaHelper.Registrar(
+                   "Eliminar", "Vehiculo", VehiculoSeleccionado.VehiculoID,
+                   $"Vehículo '{VehiculoSeleccionado.Marca} {VehiculoSeleccionado.Modelo}' " +
+                   $"(Placa: {VehiculoSeleccionado.Placa}) eliminado");
+
             }
             catch (Exception ex)
             {

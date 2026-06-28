@@ -1,4 +1,5 @@
 ﻿using Proyecto_taller.Data;
+using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using Proyecto_taller.Views;
 using System.Collections.ObjectModel;
@@ -181,6 +182,11 @@ namespace Proyecto_taller.ViewModels
                         db.SaveChanges();
                         Clientes.Remove(ClienteSeleccionado);
                     }
+                    AuditoriaHelper.Registrar(
+                            "Eliminar", "Cliente", cliente.ClienteID,
+                            $"Cliente '{cliente.Nombre} {cliente.Apellido}' eliminado");
+
+
                 }
                 catch (Exception ex)
                 {

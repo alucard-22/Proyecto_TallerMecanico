@@ -12,6 +12,9 @@ namespace Proyecto_taller.Views
 {
     public partial class LoginWindow : Window
     {
+        // Indica si actualmente se está mostrando la contraseña en texto plano
+        private bool _passwordVisible = false;
+
         public LoginWindow()
         {
             InitializeComponent();
@@ -25,6 +28,38 @@ namespace Proyecto_taller.Views
                 DragMove();
         }
 
+        // ── NUEVO: mostrar/ocultar contraseña ─────────────────────────────────
+        // Alterna entre el PasswordBox (oculto, seguro) y un TextBox visible
+        // sincronizado con el mismo contenido. Solo uno de los dos está visible
+        // a la vez; el otro queda Collapsed para no interferir con el foco.
+        private void ToggleMostrarPassword_Click(object sender, RoutedEventArgs e)
+        {
+            _passwordVisible = !_passwordVisible;
+
+            if (_passwordVisible)
+            {
+                txtPasswordVisible.Text = txtPassword.Password;
+                txtPassword.Visibility = Visibility.Collapsed;
+                txtPasswordVisible.Visibility = Visibility.Visible;
+                txtPasswordVisible.Focus();
+                txtPasswordVisible.CaretIndex = txtPasswordVisible.Text.Length;
+                btnTogglePassword.Content = "🙈";
+            }
+            else
+            {
+                txtPassword.Password = txtPasswordVisible.Text;
+                txtPasswordVisible.Visibility = Visibility.Collapsed;
+                txtPassword.Visibility = Visibility.Visible;
+                txtPassword.Focus();
+                btnTogglePassword.Content = "👁️";
+            }
+        }
+
+        // Devuelve el valor de la contraseña sin importar cuál de los dos
+        // controles está visible en este momento.
+        private string ObtenerPasswordActual()
+            => _passwordVisible ? txtPasswordVisible.Text : txtPassword.Password;
+
         private void InicializarUsuariosPorDefecto()
         {
             try
@@ -33,7 +68,6 @@ namespace Proyecto_taller.Views
 
                 if (db.Usuarios.Any())
                 {
-                    // Migrar usuarios existentes sin permisos asignados
                     var sinPermisos = db.Usuarios
                         .Where(u => u.PermisosJson == null || u.PermisosJson == "")
                         .ToList();
@@ -56,7 +90,6 @@ namespace Proyecto_taller.Views
                     return;
                 }
 
-                // Primera ejecución: crear usuarios por defecto
                 db.Usuarios.AddRange(
                     new Usuario
                     {
@@ -120,10 +153,11 @@ namespace Proyecto_taller.Views
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(txtPassword.Password))
+            string password = ObtenerPasswordActual();
+
+            if (string.IsNullOrWhiteSpace(password))
             {
                 MostrarError("El campo de contraseña está vacío.");
-                txtPassword.Focus();
                 return;
             }
 
@@ -152,12 +186,13 @@ namespace Proyecto_taller.Views
                     return;
                 }
 
-                if (!PasswordHelper.VerifyPassword(txtPassword.Password, usuario.PasswordHash))
+                if (!PasswordHelper.VerifyPassword(password, usuario.PasswordHash))
                 {
                     MostrarError(
                         "Contraseña incorrecta.\n\n" +
                         "Verifica que no tengas BLOQ MAYÚS activado.");
                     txtPassword.Clear();
+                    txtPasswordVisible.Clear();
                     txtPassword.Focus();
                     return;
                 }
@@ -168,13 +203,10 @@ namespace Proyecto_taller.Views
 
                 SessionManager.IniciarSesion(usuario);
 
-                MessageBox.Show(
-                    $"✅  Bienvenido, {usuario.NombreCompleto}\n\n" +
-                    $"Rol: {usuario.Rol}\n" +
-                    $"Fecha: {DateTime.Now:dd/MM/yyyy HH:mm}",
-                    "Inicio de Sesión",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                // ── NUEVO: registrar el login en auditoría ──────────────────────
+                AuditoriaHelper.Registrar(
+                    "Login", "Usuario", usuario.UsuarioID,
+                    $"Inicio de sesión: {usuario.NombreUsuario} ({usuario.Rol})");
 
                 new MainWindow().Show();
                 Close();

@@ -12,6 +12,10 @@ namespace Proyecto_taller.Views
 {
     public partial class AgregarUsuarioWindow : Window
     {
+        // Indican si cada campo de contraseña se está mostrando en texto plano
+        private bool _passwordVisible = false;
+        private bool _confirmarPasswordVisible = false;
+
         public AgregarUsuarioWindow()
         {
             InitializeComponent();
@@ -36,6 +40,62 @@ namespace Proyecto_taller.Views
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
+
+        // ── NUEVO: mostrar/ocultar contraseña ─────────────────────────────────
+
+        private void ToggleMostrarPassword_Click(object sender, RoutedEventArgs e)
+        {
+            _passwordVisible = !_passwordVisible;
+
+            if (_passwordVisible)
+            {
+                txtPasswordVisible.Text = txtPassword.Password;
+                txtPassword.Visibility = Visibility.Collapsed;
+                txtPasswordVisible.Visibility = Visibility.Visible;
+                txtPasswordVisible.Focus();
+                txtPasswordVisible.CaretIndex = txtPasswordVisible.Text.Length;
+                btnTogglePassword.Content = "🙈";
+            }
+            else
+            {
+                txtPassword.Password = txtPasswordVisible.Text;
+                txtPasswordVisible.Visibility = Visibility.Collapsed;
+                txtPassword.Visibility = Visibility.Visible;
+                txtPassword.Focus();
+                btnTogglePassword.Content = "👁️";
+            }
+        }
+
+        private void ToggleMostrarConfirmarPassword_Click(object sender, RoutedEventArgs e)
+        {
+            _confirmarPasswordVisible = !_confirmarPasswordVisible;
+
+            if (_confirmarPasswordVisible)
+            {
+                txtConfirmarPasswordVisible.Text = txtConfirmarPassword.Password;
+                txtConfirmarPassword.Visibility = Visibility.Collapsed;
+                txtConfirmarPasswordVisible.Visibility = Visibility.Visible;
+                txtConfirmarPasswordVisible.Focus();
+                txtConfirmarPasswordVisible.CaretIndex = txtConfirmarPasswordVisible.Text.Length;
+                btnToggleConfirmarPassword.Content = "🙈";
+            }
+            else
+            {
+                txtConfirmarPassword.Password = txtConfirmarPasswordVisible.Text;
+                txtConfirmarPasswordVisible.Visibility = Visibility.Collapsed;
+                txtConfirmarPassword.Visibility = Visibility.Visible;
+                txtConfirmarPassword.Focus();
+                btnToggleConfirmarPassword.Content = "👁️";
+            }
+        }
+
+        private string ObtenerPassword()
+            => _passwordVisible ? txtPasswordVisible.Text : txtPassword.Password;
+
+        private string ObtenerConfirmarPassword()
+            => _confirmarPasswordVisible ? txtConfirmarPasswordVisible.Text : txtConfirmarPassword.Password;
+
+        // ── Permisos ──────────────────────────────────────────────────────────
 
         private void SeleccionarTodos_Click(object sender, RoutedEventArgs e)
         {
@@ -74,8 +134,13 @@ namespace Proyecto_taller.Views
             return permisos;
         }
 
+        // ── Guardar ───────────────────────────────────────────────────────────
+
         private void GuardarButton_Click(object sender, RoutedEventArgs e)
         {
+            string password = ObtenerPassword();
+            string confirmarPassword = ObtenerConfirmarPassword();
+
             // Validaciones
             if (string.IsNullOrWhiteSpace(txtNombreUsuario.Text))
             {
@@ -91,25 +156,22 @@ namespace Proyecto_taller.Views
                 txtNombreCompleto.Focus();
                 return;
             }
-            if (string.IsNullOrWhiteSpace(txtPassword.Password))
+            if (string.IsNullOrWhiteSpace(password))
             {
                 MessageBox.Show("La contraseña es obligatoria.", "Validación",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
-                txtPassword.Focus();
                 return;
             }
-            if (txtPassword.Password.Length < 6)
+            if (password.Length < 6)
             {
                 MessageBox.Show("La contraseña debe tener al menos 6 caracteres.", "Validación",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
-                txtPassword.Focus();
                 return;
             }
-            if (txtPassword.Password != txtConfirmarPassword.Password)
+            if (password != confirmarPassword)
             {
                 MessageBox.Show("Las contraseñas no coinciden.", "Validación",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
-                txtConfirmarPassword.Focus();
                 return;
             }
 
@@ -150,7 +212,7 @@ namespace Proyecto_taller.Views
                 {
                     NombreUsuario = txtNombreUsuario.Text.Trim(),
                     NombreCompleto = txtNombreCompleto.Text.Trim(),
-                    PasswordHash = PasswordHelper.HashPassword(txtPassword.Password),
+                    PasswordHash = PasswordHelper.HashPassword(password),
                     Rol = rol,
                     Activo = chkActivo.IsChecked == true,
                     FechaCreacion = DateTime.Now

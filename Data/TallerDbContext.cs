@@ -31,6 +31,10 @@ namespace Proyecto_taller.Data
         public DbSet<Factura> Facturas { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
 
+        // NUEVO: tabla de auditoría — registra qué usuario hizo qué acción
+        // crítica y cuándo (ver Helpers/AuditoriaHelper.cs y Models/RegistroAuditoria.cs)
+        public DbSet<RegistroAuditoria> RegistrosAuditoria { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -72,6 +76,23 @@ namespace Proyecto_taller.Data
                 .HasForeignKey(t => t.VehiculoID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // NUEVO: Trabajo → Usuario asignado (empleado responsable)
+            // SetNull: si se elimina el usuario, el trabajo no se borra,
+            // solo queda sin empleado asignado. Coherente con la FK del
+            // script de migración SQL (FK_Trabajos_UsuarioAsignado).
+            modelBuilder.Entity<Trabajo>()
+                .HasOne(t => t.UsuarioAsignado)
+                .WithMany()
+                .HasForeignKey(t => t.UsuarioAsignadoID)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // NUEVO: precisión decimal del anticipo, igual criterio que los
+            // demás campos monetarios del sistema.
+            modelBuilder.Entity<Trabajo>()
+                .Property(t => t.Anticipo)
+                .HasColumnType("decimal(10,2)")
+                .HasDefaultValue(0m);
+
             // Reserva → Vehiculo
             // FIX: anteriormente había dos bloques contradictorios (Cascade + SetNull).
             // Se deja solo Cascade: si se elimina un vehículo, sus reservas se eliminan también.
@@ -87,6 +108,16 @@ namespace Proyecto_taller.Data
                 .WithMany()
                 .HasForeignKey(f => f.TrabajoID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // NUEVO: RegistroAuditoria → Usuario
+            // SetNull: si se elimina el usuario, el registro de auditoría se
+            // conserva (con NombreUsuario como respaldo de texto), solo se
+            // pierde el enlace directo a la cuenta.
+            modelBuilder.Entity<RegistroAuditoria>()
+                .HasOne(a => a.Usuario)
+                .WithMany()
+                .HasForeignKey(a => a.UsuarioID)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // ── Precisión de decimales ────────────────────────────────────────
             modelBuilder.Entity<Servicio>()

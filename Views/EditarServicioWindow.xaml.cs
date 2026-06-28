@@ -1,18 +1,9 @@
 ﻿using Proyecto_taller.Data;
+using Proyecto_taller.Helpers;
 using Proyecto_taller.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Proyecto_taller.Views
 {
@@ -33,12 +24,13 @@ namespace Proyecto_taller.Views
             txtDescripcion.Text = servicio.Descripcion ?? "";
             txtCosto.Text = servicio.CostoBase.ToString("N2");
 
-            // Seleccionar categoría
             foreach (ComboBoxItem item in cmbCategoria.Items)
                 if (item.Content?.ToString() == servicio.Categoria)
                 { cmbCategoria.SelectedItem = item; break; }
 
             if (cmbCategoria.SelectedIndex < 0) cmbCategoria.SelectedIndex = 0;
+
+            SuscribirEventosValidacion();
             txtNombre.Focus();
         }
 
@@ -51,21 +43,59 @@ namespace Proyecto_taller.Views
 
             txtTitulo.Text = "➕  Nuevo Servicio";
             cmbCategoria.SelectedIndex = 0;
-            txtCosto.Text = "0.00";
+            txtCosto.Text = "";
+
+            SuscribirEventosValidacion();
             txtNombre.Focus();
         }
 
+        private void SuscribirEventosValidacion()
+        {
+            txtNombre.LostFocus += (s, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(txtNombre.Text))
+                    txtNombre.Text = ValidationHelper.AplicarTitleCase(txtNombre.Text);
+            };
+
+            txtDescripcion.LostFocus += (s, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(txtDescripcion.Text))
+                    txtDescripcion.Text = ValidationHelper.AplicarPrimeraLetraMayuscula(txtDescripcion.Text);
+            };
+        }
+
+        // ── Guardar ───────────────────────────────────────────────────────────
+
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtNombre.Text))
-            { Msg("El nombre es obligatorio."); return; }
+            txtNombre.Text = ValidationHelper.AplicarTitleCase(txtNombre.Text);
+            if (!string.IsNullOrWhiteSpace(txtDescripcion.Text))
+                txtDescripcion.Text = ValidationHelper.AplicarPrimeraLetraMayuscula(txtDescripcion.Text);
 
-            if (!decimal.TryParse(txtCosto.Text.Trim(), out decimal costo) || costo < 0)
-            { Msg("El costo base debe ser un número válido mayor o igual a 0."); return; }
+            if (string.IsNullOrWhiteSpace(txtNombre.Text))
+            { Msg("El nombre es obligatorio."); txtNombre.Focus(); return; }
+
+            string costoStr = txtCosto.Text.Trim().Replace(",", ".");
+
+            // FIX: antes se aceptaba costo = 0, lo cual crea un servicio
+            // "gratis" sin sentido en el catálogo (un servicio siempre tiene
+            // un costo base, aunque sea mínimo). Ahora se exige > 0.
+            if (!decimal.TryParse(costoStr,
+                    System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out decimal costo) || costo <= 0)
+            {
+                Msg("El costo base debe ser un número válido mayor a 0.\n\n" +
+                    "Un servicio no puede registrarse sin un costo asociado.");
+                txtCosto.Focus();
+                return;
+            }
 
             try
             {
                 using var db = new TallerDbContext();
+
+                string categoria = (cmbCategoria.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Otro";
 
                 if (_esNuevo)
                 {
@@ -73,7 +103,7 @@ namespace Proyecto_taller.Views
                     {
                         Nombre = txtNombre.Text.Trim(),
                         Descripcion = txtDescripcion.Text.Trim(),
-                        Categoria = (cmbCategoria.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Otro",
+                        Categoria = categoria,
                         CostoBase = costo
                     };
                     db.Servicios.Add(nuevo);
@@ -85,7 +115,7 @@ namespace Proyecto_taller.Views
 
                     svc.Nombre = txtNombre.Text.Trim();
                     svc.Descripcion = txtDescripcion.Text.Trim();
-                    svc.Categoria = (cmbCategoria.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Otro";
+                    svc.Categoria = categoria;
                     svc.CostoBase = costo;
                 }
 

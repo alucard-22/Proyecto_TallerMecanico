@@ -49,6 +49,63 @@ namespace Proyecto_taller.Helpers
             return soloDigitos.Length >= 6;
         }
 
+        // ── Placa vehicular (Bolivia) ────────────────────────────────────────
+
+        /// <summary>
+        /// Valida que la placa tenga un formato compatible con los esquemas
+        /// usados en Bolivia:
+        ///   - Formato clásico:  1234-ABC  (4 dígitos + 3 letras)
+        ///   - Formato nuevo:    ABC-1234  (3 letras + 4 dígitos)
+        ///   - Motos/variantes:  123-ABC   (3 dígitos + 3 letras)
+        /// El guion es opcional y se aceptan espacios, que se eliminan antes
+        /// de comparar. La comparación es insensible a mayúsculas/minúsculas.
+        /// </summary>
+        public static bool EsPlacaValida(string placa)
+        {
+            if (string.IsNullOrWhiteSpace(placa)) return false;
+
+            // Normalizar: quitar espacios y guiones para validar solo el patrón de caracteres
+            var limpia = placa.Trim().ToUpper().Replace("-", "").Replace(" ", "");
+
+            // 3 o 4 dígitos seguidos de 3 letras  (1234ABC / 123ABC)
+            var formatoClasico = new Regex(@"^\d{3,4}[A-Z]{3}$");
+
+            // 3 letras seguidas de 4 dígitos (ABC1234)
+            var formatoNuevo = new Regex(@"^[A-Z]{3}\d{4}$");
+
+            return formatoClasico.IsMatch(limpia) || formatoNuevo.IsMatch(limpia);
+        }
+
+        /// <summary>
+        /// Da formato visual estándar a la placa: MAYÚSCULAS y con guion
+        /// separando el bloque numérico del bloque alfabético.
+        /// Ej: "1234abc" → "1234-ABC", "abc1234" → "ABC-1234"
+        /// </summary>
+        public static string FormatearPlaca(string placa)
+        {
+            if (string.IsNullOrWhiteSpace(placa)) return string.Empty;
+
+            var limpia = placa.Trim().ToUpper().Replace("-", "").Replace(" ", "");
+
+            var matchClasico = Regex.Match(limpia, @"^(\d{3,4})([A-Z]{3})$");
+            if (matchClasico.Success)
+                return $"{matchClasico.Groups[1].Value}-{matchClasico.Groups[2].Value}";
+
+            var matchNuevo = Regex.Match(limpia, @"^([A-Z]{3})(\d{4})$");
+            if (matchNuevo.Success)
+                return $"{matchNuevo.Groups[1].Value}-{matchNuevo.Groups[2].Value}";
+
+            // Si no coincide con ningún formato conocido, devolver tal cual en mayúsculas
+            return limpia;
+        }
+
+        public const string MsgPlacaInvalida =
+            "La placa ingresada no tiene un formato válido.\n\n" +
+            "Formatos aceptados:\n" +
+            "  • 1234-ABC  (formato clásico)\n" +
+            "  • ABC-1234  (formato nuevo)\n" +
+            "  • 123-ABC   (motocicletas)";
+
         // ── Capitalización de texto ───────────────────────────────────────────
 
         /// <summary>
