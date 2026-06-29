@@ -1,39 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Proyecto_taller.ViewModels;
+using System.Windows.Controls;
+using System.Windows.Input;
 
-namespace Proyecto_taller.Models
+namespace Proyecto_taller.Views
 {
-    public class Trabajo
+    public partial class Trabajos : Page
     {
-        public int TrabajoID { get; set; }
-        public int VehiculoID { get; set; }
-        public DateTime FechaIngreso { get; set; } = DateTime.Now;
-        public DateTime? FechaEntrega { get; set; }
-        public string? Descripcion { get; set; }
-        public string Estado { get; set; } = "Pendiente";
-        public string TipoTrabajo { get; set; } = "Mecánica";
-        public decimal? PrecioEstimado { get; set; }
-        public decimal? PrecioFinal { get; set; }
+        public Trabajos()
+        {
+            InitializeComponent();
+            DataContext = new TrabajosViewModel();
+        }
 
-        // ── NUEVO: anticipo / adelanto que el cliente deja al ingresar el
-        // vehículo. Se descuenta automáticamente del total a cobrar cuando
-        // el trabajo se finaliza, para no cobrarle dos veces al cliente.
-        public decimal Anticipo { get; set; } = 0;
-
-        // ── NUEVO: empleado (Usuario) asignado para realizar este trabajo.
-        // Permite saber quién es responsable de cada orden y filtrar el
-        // listado de trabajos por empleado, tanto para control operativo
-        // como para que un administrador pueda revisar la carga de trabajo
-        // de cada persona.
-        public int? UsuarioAsignadoID { get; set; }
-
-        public Vehiculo? Vehiculo { get; set; }
-        public Usuario? UsuarioAsignado { get; set; }
-        public ICollection<Trabajos_Servicios>? Servicios { get; set; }
-        public ICollection<Trabajos_Repuestos>? Repuestos { get; set; }
-        public ICollection<Pago>? Pagos { get; set; }
+        // Doble clic en una fila → abrir detalles del trabajo seleccionado
+        // (misma acción que el botón "Ver Detalles").
+        private void dgTrabajos_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (DataContext is TrabajosViewModel vm && vm.TrabajoSeleccionado != null)
+            {
+                var win = new DetallesTrabajoWindow(vm.TrabajoSeleccionado.TrabajoID);
+                win.ShowDialog();
+                vm.CargarTrabajos();
+            }
+        }
     }
 }
