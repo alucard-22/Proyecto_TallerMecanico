@@ -78,6 +78,11 @@ namespace Proyecto_taller
 
             bool esAdmin = SessionManager.EsAdministrador;
 
+            // Mostrar nombre y rol del usuario logueado debajo del icono de perfil
+            UsuarioActualTextBlock.Text = SessionManager.ObtenerNombreUsuario();
+            UsuarioActualTextBlock.ToolTip =
+                $"{SessionManager.ObtenerNombreUsuario()} ({SessionManager.ObtenerRol()})";
+
             BtnClientes.Visibility = SessionManager.TienePermiso("Clientes") ? Visibility.Visible : Visibility.Collapsed;
             BtnVehiculos.Visibility = SessionManager.TienePermiso("Vehiculos") ? Visibility.Visible : Visibility.Collapsed;
             BtnServicios.Visibility = SessionManager.TienePermiso("Trabajos") ? Visibility.Visible : Visibility.Collapsed;

@@ -362,10 +362,19 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Content="👤"
-                                        Style="{StaticResource TopBarButton}"
-                                        Margin="4,0"
-                                        ToolTip="Perfil de Usuario"/>
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="4,0">
+                                    <Button Content="👤"
+                                            Style="{StaticResource TopBarButton}"
+                                            ToolTip="Perfil de Usuario"/>
+                                    <TextBlock x:Name="UsuarioActualTextBlock"
+                                               Text="Invitado"
+                                               Foreground="{StaticResource TextSecondary}"
+                                               FontSize="10" FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,3,0,0"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxWidth="110"/>
+                                </StackPanel>
                             </StackPanel>
                         </Grid>
                     </Border>
